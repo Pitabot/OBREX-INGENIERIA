@@ -41,6 +41,96 @@
     }
     .screen.active { display: flex; }
 
+    /* ── INTRO ── */
+    #screen-intro {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--navy);
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    #screen-intro::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, #14264a 0%, var(--navy) 70%);
+      opacity: 0;
+      animation: introBgFade 1.6s ease forwards;
+    }
+
+    @keyframes introBgFade {
+      to { opacity: 1; }
+    }
+
+    .intro-mark {
+      width: 120px;
+      height: 120px;
+      position: relative;
+      margin-bottom: 22px;
+      z-index: 1;
+      opacity: 0;
+      transform: scale(0.5) rotate(-25deg);
+      animation: introMarkIn 0.9s cubic-bezier(.2,.9,.25,1.1) forwards 0.25s;
+    }
+
+    .intro-mark img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 0 24px rgba(200,168,75,0.35));
+    }
+
+    @keyframes introMarkIn {
+      to { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+
+    .intro-flash {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--gold2);
+      transform: translate(-50%, -50%) scale(0);
+      animation: introFlash 0.7s ease forwards 1s;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    @keyframes introFlash {
+      0%   { transform: translate(-50%, -50%) scale(0); opacity: 0.9; }
+      60%  { transform: translate(-50%, -50%) scale(14); opacity: 0.25; }
+      100% { transform: translate(-50%, -50%) scale(20); opacity: 0; }
+    }
+
+    .intro-wordmark {
+      width: 220px;
+      max-width: 70vw;
+      z-index: 1;
+      opacity: 0;
+      transform: translateY(14px);
+      animation: introFadeUp 0.8s ease forwards 1.05s;
+    }
+
+    @keyframes introFadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .intro-skip {
+      position: absolute;
+      bottom: 36px;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: #3a4e6e;
+      text-transform: uppercase;
+      opacity: 0;
+      animation: introFadeUp 0.8s ease forwards 2.1s;
+      z-index: 1;
+    }
+
     /* ── LOGIN ── */
     #screen-login {
       flex-direction: column;
@@ -60,40 +150,10 @@
       margin-bottom: 44px;
     }
 
-    .logo-ring {
-      width: 88px;
-      height: 88px;
-      border-radius: 50%;
-      border: 2.5px solid var(--gold);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 18px;
-      box-shadow: 0 0 28px rgba(200,168,75,0.18);
-    }
-
-    .logo-letter {
-      font-size: 42px;
-      font-weight: 700;
-      color: var(--gold);
-      letter-spacing: -1px;
-      line-height: 1;
-    }
-
-    .brand-name {
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: 3px;
-      color: var(--white);
-      text-transform: uppercase;
-    }
-
-    .brand-sub {
-      font-size: 11px;
-      letter-spacing: 2.5px;
-      color: var(--gray);
-      text-transform: uppercase;
-      margin-top: 4px;
+    .brand-logo {
+      width: 230px;
+      max-width: 72vw;
+      filter: drop-shadow(0 0 22px rgba(200,168,75,0.18));
     }
 
     .login-card {
@@ -178,29 +238,16 @@
         var(--navy);
     }
 
-    .welcome-ring {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      border: 2px solid var(--gold);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .welcome-logo {
+      width: 92px;
       margin-bottom: 24px;
-      box-shadow: 0 0 40px rgba(200,168,75,0.22);
+      filter: drop-shadow(0 0 30px rgba(200,168,75,0.3));
       animation: pulse 3s ease-in-out infinite;
     }
 
     @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 40px rgba(200,168,75,0.22); }
-      50%       { box-shadow: 0 0 60px rgba(200,168,75,0.38); }
-    }
-
-    .welcome-letter {
-      font-size: 50px;
-      font-weight: 700;
-      color: var(--gold);
-      line-height: 1;
+      0%, 100% { filter: drop-shadow(0 0 18px rgba(200,168,75,0.22)); }
+      50%       { filter: drop-shadow(0 0 32px rgba(200,168,75,0.4)); }
     }
 
     .welcome-brand {
@@ -272,14 +319,20 @@
 </head>
 <body>
 
+  <!-- INTRO -->
+  <div id="screen-intro" class="screen active" onclick="skipIntro()">
+    <div class="intro-flash"></div>
+    <div class="intro-mark">
+      <img src="./icon-mark.png" alt="OBREX" />
+    </div>
+    <img class="intro-wordmark" src="./logo-wordmark.png" alt="OBREX Ingeniería" />
+    <div class="intro-skip">Toca para continuar</div>
+  </div>
+
   <!-- LOGIN -->
-  <div id="screen-login" class="screen active">
+  <div id="screen-login" class="screen">
     <div class="logo-wrap">
-      <div class="logo-ring">
-        <span class="logo-letter">O</span>
-      </div>
-      <div class="brand-name">OBREX</div>
-      <div class="brand-sub">Ingeniería</div>
+      <img class="brand-logo" src="./logo-wordmark.png" alt="OBREX Ingeniería" />
     </div>
 
     <div class="login-card">
@@ -298,14 +351,13 @@
 
   <!-- BIENVENIDA -->
   <div id="screen-welcome" class="screen">
-    <div class="welcome-ring">
-      <span class="welcome-letter">O</span>
-    </div>
+    <img class="welcome-logo" src="./icon-mark.png" alt="OBREX" />
     <div class="welcome-brand">OBREX Ingeniería</div>
     <div class="welcome-msg">Hola, <strong>Oliver</strong> 👋</div>
     <div class="welcome-caption">Bienvenido al sistema</div>
     <button class="btn-logout" onclick="doLogout()">Cerrar sesión</button>
   </div>
+
 
   <!-- iOS install hint -->
   <div id="ios-hint">
@@ -333,6 +385,15 @@
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       document.getElementById(id).classList.add('active');
     }
+
+    // Pantalla de intro: pasa sola a login después de la animación
+    let introDone = false;
+    function skipIntro() {
+      if (introDone) return;
+      introDone = true;
+      show('screen-login');
+    }
+    setTimeout(skipIntro, 3200);
 
     function doLogin() {
       const u = document.getElementById('inp-user').value.trim();
