@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="OBREX" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <title>OBREX INGENIERIA</title>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:   #0a1628;
+      --navy2:  #0f1f3d;
+      --gold:   #C8A84B;
+      --gold2:  #e8c96a;
+      --white:  #f0f4ff;
+      --gray:   #8896b3;
+      --input-bg: #131f38;
+      --radius: 12px;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--navy);
+      color: var(--white);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── PANTALLAS ── */
+    .screen {
+      display: none;
+      min-height: 100dvh;
+      width: 100%;
+    }
+    .screen.active { display: flex; }
+
+    /* ── LOGIN ── */
+    #screen-login {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 28px;
+      gap: 0;
+      background:
+        radial-gradient(ellipse at 50% 0%, #1a2e55 0%, transparent 60%),
+        var(--navy);
+    }
+
+    .logo-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 44px;
+    }
+
+    .logo-ring {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      border: 2.5px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+      box-shadow: 0 0 28px rgba(200,168,75,0.18);
+    }
+
+    .logo-letter {
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: -1px;
+      line-height: 1;
+    }
+
+    .brand-name {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: var(--white);
+      text-transform: uppercase;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      color: var(--gray);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 360px;
+      background: var(--navy2);
+      border: 1px solid rgba(200,168,75,0.15);
+      border-radius: 18px;
+      padding: 32px 28px 28px;
+    }
+
+    .login-card h2 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--gray);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      color: var(--gray);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .field input {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid rgba(200,168,75,0.2);
+      border-radius: var(--radius);
+      color: var(--white);
+      font-size: 15px;
+      padding: 13px 16px;
+      outline: none;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+    }
+
+    .field input:focus {
+      border-color: var(--gold);
+    }
+
+    .field input::placeholder { color: #3a4e6e; }
+
+    .btn-login {
+      width: 100%;
+      margin-top: 8px;
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      color: var(--navy);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      border: none;
+      border-radius: var(--radius);
+      padding: 15px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-login:active { opacity: 0.85; transform: scale(0.98); }
+
+    /* ── BIENVENIDA ── */
+    #screen-welcome {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 28px;
+      gap: 0;
+      background:
+        radial-gradient(ellipse at 50% 20%, #1a2e55 0%, transparent 65%),
+        var(--navy);
+    }
+
+    .welcome-ring {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 2px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      box-shadow: 0 0 40px rgba(200,168,75,0.22);
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 40px rgba(200,168,75,0.22); }
+      50%       { box-shadow: 0 0 60px rgba(200,168,75,0.38); }
+    }
+
+    .welcome-letter {
+      font-size: 50px;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .welcome-brand {
+      font-size: 13px;
+      letter-spacing: 3px;
+      color: var(--gray);
+      text-transform: uppercase;
+      margin-bottom: 36px;
+    }
+
+    .welcome-msg {
+      font-size: 28px;
+      font-weight: 300;
+      color: var(--white);
+      line-height: 1.3;
+      margin-bottom: 10px;
+    }
+
+    .welcome-msg strong {
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .welcome-caption {
+      font-size: 13px;
+      color: var(--gray);
+      letter-spacing: 0.5px;
+      margin-bottom: 48px;
+    }
+
+    .btn-logout {
+      background: transparent;
+      border: 1px solid rgba(200,168,75,0.35);
+      color: var(--gold);
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 10px 28px;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: background 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-logout:active { background: rgba(200,168,75,0.08); }
+
+    /* ── iOS install banner ── */
+    #ios-hint {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--navy2);
+      border-top: 1px solid rgba(200,168,75,0.2);
+      padding: 14px 20px 28px;
+      font-size: 13px;
+      color: var(--gray);
+      text-align: center;
+      line-height: 1.5;
+      display: none;
+      z-index: 999;
+    }
+    #ios-hint span { color: var(--gold); font-weight: 600; }
+    #ios-hint-close {
+      position: absolute;
+      top: 10px; right: 16px;
+      background: none; border: none;
+      color: var(--gray); font-size: 18px; cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN -->
+  <div id="screen-login" class="screen active">
+    <div class="logo-wrap">
+      <div class="logo-ring">
+        <span class="logo-letter">O</span>
+      </div>
+      <div class="brand-name">OBREX</div>
+      <div class="brand-sub">Ingeniería</div>
+    </div>
+
+    <div class="login-card">
+      <h2>Acceso al sistema</h2>
+      <div class="field">
+        <label>Usuario</label>
+        <input id="inp-user" type="text" placeholder="Ingresa tu usuario" autocomplete="username" />
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input id="inp-pass" type="password" placeholder="••••••••" autocomplete="current-password" />
+      </div>
+      <button class="btn-login" onclick="doLogin()">Ingresar</button>
+    </div>
+  </div>
+
+  <!-- BIENVENIDA -->
+  <div id="screen-welcome" class="screen">
+    <div class="welcome-ring">
+      <span class="welcome-letter">O</span>
+    </div>
+    <div class="welcome-brand">OBREX Ingeniería</div>
+    <div class="welcome-msg">Hola, <strong>Oliver</strong> 👋</div>
+    <div class="welcome-caption">Bienvenido al sistema</div>
+    <button class="btn-logout" onclick="doLogout()">Cerrar sesión</button>
+  </div>
+
+  <!-- iOS install hint -->
+  <div id="ios-hint">
+    <button id="ios-hint-close" onclick="document.getElementById('ios-hint').style.display='none'">✕</button>
+    Para instalar: toca <span>Compartir ↑</span> y luego<br>
+    <span>"Agregar a pantalla de inicio"</span>
+  </div>
+
+  <script>
+    // Registrar Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
+
+    // Mostrar hint en iOS si no está instalada
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isStandalone = window.navigator.standalone === true;
+    if (isIOS && !isStandalone) {
+      setTimeout(() => {
+        document.getElementById('ios-hint').style.display = 'block';
+      }, 2500);
+    }
+
+    function show(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function doLogin() {
+      const u = document.getElementById('inp-user').value.trim();
+      const p = document.getElementById('inp-pass').value.trim();
+      if (!u || !p) {
+        alert('Por favor ingresa usuario y contraseña.');
+        return;
+      }
+      show('screen-welcome');
+    }
+
+    function doLogout() {
+      document.getElementById('inp-user').value = '';
+      document.getElementById('inp-pass').value = '';
+      show('screen-login');
+    }
+
+    // Enter key support
+    document.getElementById('inp-pass').addEventListener('keydown', e => {
+      if (e.key === 'Enter') doLogin();
+    });
+  </script>
+</body>
+</html>
