@@ -637,6 +637,14 @@
         <button class="btn btn-primary" onclick="guardarConfig()">Guardar configuración</button>
       </div>
       <div class="config-section" style="margin-top:24px">
+        <div class="section-title">Seguridad</div>
+        <div class="field"><label>Contraseña actual</label><input id="pw-actual" type="password" autocomplete="current-password" placeholder="••••••••"/></div>
+        <div class="field"><label>Contraseña nueva</label><input id="pw-nueva" type="password" autocomplete="new-password" placeholder="Mínimo 6 caracteres"/></div>
+        <div class="field"><label>Confirmar contraseña nueva</label><input id="pw-confirmar" type="password" autocomplete="new-password" placeholder="••••••••"/></div>
+        <div id="pw-error" style="display:none;color:var(--red);font-size:13px;margin-bottom:12px"></div>
+        <button class="btn btn-primary" style="width:100%" onclick="cambiarPassword()">Cambiar contraseña</button>
+      </div>
+      <div class="config-section" style="margin-top:24px">
         <div class="section-title">Sesión</div>
         <button class="btn btn-danger" style="width:100%" onclick="doLogout()">Cerrar sesión</button>
       </div>
@@ -1304,6 +1312,55 @@ function guardarConfig() {
   };
   localStorage.setItem('obrex_config', JSON.stringify(config));
   toast('Configuración guardada');
+}
+
+// ───────────────────────────────────────
+// CAMBIO DE CONTRASEÑA
+// ───────────────────────────────────────
+async function cambiarPassword() {
+  const actual    = document.getElementById('pw-actual').value;
+  const nueva     = document.getElementById('pw-nueva').value;
+  const confirmar = document.getElementById('pw-confirmar').value;
+  const errEl     = document.getElementById('pw-error');
+  errEl.style.display = 'none';
+
+  if (!actual || !nueva || !confirmar) {
+    errEl.textContent = 'Completa los tres campos.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (nueva.length < 6) {
+    errEl.textContent = 'La contraseña nueva debe tener mínimo 6 caracteres.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (nueva !== confirmar) {
+    errEl.textContent = 'La confirmación no coincide con la contraseña nueva.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const user = auth.currentUser;
+  if (!user) { errEl.textContent = 'No hay sesión activa.'; errEl.style.display = 'block'; return; }
+
+  try {
+    const cred = firebase.auth.EmailAuthProvider.credential(user.email, actual);
+    await user.reauthenticateWithCredential(cred);
+    await user.updatePassword(nueva);
+    document.getElementById('pw-actual').value = '';
+    document.getElementById('pw-nueva').value = '';
+    document.getElementById('pw-confirmar').value = '';
+    toast('Contraseña actualizada');
+  } catch (e) {
+    if (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
+      errEl.textContent = 'La contraseña actual es incorrecta.';
+    } else if (e.code === 'auth/too-many-requests') {
+      errEl.textContent = 'Demasiados intentos. Intenta de nuevo más tarde.';
+    } else {
+      errEl.textContent = 'Error al cambiar la contraseña.';
+    }
+    errEl.style.display = 'block';
+  }
 }
 
 // ───────────────────────────────────────
