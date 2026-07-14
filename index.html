@@ -125,13 +125,16 @@ const statusEl = document.getElementById('status');
 // FIREBASE — pega aquí tu firebaseConfig real (los mismos 6 valores de tu index.html)
 // ══════════════════════════════════════════════
 const firebaseConfig = {
-  apiKey:            "TU_API_KEY",
-  authDomain:        "TU_PROJECT.firebaseapp.com",
-  projectId:         "TU_PROJECT_ID",
-  storageBucket:     "TU_PROJECT.appspot.com",
-  messagingSenderId: "TU_SENDER_ID",
-  appId:             "TU_APP_ID"
+  apiKey: "AIzaSyBhQtYymTnYOcqSKiQprl7z91O0d26-s8s",
+  authDomain: "obrex-ingenieria.firebaseapp.com",
+  projectId: "obrex-ingenieria",
+  storageBucket: "obrex-ingenieria.firebasestorage.app",
+  messagingSenderId: "658326612862",
+  appId: "1:658326612862:web:fe4807a9076bf0d449612f",
+  measurementId: "G-NVQGR4J5EH"
 };
+
+
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
