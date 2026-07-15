@@ -178,6 +178,22 @@
     }
 
     .field textarea { resize: vertical; min-height: 80px; }
+
+    #papel-f1-overlay input, #papel-f1-overlay textarea {
+      background: rgba(255,255,255,.02) !important;
+      color: #0a1628 !important;
+      border: 1px dashed rgba(10,22,40,.35) !important;
+      border-radius: 3px !important;
+      padding: 1px 3px !important;
+      box-shadow: none !important;
+    }
+    #papel-f1-overlay input:focus, #papel-f1-overlay textarea:focus {
+      background: #fff8ea !important;
+      border: 1px solid #C8A84B !important;
+      z-index: 5;
+    }
+    #papel-f1-overlay input::placeholder, #papel-f1-overlay textarea::placeholder { color: #8a94a8 !important; }
+    #papel-f1-overlay .autocomplete-list { font-size: 11px; z-index: 10; }
     .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--gold); }
     .field input::placeholder, .field textarea::placeholder { color: #3a4e6e; }
     .field select option { background: var(--navy2); }
@@ -910,6 +926,24 @@
 </div>
 
 <!-- Modal Orden de Servicio -->
+<!-- ═══════════════════════════════════════
+     PANTALLA COMPLETA — FORMATO 1 (idéntica al papel)
+═══════════════════════════════════════ -->
+<div id="screen-orden-f1" class="screen" style="background:#555;overflow-y:auto;flex-direction:column">
+  <div style="position:sticky;top:0;z-index:20;background:var(--navy2,#0a1628);padding:12px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <button class="btn btn-secondary" style="width:auto;padding:8px 14px" onclick="cerrarPantallaPapel()">← Volver</button>
+    <h3 id="papel-f1-titulo" style="flex:1;color:#fff;margin:0;font-size:15px">Orden de Servicio — Formato 1</h3>
+    <button class="btn btn-primary" style="width:auto;padding:8px 16px;margin-top:0" onclick="guardarOrden()">Guardar</button>
+    <button class="btn btn-secondary" style="width:100%;order:99;font-size:12px;padding:6px" onclick="usarFormularioClasico()">¿Es formato eléctrico o de parámetros (3/4)? Cambiar a formulario clásico</button>
+  </div>
+  <div style="max-width:900px;margin:14px auto;padding:0 10px">
+    <div style="position:relative;width:100%;aspect-ratio:612/792;background:#fff;box-shadow:0 4px 24px rgba(0,0,0,.4)" id="papel-f1-overlay">
+      <img src="./formato1-bg.png" style="position:absolute;inset:0;width:100%;height:100%;display:block" alt="Formato 1">
+    </div>
+    <div id="papel-f1-extra" style="margin-top:16px"></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-orden">
   <div class="modal-sheet">
     <div class="modal-header">
@@ -936,15 +970,12 @@
         </select>
       </div>
 
-      <button type="button" id="btn-vista-papel" class="btn btn-secondary" style="width:100%;margin-bottom:12px;display:none" onclick="toggleVistaPapel()">Vista papel (idéntica al formato)</button>
-      <div id="papel-overlay" style="display:none;position:relative;width:100%;aspect-ratio:612/792;background:#fff;border-radius:8px;overflow:hidden;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,.3)">
-        <img id="papel-bg-img" src="./formato1-bg.png" style="position:absolute;inset:0;width:100%;height:100%;display:block" alt="">
-      </div>
+
 
       <!-- Cliente con autocomplete -->
       <div class="field">
         <label>Cliente</label>
-        <div class="autocomplete-wrap">
+        <div class="autocomplete-wrap" data-ctx="cliente">
           <input id="orden-cliente-input" type="text" placeholder="Buscar cliente…" oninput="autocompleteCliente(this.value,'orden')" autocomplete="off"/>
           <div class="autocomplete-list" id="orden-cliente-list"></div>
         </div>
@@ -975,15 +1006,17 @@
       <!-- Campos dinámicos según formato -->
       <div id="orden-campos-dinamicos"></div>
 
-      <!-- Materiales necesarios -->
-      <div class="section-title">Materiales necesarios</div>
-      <div class="field">
-        <div class="autocomplete-wrap">
-          <input id="orden-art-input" type="text" placeholder="Buscar en catálogo…" oninput="autocompleteArticulo(this.value,'orden')" autocomplete="off"/>
-          <div class="autocomplete-list" id="orden-art-list"></div>
+      <div id="bloque-materiales-orden">
+        <!-- Materiales necesarios -->
+        <div class="section-title">Materiales necesarios</div>
+        <div class="field">
+          <div class="autocomplete-wrap" data-ctx="articulo">
+            <input id="orden-art-input" type="text" placeholder="Buscar en catálogo…" oninput="autocompleteArticulo(this.value,'orden')" autocomplete="off"/>
+            <div class="autocomplete-list" id="orden-art-list"></div>
+          </div>
         </div>
+        <div id="orden-items-list"></div>
       </div>
-      <div id="orden-items-list"></div>
 
       <div class="field"><label>Observaciones</label><textarea id="orden-obs" placeholder="Observaciones adicionales…"></textarea></div>
 
@@ -995,10 +1028,12 @@
 
       <div class="field"><label>A excepción de</label><input id="orden-excepcion" type="text" placeholder="Excepciones de garantía…"/></div>
 
-      <!-- Fotos -->
-      <div class="section-title">Fotos (máximo 6)</div>
-      <input type="file" id="orden-foto-input" accept="image/*" capture="environment" style="display:none" onchange="agregarFoto(this)"/>
-      <div class="foto-grid" id="orden-fotos-grid"></div>
+      <div id="bloque-fotos-orden">
+        <!-- Fotos -->
+        <div class="section-title">Fotos (máximo 6)</div>
+        <input type="file" id="orden-foto-input" accept="image/*" capture="environment" style="display:none" onchange="agregarFoto(this)"/>
+        <div class="foto-grid" id="orden-fotos-grid"></div>
+      </div>
 
       <div style="display:flex;gap:10px;margin-top:8px">
         <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-orden')">Cancelar</button>
@@ -1015,6 +1050,7 @@
 // ───────────────────────────────────────
 // FIREBASE CONFIG — reemplaza con los datos de tu proyecto
 // ───────────────────────────────────────
+
 const firebaseConfig = {
   apiKey: "AIzaSyBhQtYymTnYOcqSKiQprl7z91O0d26-s8s",
   authDomain: "obrex-ingenieria.firebaseapp.com",
@@ -1024,7 +1060,6 @@ const firebaseConfig = {
   appId: "1:658326612862:web:fe4807a9076bf0d449612f",
   measurementId: "G-NVQGR4J5EH",
 };
-
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.firestore();
@@ -1982,6 +2017,23 @@ function openNuevaOrden() {
   renderOrdenFormato();
   renderOrdenItems();
   renderOrdenFotos();
+  abrirPantallaPapel(true);
+}
+
+function usarFormularioClasico() {
+  Object.keys(papelOriginales).forEach(id => {
+    const el = id==='__clienteWrap' ? document.querySelector('#papel-f1-overlay .autocomplete-wrap') : document.getElementById(id);
+    if (!el) return;
+    const { parent, next } = papelOriginales[id];
+    if (next) parent.insertBefore(el, next); else parent.appendChild(el);
+    el.style.position=''; el.style.left=''; el.style.top=''; el.style.width=''; el.style.height='';
+    el.style.fontSize=''; el.style.margin=''; el.style.border=''; el.style.background='';
+  });
+  for (const k in papelOriginales) delete papelOriginales[k];
+  papelPantallaActiva = false;
+  document.getElementById('orden-formato').value = '3';
+  renderOrdenFormato();
+  showScreen('screen-app');
   openModal('modal-orden');
 }
 
@@ -2009,7 +2061,23 @@ function editarOrden(id) {
   renderOrdenFormato();
   renderOrdenItems();
   cargarFotosLocal(id).then(fotos=>{ ordenFotos = fotos; renderOrdenFotos(); });
-  openModal('modal-orden');
+  const ex = o.extra||{};
+  if (String(o.formato||1) === '1') {
+    setTimeout(()=>{
+      document.getElementById('ord-marca').value = ex['ord-marca']||'';
+      document.getElementById('ord-cap').value = ex['ord-cap']||'';
+      document.getElementById('ord-ref').value = ex['ord-ref']||'';
+      document.getElementById('ord-volt').value = ex['ord-volt']||'';
+      document.getElementById('ord-serie').value = ex['ord-serie']||'';
+      document.getElementById('ord-ubic').value = ex['ord-ubic']||'';
+      document.getElementById('ord-desc-serv').value = ex['ord-desc-serv']||'';
+      document.getElementById('ord-val-antes').value = ex['ord-val-antes']||'';
+      document.getElementById('ord-val-despues').value = ex['ord-val-despues']||'';
+      abrirPantallaPapel(false);
+    }, 0);
+  } else {
+    openModal('modal-orden');
+  }
 }
 
 function renderOrdenItems() {
@@ -2164,7 +2232,7 @@ async function guardarOrden() {
       ordenId = ref.id;
     }
     await guardarFotosLocal(ordenId, ordenFotos);
-    closeModal('modal-orden');
+    if (papelPantallaActiva) { cerrarPantallaPapel(); } else { closeModal('modal-orden'); }
     await cargarOrdenes();
     toast('Orden guardada');
   } catch(e){ toast('Error al guardar'); }
@@ -2280,7 +2348,7 @@ function generarPDFCotizacion(id) {
 const F1_FIELDS = {"lugar": [502.1, 741.4, 575.7, 754.0], "fecha": [503.5, 720.8, 575.7, 733.9], "orden": [503.2, 699.1, 575.8, 712.9], "nombre": [111.6, 629.8, 390.0, 643.9], "domicilio": [118.2, 613.5, 390.8, 627.9], "telefono": [121.4, 596.6, 390.8, 611.0], "tecnico": [423.9, 631.0, 575.8, 643.5], "tecnico_domicilio": [424.7, 614.2, 573.8, 627.8], "tecnico_telefono": [425.2, 597.4, 574.3, 611.4], "chk_revision": [41.3, 556.1, 48.8, 564.1], "chk_instalacion": [115.3, 556.1, 123.3, 564.1], "chk_mantenimiento": [192.7, 556.1, 200.7, 564.6], "chk_optimizacion": [271.9, 556.1, 279.4, 564.1], "chk_recarga": [350.7, 556.1, 358.2, 564.1], "chk_desinstalacion": [429.4, 556.6, 437.4, 564.1], "chk_otros": [508.6, 557.1, 516.1, 564.1], "marca": [90.5, 429.4, 295.8, 442.5], "capacidad": [118.2, 410.6, 295.8, 424.2], "refrigerante": [132.2, 392.3, 294.4, 405.0], "voltaje": [99.4, 374.5, 293.5, 386.2], "serie": [108.8, 353.4, 295.4, 368.0], "ubicacion": [112.5, 335.6, 294.9, 348.8], "observaciones": [322.5, 281.7, 570.0, 443.9], "desc_servicio": [44.6, 167.6, 296.3, 282.0], "valor_antes": [313.6, 207.0, 436.9, 237.0], "valor_despues": [453.8, 208.9, 574.3, 236.1], "gar_desde_d": [438.3, 131.7, 472.1, 146.7], "gar_desde_m": [483.3, 132.2, 515.2, 146.2], "gar_desde_a": [523.2, 131.2, 557.4, 145.3], "gar_hasta_d": [439.7, 91.9, 471.1, 105.0], "gar_hasta_m": [479.1, 92.3, 513.8, 104.5], "gar_hasta_a": [521.8, 91.9, 558.8, 104.5], "excepcion": [311.8, 34.2, 578.9, 76.9], "mat_desc_0_0": [38.0, 112.0, 119.6, 123.8], "mat_precio_0_0": [130.4, 112.5, 161.8, 123.3], "mat_desc_0_1": [174.4, 112.0, 257.4, 123.8], "mat_precio_0_1": [269.6, 113.0, 299.6, 122.3], "mat_desc_1_0": [38.0, 94.2, 119.6, 105.0], "mat_precio_1_0": [131.8, 94.7, 161.3, 105.0], "mat_desc_1_1": [175.4, 92.8, 257.4, 105.5], "mat_precio_1_1": [269.6, 94.7, 299.1, 104.5], "mat_desc_2_0": [38.0, 73.6, 118.2, 84.8], "mat_precio_2_0": [131.8, 75.0, 161.8, 85.8], "mat_desc_2_1": [175.4, 73.6, 256.9, 85.3], "mat_precio_2_1": [269.1, 75.0, 299.1, 84.8], "mat_desc_3_0": [38.5, 55.8, 117.7, 67.5], "mat_precio_3_0": [131.8, 57.2, 162.2, 67.5], "mat_desc_3_1": [176.3, 55.8, 256.9, 68.4], "mat_precio_3_1": [270.0, 57.2, 299.1, 67.0], "mat_desc_4_0": [38.9, 36.1, 118.2, 48.3], "mat_precio_4_0": [130.8, 37.0, 161.3, 46.9], "mat_desc_4_1": [176.8, 35.2, 257.4, 46.9], "mat_precio_4_1": [268.6, 37.0, 299.1, 46.9]};
 const F1_PAGE_W = 612, F1_PAGE_H = 792, F1_SCALE = 215.9/612;
 const F1_PAGE_W_CSS = 612, F1_PAGE_H_CSS = 792;
-let papelActivo = false;
+let papelPantallaActiva = false;
 const PAPEL_MAP = [
   ['orden-lugar','lugar'], ['orden-fecha','fecha'], ['orden-num','orden'],
   ['orden-tecnico','tecnico'],
@@ -2302,58 +2370,68 @@ function f1BoxStyle(key){
   return `position:absolute;left:${left}%;top:${top}%;width:${width}%;height:${height}%;`;
 }
 
-function toggleVistaPapel(){
-  const overlay = document.getElementById('papel-overlay');
-  papelActivo = !papelActivo;
-  overlay.style.display = papelActivo ? 'block' : 'none';
-  document.getElementById('btn-vista-papel').textContent = papelActivo ? 'Ocultar vista papel' : 'Vista papel (idéntica al formato)';
+function moverAPapel(id, key, overlay, fontSize){
+  const el = document.getElementById(id);
+  if (!el || !F1_FIELDS[key]) return;
+  papelOriginales[id] = { parent: el.parentNode, next: el.nextSibling };
+  overlay.appendChild(el);
+  el.style.cssText += f1BoxStyle(key) + `font-size:${fontSize||1.3}vw;margin:0;border:1px dashed rgba(10,22,40,.3);background:rgba(255,255,255,.03);`;
+}
 
-  if (papelActivo) {
-    PAPEL_MAP.forEach(([id, key]) => {
-      const el = document.getElementById(id);
-      if (!el || !F1_FIELDS[key]) return;
-      papelOriginales[id] = { parent: el.parentNode, next: el.nextSibling };
-      overlay.appendChild(el);
-      el.style.cssText += f1BoxStyle(key) + 'font-size:1.3vw;margin:0;border:1px dashed rgba(10,22,40,.3);background:rgba(255,255,255,.02);';
-    });
-    // Cliente: input de búsqueda sobre "nombre", domicilio/telefono sobre sus cajas
-    const wrap = document.querySelector('#modal-orden .autocomplete-wrap');
-    if (wrap) {
-      papelOriginales['__clienteWrap'] = { parent: wrap.parentNode, next: wrap.nextSibling };
-      overlay.appendChild(wrap);
-      wrap.style.cssText += f1BoxStyle('nombre') + 'margin:0;';
-    }
-    const dir = document.getElementById('orden-cliente-dir');
-    const tel = document.getElementById('orden-cliente-tel');
-    if (dir) { papelOriginales['orden-cliente-dir'] = {parent:dir.parentNode, next:dir.nextSibling}; overlay.appendChild(dir); dir.style.cssText += f1BoxStyle('domicilio') + 'font-size:1.1vw;'; }
-    if (tel) { papelOriginales['orden-cliente-tel'] = {parent:tel.parentNode, next:tel.nextSibling}; overlay.appendChild(tel); tel.style.cssText += f1BoxStyle('telefono') + 'font-size:1.1vw;'; }
-    // Garantía: un solo input de fecha cubriendo el bloque día+mes+año
-    const gd = document.getElementById('orden-gar-desde'), gh = document.getElementById('orden-gar-hasta');
-    if (gd) {
-      papelOriginales['orden-gar-desde'] = {parent:gd.parentNode, next:gd.nextSibling};
-      overlay.appendChild(gd);
-      const r1=F1_FIELDS['gar_desde_d'], r2=F1_FIELDS['gar_desde_a'];
-      const left=r1[0]/F1_PAGE_W_CSS*100, top=(F1_PAGE_H_CSS-r1[3])/F1_PAGE_H_CSS*100, width=(r2[2]-r1[0])/F1_PAGE_W_CSS*100, height=(r1[3]-r1[1])/F1_PAGE_H_CSS*100;
-      gd.style.cssText += `position:absolute;left:${left}%;top:${top}%;width:${width}%;height:${height}%;margin:0;font-size:1.2vw;`;
-    }
-    if (gh) {
-      papelOriginales['orden-gar-hasta'] = {parent:gh.parentNode, next:gh.nextSibling};
-      overlay.appendChild(gh);
-      const r1=F1_FIELDS['gar_hasta_d'], r2=F1_FIELDS['gar_hasta_a'];
-      const left=r1[0]/F1_PAGE_W_CSS*100, top=(F1_PAGE_H_CSS-r1[3])/F1_PAGE_H_CSS*100, width=(r2[2]-r1[0])/F1_PAGE_W_CSS*100, height=(r1[3]-r1[1])/F1_PAGE_H_CSS*100;
-      gh.style.cssText += `position:absolute;left:${left}%;top:${top}%;width:${width}%;height:${height}%;margin:0;font-size:1.2vw;`;
-    }
-  } else {
-    Object.keys(papelOriginales).forEach(id => {
-      const el = id==='__clienteWrap' ? document.querySelector('#papel-overlay .autocomplete-wrap') : document.getElementById(id);
-      if (!el) return;
-      const { parent, next } = papelOriginales[id];
-      if (next) parent.insertBefore(el, next); else parent.appendChild(el);
-      el.style.position=''; el.style.left=''; el.style.top=''; el.style.width=''; el.style.height='';
-      el.style.fontSize=''; el.style.margin=''; el.style.border=''; el.style.background='';
-    });
-    for (const k in papelOriginales) delete papelOriginales[k];
+function abrirPantallaPapel(modoNuevo){
+  const overlay = document.getElementById('papel-f1-overlay');
+  papelPantallaActiva = true;
+
+  PAPEL_MAP.forEach(([id, key]) => moverAPapel(id, key, overlay));
+
+  const wrap = document.querySelector('.autocomplete-wrap[data-ctx="cliente"]');
+  if (wrap) {
+    papelOriginales['__clienteWrap'] = { parent: wrap.parentNode, next: wrap.nextSibling };
+    overlay.appendChild(wrap);
+    wrap.style.cssText += f1BoxStyle('nombre') + 'margin:0;';
   }
+  const dir = document.getElementById('orden-cliente-dir');
+  const tel = document.getElementById('orden-cliente-tel');
+  if (dir) { papelOriginales['orden-cliente-dir'] = {parent:dir.parentNode, next:dir.nextSibling}; overlay.appendChild(dir); dir.style.cssText += f1BoxStyle('domicilio') + 'font-size:1.1vw;'; }
+  if (tel) { papelOriginales['orden-cliente-tel'] = {parent:tel.parentNode, next:tel.nextSibling}; overlay.appendChild(tel); tel.style.cssText += f1BoxStyle('telefono') + 'font-size:1.1vw;'; }
+
+  const gd = document.getElementById('orden-gar-desde'), gh = document.getElementById('orden-gar-hasta');
+  if (gd) {
+    papelOriginales['orden-gar-desde'] = {parent:gd.parentNode, next:gd.nextSibling};
+    overlay.appendChild(gd);
+    const r1=F1_FIELDS['gar_desde_d'], r2=F1_FIELDS['gar_desde_a'];
+    const left=r1[0]/F1_PAGE_W_CSS*100, top=(F1_PAGE_H_CSS-r1[3])/F1_PAGE_H_CSS*100, width=(r2[2]-r1[0])/F1_PAGE_W_CSS*100, height=(r1[3]-r1[1])/F1_PAGE_H_CSS*100;
+    gd.style.cssText += `position:absolute;left:${left}%;top:${top}%;width:${width}%;height:${height}%;margin:0;font-size:1.2vw;`;
+  }
+  if (gh) {
+    papelOriginales['orden-gar-hasta'] = {parent:gh.parentNode, next:gh.nextSibling};
+    overlay.appendChild(gh);
+    const r1=F1_FIELDS['gar_hasta_d'], r2=F1_FIELDS['gar_hasta_a'];
+    const left=r1[0]/F1_PAGE_W_CSS*100, top=(F1_PAGE_H_CSS-r1[3])/F1_PAGE_H_CSS*100, width=(r2[2]-r1[0])/F1_PAGE_W_CSS*100, height=(r1[3]-r1[1])/F1_PAGE_H_CSS*100;
+    gh.style.cssText += `position:absolute;left:${left}%;top:${top}%;width:${width}%;height:${height}%;margin:0;font-size:1.2vw;`;
+  }
+
+  const materialesBlock = document.getElementById('bloque-materiales-orden');
+  const fotosBlock = document.getElementById('bloque-fotos-orden');
+  if (materialesBlock) { papelOriginales['bloque-materiales-orden'] = {parent:materialesBlock.parentNode, next:materialesBlock.nextSibling}; document.getElementById('papel-f1-extra').appendChild(materialesBlock); }
+  if (fotosBlock) { papelOriginales['bloque-fotos-orden'] = {parent:fotosBlock.parentNode, next:fotosBlock.nextSibling}; document.getElementById('papel-f1-extra').appendChild(fotosBlock); }
+
+  document.getElementById('papel-f1-titulo').textContent = modoNuevo ? 'Nueva Orden — Formato 1' : 'Editar Orden — Formato 1';
+  showScreen('screen-orden-f1');
+}
+
+function cerrarPantallaPapel(){
+  Object.keys(papelOriginales).forEach(id => {
+    const el = id==='__clienteWrap' ? document.querySelector('#papel-f1-overlay .autocomplete-wrap') : document.getElementById(id);
+    if (!el) return;
+    const { parent, next } = papelOriginales[id];
+    if (next) parent.insertBefore(el, next); else parent.appendChild(el);
+    el.style.position=''; el.style.left=''; el.style.top=''; el.style.width=''; el.style.height='';
+    el.style.fontSize=''; el.style.margin=''; el.style.border=''; el.style.background='';
+  });
+  for (const k in papelOriginales) delete papelOriginales[k];
+  papelPantallaActiva = false;
+  showScreen('screen-app');
 }
 
 
