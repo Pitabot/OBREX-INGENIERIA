@@ -1,28 +1,41 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="OBREX" />
-  <link rel="manifest" href="./manifest.json" />
-  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="OBREX"/>
+  <link rel="manifest" href="./manifest.json"/>
+  <link rel="apple-touch-icon" href="./icon-192.png"/>
   <title>OBREX INGENIERIA</title>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+  <!-- jsPDF para generación de PDFs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --navy:   #0a1628;
-      --navy2:  #0f1f3d;
-      --gold:   #C8A84B;
-      --gold2:  #e8c96a;
-      --white:  #f0f4ff;
-      --gray:   #8896b3;
+      --navy:     #0a1628;
+      --navy2:    #0f1f3d;
+      --navy3:    #162544;
+      --gold:     #C8A84B;
+      --gold2:    #e8c96a;
+      --gold-dim: rgba(200,168,75,0.15);
+      --white:    #f0f4ff;
+      --gray:     #8896b3;
+      --red:      #e05555;
+      --green:    #4caf82;
       --input-bg: #131f38;
-      --radius: 12px;
+      --radius:   12px;
+      --radius-lg:18px;
     }
 
     html, body {
@@ -31,17 +44,18 @@
       color: var(--white);
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
       -webkit-font-smoothing: antialiased;
+      overflow: hidden;
     }
 
-    /* ── PANTALLAS ── */
-    .screen {
-      display: none;
-      min-height: 100dvh;
-      width: 100%;
-    }
+    /* ═══════════════════════════════════════
+       PANTALLAS
+    ═══════════════════════════════════════ */
+    .screen { display: none; width: 100%; height: 100dvh; }
     .screen.active { display: flex; }
 
-    /* ── INTRO ── */
+    /* ═══════════════════════════════════════
+       INTRO
+    ═══════════════════════════════════════ */
     #screen-intro {
       flex-direction: column;
       align-items: center;
@@ -61,13 +75,10 @@
       animation: introBgFade 1.6s ease forwards;
     }
 
-    @keyframes introBgFade {
-      to { opacity: 1; }
-    }
+    @keyframes introBgFade { to { opacity: 1; } }
 
     .intro-mark {
-      width: 120px;
-      height: 120px;
+      width: 120px; height: 120px;
       position: relative;
       margin-bottom: 22px;
       z-index: 1;
@@ -76,16 +87,9 @@
       animation: introMarkIn 0.9s cubic-bezier(.2,.9,.25,1.1) forwards 0.25s;
     }
 
-    .intro-mark img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      filter: drop-shadow(0 0 24px rgba(200,168,75,0.35));
-    }
+    .intro-mark img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 24px rgba(200,168,75,0.35)); }
 
-    @keyframes introMarkIn {
-      to { opacity: 1; transform: scale(1) rotate(0deg); }
-    }
+    @keyframes introMarkIn { to { opacity: 1; transform: scale(1) rotate(0deg); } }
 
     .intro-flash {
       position: absolute;
@@ -106,25 +110,19 @@
     }
 
     .intro-wordmark {
-      width: 220px;
-      max-width: 70vw;
+      width: 220px; max-width: 70vw;
       z-index: 1;
       opacity: 0;
       transform: translateY(14px);
       animation: introFadeUp 0.8s ease forwards 1.05s;
     }
 
-    @keyframes introFadeUp {
-      from { opacity: 0; transform: translateY(14px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes introFadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 
     .intro-skip {
       position: absolute;
       bottom: 36px;
-      font-size: 11px;
-      letter-spacing: 2px;
-      color: #3a4e6e;
+      font-size: 11px; letter-spacing: 2px; color: #3a4e6e;
       text-transform: uppercase;
       opacity: 0;
       animation: introFadeUp 0.8s ease forwards 2.1s;
@@ -132,77 +130,40 @@
     }
 
     .footer-tag {
-      position: absolute;
-      bottom: 10px;
-      left: 0;
-      right: 0;
-      text-align: center;
-      font-size: 10px;
-      letter-spacing: 1.5px;
-      color: #5a6e8e;
-      opacity: 0.55;
-      z-index: 2;
-      pointer-events: none;
-      font-family: monospace;
+      position: absolute; bottom: 10px; left: 0; right: 0; text-align: center;
+      font-size: 10px; letter-spacing: 1.5px; color: #5a6e8e; opacity: 0.55;
+      z-index: 2; pointer-events: none; font-family: monospace;
     }
 
-    /* ── LOGIN ── */
+    /* ═══════════════════════════════════════
+       LOGIN
+    ═══════════════════════════════════════ */
     #screen-login {
       flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 40px 28px;
-      gap: 0;
-      background:
-        radial-gradient(ellipse at 50% 0%, #1a2e55 0%, transparent 60%),
-        var(--navy);
+      background: radial-gradient(ellipse at 50% 0%, #1a2e55 0%, transparent 60%), var(--navy);
     }
 
-    .logo-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 44px;
-    }
+    .logo-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 44px; }
 
-    .brand-logo {
-      width: 230px;
-      max-width: 72vw;
-      filter: drop-shadow(0 0 22px rgba(200,168,75,0.18));
-    }
+    .brand-logo { width: 230px; max-width: 72vw; filter: drop-shadow(0 0 22px rgba(200,168,75,0.18)); }
 
     .login-card {
-      width: 100%;
-      max-width: 360px;
+      width: 100%; max-width: 360px;
       background: var(--navy2);
-      border: 1px solid rgba(200,168,75,0.15);
-      border-radius: 18px;
+      border: 1px solid var(--gold-dim);
+      border-radius: var(--radius-lg);
       padding: 32px 28px 28px;
     }
 
-    .login-card h2 {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--gray);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-bottom: 24px;
-    }
+    .login-card h2 { font-size: 15px; font-weight: 600; color: var(--gray); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 24px; }
 
-    .field {
-      margin-bottom: 16px;
-    }
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 11px; letter-spacing: 1.5px; color: var(--gray); text-transform: uppercase; margin-bottom: 8px; }
 
-    .field label {
-      display: block;
-      font-size: 11px;
-      letter-spacing: 1.5px;
-      color: var(--gray);
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-
-    .field input {
+    .field input, .field select, .field textarea {
       width: 100%;
       background: var(--input-bg);
       border: 1px solid rgba(200,168,75,0.2);
@@ -213,226 +174,2558 @@
       outline: none;
       transition: border-color 0.2s;
       -webkit-appearance: none;
+      font-family: inherit;
     }
 
-    .field input:focus {
-      border-color: var(--gold);
-    }
+    .field textarea { resize: vertical; min-height: 80px; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--gold); }
+    .field input::placeholder, .field textarea::placeholder { color: #3a4e6e; }
+    .field select option { background: var(--navy2); }
 
-    .field input::placeholder { color: #3a4e6e; }
-
-    .btn-login {
-      width: 100%;
-      margin-top: 8px;
-      background: linear-gradient(135deg, var(--gold), var(--gold2));
-      color: var(--navy);
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      border: none;
-      border-radius: var(--radius);
-      padding: 15px;
-      cursor: pointer;
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      border: none; border-radius: var(--radius);
+      font-size: 14px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      padding: 13px 20px; cursor: pointer;
       transition: opacity 0.2s, transform 0.1s;
       -webkit-tap-highlight-color: transparent;
     }
 
-    .btn-login:active { opacity: 0.85; transform: scale(0.98); }
+    .btn:active { opacity: 0.85; transform: scale(0.97); }
+    .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold2)); color: var(--navy); width: 100%; margin-top: 8px; }
+    .btn-secondary { background: var(--navy3); color: var(--white); border: 1px solid rgba(200,168,75,0.2); }
+    .btn-danger  { background: rgba(224,85,85,0.15); color: var(--red); border: 1px solid rgba(224,85,85,0.3); }
+    .btn-success { background: rgba(76,175,130,0.15); color: var(--green); border: 1px solid rgba(76,175,130,0.3); }
+    .btn-sm { padding: 8px 14px; font-size: 12px; }
+    .btn-icon { width: 36px; height: 36px; padding: 0; border-radius: 8px; }
 
-    /* ── BIENVENIDA ── */
-    #screen-welcome {
+    /* ═══════════════════════════════════════
+       APP SHELL
+    ═══════════════════════════════════════ */
+    #screen-app {
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 40px 28px;
-      gap: 0;
-      background:
-        radial-gradient(ellipse at 50% 20%, #1a2e55 0%, transparent 65%),
-        var(--navy);
+      background: var(--navy);
     }
 
-    .welcome-logo {
-      width: 92px;
-      margin-bottom: 24px;
-      filter: drop-shadow(0 0 30px rgba(200,168,75,0.3));
-      animation: pulse 3s ease-in-out infinite;
+    /* Top bar */
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px;
+      padding-top: calc(16px + env(safe-area-inset-top));
+      background: var(--navy2);
+      border-bottom: 1px solid var(--gold-dim);
+      flex-shrink: 0;
     }
 
-    @keyframes pulse {
-      0%, 100% { filter: drop-shadow(0 0 18px rgba(200,168,75,0.22)); }
-      50%       { filter: drop-shadow(0 0 32px rgba(200,168,75,0.4)); }
+    .topbar-brand { font-size: 16px; font-weight: 700; letter-spacing: 2px; color: var(--gold); }
+    .topbar-title { font-size: 13px; color: var(--gray); letter-spacing: 0.5px; }
+
+    .topbar-actions { display: flex; gap: 8px; }
+
+    /* Main content */
+    .app-body {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 0;
     }
 
-    .welcome-brand {
-      font-size: 13px;
-      letter-spacing: 3px;
+    /* Bottom nav */
+    .bottom-nav {
+      display: flex;
+      background: var(--navy2);
+      border-top: 1px solid var(--gold-dim);
+      padding-bottom: env(safe-area-inset-bottom);
+      flex-shrink: 0;
+    }
+
+    .nav-item {
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 8px 2px 7px;
+      gap: 3px;
+      background: none; border: none; cursor: pointer;
       color: var(--gray);
-      text-transform: uppercase;
-      margin-bottom: 36px;
-    }
-
-    .welcome-msg {
-      font-size: 28px;
-      font-weight: 300;
-      color: var(--white);
-      line-height: 1.3;
-      margin-bottom: 10px;
-    }
-
-    .welcome-msg strong {
-      font-weight: 700;
-      color: var(--gold);
-    }
-
-    .welcome-caption {
-      font-size: 13px;
-      color: var(--gray);
-      letter-spacing: 0.5px;
-      margin-bottom: 48px;
-    }
-
-    .btn-logout {
-      background: transparent;
-      border: 1px solid rgba(200,168,75,0.35);
-      color: var(--gold);
-      font-size: 12px;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      padding: 10px 28px;
-      border-radius: 50px;
-      cursor: pointer;
-      transition: background 0.2s;
+      font-size: 9px; letter-spacing: 0.2px; text-transform: uppercase;
+      transition: color 0.2s;
       -webkit-tap-highlight-color: transparent;
     }
 
-    .btn-logout:active { background: rgba(200,168,75,0.08); }
+    .nav-item.active { color: var(--gold); }
+    .nav-item svg { width: 19px; height: 19px; }
 
-    /* ── iOS install banner ── */
-    #ios-hint {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
+    /* ═══════════════════════════════════════
+       VISTAS (dentro de app-body)
+    ═══════════════════════════════════════ */
+    .view { display: none; padding: 20px; }
+    .view.active { display: block; }
+
+    /* Dashboard */
+    .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+
+    .dash-card {
       background: var(--navy2);
-      border-top: 1px solid rgba(200,168,75,0.2);
-      padding: 14px 20px 28px;
-      font-size: 13px;
-      color: var(--gray);
-      text-align: center;
-      line-height: 1.5;
+      border: 1px solid var(--gold-dim);
+      border-radius: var(--radius-lg);
+      padding: 18px 16px;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+
+    .dash-card-num { font-size: 32px; font-weight: 700; color: var(--gold); }
+    .dash-card-label { font-size: 11px; letter-spacing: 1px; color: var(--gray); text-transform: uppercase; }
+
+    .section-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+      color: var(--gray); text-transform: uppercase;
+      margin-bottom: 12px; margin-top: 4px;
+    }
+
+    /* Listas */
+    .list-item {
+      background: var(--navy2);
+      border: 1px solid var(--gold-dim);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 12px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .list-item:active { border-color: var(--gold); }
+    .list-item-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--gold-dim); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .list-item-icon svg { width: 20px; height: 20px; color: var(--gold); }
+    .list-item-body { flex: 1; min-width: 0; }
+    .list-item-title { font-size: 14px; font-weight: 600; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .list-item-sub { font-size: 12px; color: var(--gray); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .list-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    /* Search bar */
+    .search-wrap { position: relative; margin-bottom: 16px; }
+    .search-wrap input { padding-left: 40px !important; }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gray); width: 16px; height: 16px; pointer-events: none; }
+
+    /* FAB */
+    .fab {
+      position: fixed; bottom: calc(80px + env(safe-area-inset-bottom)); right: 20px;
+      width: 54px; height: 54px;
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      color: var(--navy);
+      border: none; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; box-shadow: 0 4px 20px rgba(200,168,75,0.4);
+      font-size: 26px; font-weight: 300;
+      transition: transform 0.2s;
+      -webkit-tap-highlight-color: transparent;
+      z-index: 100;
+    }
+    .fab:active { transform: scale(0.93); }
+
+    /* Modal / sheet */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6); z-index: 200;
+      align-items: flex-end;
+    }
+    .modal-overlay.active { display: flex; }
+
+    .modal-sheet {
+      width: 100%; max-height: 92dvh;
+      background: var(--navy2);
+      border-radius: 20px 20px 0 0;
+      border-top: 1px solid var(--gold-dim);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 0 0 calc(24px + env(safe-area-inset-bottom));
+    }
+
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 20px 16px;
+      position: sticky; top: 0;
+      background: var(--navy2);
+      border-bottom: 1px solid var(--gold-dim);
+      z-index: 1;
+    }
+
+    .modal-header h3 { font-size: 16px; font-weight: 700; color: var(--white); }
+
+    .modal-close {
+      width: 32px; height: 32px;
+      background: rgba(200,168,75,0.1);
+      border: none; border-radius: 8px;
+      color: var(--gray); font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .modal-body { padding: 20px; }
+
+    /* Cotización items */
+    .cotiz-item {
+      background: var(--navy3);
+      border: 1px solid var(--gold-dim);
+      border-radius: var(--radius);
+      padding: 12px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .cotiz-item-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
+    .cotiz-item-desc { font-size: 13px; color: var(--white); flex: 1; line-height: 1.4; }
+    .cotiz-item-remove { background: none; border: none; color: var(--red); font-size: 18px; cursor: pointer; flex-shrink: 0; padding: 0 4px; }
+
+    .cotiz-item-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .cotiz-item-field label { font-size: 10px; color: var(--gray); letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 4px; }
+    .cotiz-item-field input {
+      width: 100%; background: var(--input-bg);
+      border: 1px solid rgba(200,168,75,0.2);
+      border-radius: 8px; color: var(--white);
+      font-size: 14px; padding: 8px 10px; outline: none;
+      font-family: inherit;
+    }
+    .cotiz-item-field input:focus { border-color: var(--gold); }
+
+    .cotiz-total-box {
+      background: var(--navy3);
+      border: 1px solid var(--gold-dim);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-top: 16px;
+    }
+
+    .cotiz-total-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; }
+    .cotiz-total-row.final { border-top: 1px solid var(--gold-dim); margin-top: 8px; padding-top: 12px; }
+    .cotiz-total-row.final span:last-child { color: var(--gold); font-size: 20px; font-weight: 700; }
+    .cotiz-total-label { font-size: 12px; color: var(--gray); }
+    .cotiz-total-val { font-size: 14px; color: var(--white); font-weight: 600; }
+
+    .tag {
+      display: inline-block;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+      padding: 3px 8px; border-radius: 6px;
+      text-transform: uppercase;
+    }
+    .tag-elec { background: rgba(76,130,220,0.2); color: #6ea8ff; }
+    .tag-hvac { background: rgba(76,175,175,0.2); color: #4ccfcf; }
+    .tag-serv { background: rgba(200,168,75,0.2); color: var(--gold); }
+    .tag-imp  { background: rgba(150,120,200,0.2); color: #c0a0e0; }
+
+    /* Toast */
+    #toast {
+      position: fixed; bottom: calc(90px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--navy3); border: 1px solid var(--gold-dim);
+      color: var(--white); font-size: 13px;
+      padding: 10px 20px; border-radius: 50px;
+      opacity: 0; transition: opacity 0.3s, transform 0.3s;
+      z-index: 500; white-space: nowrap;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Autocomplete dropdown */
+    .autocomplete-wrap { position: relative; }
+    .autocomplete-list {
+      position: absolute; top: 100%; left: 0; right: 0;
+      background: var(--navy3);
+      border: 1px solid var(--gold);
+      border-radius: var(--radius);
+      max-height: 200px; overflow-y: auto;
+      z-index: 300;
       display: none;
-      z-index: 999;
+    }
+    .autocomplete-list.open { display: block; }
+    .autocomplete-opt {
+      padding: 11px 14px;
+      font-size: 13px; color: var(--white);
+      cursor: pointer; border-bottom: 1px solid var(--gold-dim);
+    }
+    .autocomplete-opt:last-child { border-bottom: none; }
+    .autocomplete-opt:hover, .autocomplete-opt.selected { background: var(--gold-dim); }
+    .autocomplete-opt small { display: block; color: var(--gray); font-size: 11px; margin-top: 2px; }
+
+    /* Empty state */
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--gray); }
+    .empty-state svg { width: 48px; height: 48px; margin-bottom: 16px; opacity: 0.4; }
+    .empty-state p { font-size: 14px; }
+
+    /* Loader */
+    .loader { text-align: center; padding: 40px; color: var(--gray); font-size: 13px; }
+
+    /* Fotos en orden */
+    .foto-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:8px; }
+    .foto-slot {
+      aspect-ratio:1; border-radius:10px; overflow:hidden; position:relative;
+      background:var(--input-bg); border:1px dashed rgba(200,168,75,0.3);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer;
+    }
+    .foto-slot img { width:100%; height:100%; object-fit:cover; }
+    .foto-slot .foto-add-icon { color: var(--gray); width:24px; height:24px; }
+    .foto-remove {
+      position:absolute; top:4px; right:4px;
+      width:22px; height:22px; border-radius:50%;
+      background:rgba(10,22,40,0.85); color:var(--red);
+      border:none; font-size:14px; display:flex; align-items:center; justify-content:center;
+      cursor:pointer;
+    }
+
+    /* iOS hint */
+    #ios-hint {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--navy2); border-top: 1px solid var(--gold-dim);
+      padding: 14px 20px 28px;
+      font-size: 13px; color: var(--gray); text-align: center; line-height: 1.5;
+      display: none; z-index: 999;
     }
     #ios-hint span { color: var(--gold); font-weight: 600; }
-    #ios-hint-close {
-      position: absolute;
-      top: 10px; right: 16px;
-      background: none; border: none;
-      color: var(--gray); font-size: 18px; cursor: pointer;
+    #ios-hint-close { position: absolute; top: 10px; right: 16px; background: none; border: none; color: var(--gray); font-size: 18px; cursor: pointer; }
+
+    /* Configuración */
+    .config-section { margin-bottom: 24px; }
+    .config-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px;
+      background: var(--navy2); border: 1px solid var(--gold-dim);
+      border-radius: var(--radius); margin-bottom: 8px;
+    }
+    .config-row-label { font-size: 14px; color: var(--white); }
+    .config-row-sub { font-size: 12px; color: var(--gray); margin-top: 2px; }
+
+    /* Animaciones */
+    @keyframes pulse { 0%,100%{box-shadow:0 0 40px rgba(200,168,75,0.22)}50%{box-shadow:0 0 60px rgba(200,168,75,0.38)} }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)} }
+    .fade-in { animation: fadeIn 0.3s ease; }
+
+    /* Responsive */
+    @media(min-width:600px){
+      .dash-grid{grid-template-columns:repeat(4,1fr)}
+      .modal-overlay{align-items:center}
+      .modal-sheet{max-width:560px;margin:0 auto;border-radius:20px;max-height:85dvh}
     }
   </style>
 </head>
 <body>
+<img id="formato1-bg-img" src="./formato1-bg.png" style="display:none" alt="">
 
-  <!-- INTRO -->
-  <div id="screen-intro" class="screen active" onclick="skipIntro()">
-    <div class="intro-flash"></div>
-    <div class="intro-mark">
-      <img src="./icon-mark.png" alt="OBREX" />
+
+<!-- ═══════════════════════════════════════
+     PANTALLA INTRO
+═══════════════════════════════════════ -->
+<div id="screen-intro" class="screen active" onclick="skipIntro()">
+  <div class="intro-flash"></div>
+  <div class="intro-mark">
+    <img src="./icon-mark.png" alt="OBREX"/>
+  </div>
+  <img class="intro-wordmark" src="./logo-wordmark.png" alt="OBREX Ingeniería"/>
+  <div class="intro-skip">Toca para continuar</div>
+  <p class="footer-tag">obrexv3.2.1-welcome-firebase-formatos</p>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PANTALLA LOGIN
+═══════════════════════════════════════ -->
+<div id="screen-login" class="screen">
+  <div class="logo-wrap">
+    <img class="brand-logo" src="./logo-wordmark.png" alt="OBREX Ingeniería"/>
+  </div>
+  <div class="login-card">
+    <h2>Acceso al sistema</h2>
+    <div class="field">
+      <label>Correo electrónico</label>
+      <input id="inp-email" type="email" placeholder="correo@ejemplo.com" autocomplete="email"/>
     </div>
-    <img class="intro-wordmark" src="./logo-wordmark.png" alt="OBREX Ingeniería" />
-    <div class="intro-skip">Toca para continuar</div>
-    <p class="footer-tag">obrexv3.2</p>
+    <div class="field">
+      <label>Contraseña</label>
+      <input id="inp-pass" type="password" placeholder="••••••••" autocomplete="current-password"/>
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()">Ingresar</button>
+    <p id="login-error" style="color:var(--red);font-size:13px;margin-top:12px;text-align:center;display:none"></p>
+  </div>
+  <p class="footer-tag">obrexv3.2.1-welcome-firebase-formatos</p>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PANTALLA APP
+═══════════════════════════════════════ -->
+<div id="screen-app" class="screen">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div>
+      <div class="topbar-brand">OBREX</div>
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-secondary btn-sm btn-icon" onclick="doLogout()" title="Salir">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      </button>
+    </div>
   </div>
 
-  <!-- LOGIN -->
-  <div id="screen-login" class="screen">
-    <div class="logo-wrap">
-      <img class="brand-logo" src="./logo-wordmark.png" alt="OBREX Ingeniería" />
-    </div>
+  <!-- Cuerpo -->
+  <div class="app-body">
 
-    <div class="login-card">
-      <h2>Acceso al sistema</h2>
-      <div class="field">
-        <label>Usuario</label>
-        <input id="inp-user" type="text" placeholder="Ingresa tu usuario" autocomplete="username" />
+    <!-- ── DASHBOARD ── -->
+    <div id="view-dashboard" class="view active fade-in">
+      <div class="dash-grid">
+        <div class="dash-card">
+          <div class="dash-card-num" id="dash-clientes">—</div>
+          <div class="dash-card-label">Clientes</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-num" id="dash-cotizaciones">—</div>
+          <div class="dash-card-label">Cotizaciones</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-num" id="dash-ordenes">—</div>
+          <div class="dash-card-label">Órdenes</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-num" id="dash-facturas">—</div>
+          <div class="dash-card-label">Facturas</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-num" id="dash-articulos">—</div>
+          <div class="dash-card-label">Artículos</div>
+        </div>
       </div>
-      <div class="field">
-        <label>Contraseña</label>
-        <input id="inp-pass" type="password" placeholder="••••••••" autocomplete="current-password" />
+
+      <div class="section-title">Acciones rápidas</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button class="btn btn-secondary" onclick="navTo('cotizaciones');openNuevaCotizacion()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          Nueva Cotización
+        </button>
+        <button class="btn btn-secondary" onclick="navTo('ordenes');openNuevaOrden()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Nueva Orden
+        </button>
       </div>
-      <button class="btn-login" onclick="doLogin()">Ingresar</button>
     </div>
-    <p class="footer-tag">obrexv3.2</p>
+
+    <!-- ── CLIENTES ── -->
+    <div id="view-clientes" class="view fade-in">
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" placeholder="Buscar cliente…" oninput="filtrarClientes(this.value)" style="padding-left:40px;width:100%;background:var(--input-bg);border:1px solid rgba(200,168,75,0.2);border-radius:var(--radius);color:var(--white);font-size:15px;padding-top:13px;padding-bottom:13px;outline:none;-webkit-appearance:none"/>
+      </div>
+      <div id="lista-clientes"><div class="loader">Cargando…</div></div>
+    </div>
+
+    <!-- ── ARTÍCULOS ── -->
+    <div id="view-articulos" class="view fade-in">
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" placeholder="Buscar artículo…" oninput="filtrarArticulos(this.value)" style="padding-left:40px;width:100%;background:var(--input-bg);border:1px solid rgba(200,168,75,0.2);border-radius:var(--radius);color:var(--white);font-size:15px;padding-top:13px;padding-bottom:13px;outline:none;-webkit-appearance:none"/>
+      </div>
+      <div id="lista-articulos"><div class="loader">Cargando…</div></div>
+    </div>
+
+    <!-- ── COTIZACIONES ── -->
+    <div id="view-cotizaciones" class="view fade-in">
+      <div id="lista-cotizaciones"><div class="loader">Cargando…</div></div>
+    </div>
+
+    <!-- ── ÓRDENES DE SERVICIO ── -->
+    <div id="view-ordenes" class="view fade-in">
+      <div id="lista-ordenes"><div class="loader">Cargando…</div></div>
+    </div>
+
+    <!-- ── FACTURAS / NOTAS DE PAGO ── -->
+    <div id="view-facturas" class="view fade-in">
+      <div id="lista-facturas"><div class="loader">Cargando…</div></div>
+    </div>
+
+    <!-- ── CONFIG ── -->
+    <div id="view-config" class="view fade-in">
+      <div class="config-section">
+        <div class="section-title">Empresa</div>
+        <div class="field"><label>Nombre</label><input id="cfg-empresa" type="text" value="OBREX INGENIERÍA"/></div>
+        <div class="field"><label>Dirección</label><input id="cfg-dir" type="text" value="GIRASOL 233 COL. EJIDAL"/></div>
+        <div class="field"><label>Ciudad</label><input id="cfg-ciudad" type="text" value="COATZACOALCOS VERACRUZ"/></div>
+        <div class="field"><label>Teléfono</label><input id="cfg-tel" type="tel" value="9213104062"/></div>
+        <div class="field"><label>Banco</label><input id="cfg-banco" type="text" value="BBVA"/></div>
+        <div class="field"><label>Cuenta / CLABE</label><input id="cfg-cuenta" type="text" value="4152 3145 9299 9596"/></div>
+        <button class="btn btn-primary" onclick="guardarConfig()">Guardar configuración</button>
+      </div>
+      <div class="config-section" style="margin-top:24px">
+        <div class="section-title">Sesión</div>
+        <button class="btn btn-danger" style="width:100%" onclick="doLogout()">Cerrar sesión</button>
+      </div>
+    </div>
+
+  </div><!-- /app-body -->
+
+  <!-- Bottom nav -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="navTo('dashboard')" id="nav-dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Inicio
+    </button>
+    <button class="nav-item" onclick="navTo('clientes')" id="nav-clientes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      Clientes
+    </button>
+    <button class="nav-item" onclick="navTo('cotizaciones')" id="nav-cotizaciones">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Cotiz.
+    </button>
+    <button class="nav-item" onclick="navTo('ordenes')" id="nav-ordenes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+      Órdenes
+    </button>
+    <button class="nav-item" onclick="navTo('facturas')" id="nav-facturas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      Facturas
+    </button>
+    <button class="nav-item" onclick="navTo('config')" id="nav-config">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Config
+    </button>
+  </nav>
+
+</div><!-- /screen-app -->
+
+<!-- FAB dinámico -->
+<button class="fab" id="fab-btn" onclick="fabAction()" style="display:none">+</button>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- iOS hint -->
+<div id="ios-hint">
+  <button id="ios-hint-close" onclick="document.getElementById('ios-hint').style.display='none'">✕</button>
+  Para instalar: toca <span>Compartir ↑</span> y luego<br>
+  <span>"Agregar a pantalla de inicio"</span>
+</div>
+
+<!-- ═══════════════════════════════════════
+     MODALES
+═══════════════════════════════════════ -->
+
+<!-- Modal Cliente -->
+<div class="modal-overlay" id="modal-cliente">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <h3 id="modal-cliente-title">Nuevo Cliente</h3>
+      <button class="modal-close" onclick="closeModal('modal-cliente')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="cliente-id"/>
+      <div class="field"><label>Nombre completo</label><input id="cli-nombre" type="text" placeholder="Nombre del cliente"/></div>
+      <div class="field"><label>Dirección</label><input id="cli-dir" type="text" placeholder="Calle y número"/></div>
+      <div class="field"><label>Colonia</label><input id="cli-colonia" type="text" placeholder="Colonia"/></div>
+      <div class="field"><label>Ciudad</label><input id="cli-ciudad" type="text" placeholder="Ciudad" value="COATZACOALCOS"/></div>
+      <div class="field"><label>Teléfono</label><input id="cli-tel" type="tel" placeholder="10 dígitos"/></div>
+      <div style="display:flex;gap:10px;margin-top:8px">
+        <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-cliente')">Cancelar</button>
+        <button class="btn btn-primary" style="flex:1;margin-top:0" onclick="guardarCliente()">Guardar</button>
+      </div>
+    </div>
   </div>
+</div>
 
-  <!-- BIENVENIDA -->
-  <div id="screen-welcome" class="screen">
-    <img class="welcome-logo" src="./icon-mark.png" alt="OBREX" />
-    <div class="welcome-brand">OBREX Ingeniería</div>
-    <div class="welcome-msg">Hola, <strong>Oliver</strong> 👋</div>
-    <div class="welcome-caption">Bienvenido al sistema</div>
-    <button class="btn-logout" onclick="doLogout()">Cerrar sesión</button>
-    <p class="footer-tag">obrexv3.2</p>
+<!-- Modal Artículo -->
+<div class="modal-overlay" id="modal-articulo">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <h3 id="modal-articulo-title">Nuevo Artículo</h3>
+      <button class="modal-close" onclick="closeModal('modal-articulo')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="articulo-id"/>
+      <div class="field">
+        <label>Tipo</label>
+        <select id="art-tipo">
+          <option value="MATERIAL ELÉCT.">Material Eléctrico</option>
+          <option value="MATERIAL HVAC">Material HVAC</option>
+          <option value="SERV. ELECTRICO">Servicio Eléctrico</option>
+          <option value="SERVICIO HVAC">Servicio HVAC</option>
+          <option value="SERVICIO">Servicio General</option>
+        </select>
+      </div>
+      <div class="field"><label>Producto / Nombre</label><input id="art-producto" type="text" placeholder="Nombre del artículo"/></div>
+      <div class="field"><label>Unidad de medida</label><input id="art-um" type="text" placeholder="PIEZA / METRO / SERVICIO"/></div>
+      <div class="field"><label>Descripción</label><textarea id="art-desc" placeholder="Descripción completa…"></textarea></div>
+      <div class="field"><label>Precio unitario ($)</label><input id="art-precio" type="number" step="0.01" placeholder="0.00"/></div>
+      <div style="display:flex;gap:10px;margin-top:8px">
+        <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-articulo')">Cancelar</button>
+        <button class="btn btn-primary" style="flex:1;margin-top:0" onclick="guardarArticulo()">Guardar</button>
+      </div>
+    </div>
   </div>
+</div>
 
+<!-- Modal Cotización -->
+<div class="modal-overlay" id="modal-cotizacion">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <h3 id="modal-cotizacion-title">Nueva Cotización</h3>
+      <button class="modal-close" onclick="closeModal('modal-cotizacion')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="cotizacion-id"/>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field">
+          <label>No. Cotización</label>
+          <input id="cotiz-num" type="number" placeholder="Auto"/>
+        </div>
+        <div class="field">
+          <label>Fecha</label>
+          <input id="cotiz-fecha" type="date"/>
+        </div>
+      </div>
 
-  <!-- iOS install hint -->
-  <div id="ios-hint">
-    <button id="ios-hint-close" onclick="document.getElementById('ios-hint').style.display='none'">✕</button>
-    Para instalar: toca <span>Compartir ↑</span> y luego<br>
-    <span>"Agregar a pantalla de inicio"</span>
+      <!-- Selector de cliente con autocomplete -->
+      <div class="field">
+        <label>Cliente</label>
+        <div class="autocomplete-wrap">
+          <input id="cotiz-cliente-input" type="text" placeholder="Buscar cliente…" oninput="autocompleteCliente(this.value,'cotiz')" autocomplete="off"/>
+          <div class="autocomplete-list" id="cotiz-cliente-list"></div>
+        </div>
+        <input type="hidden" id="cotiz-cliente-id"/>
+      </div>
+
+      <div id="cotiz-cliente-info" style="display:none;background:var(--navy3);border:1px solid var(--gold-dim);border-radius:var(--radius);padding:12px;margin-top:-8px;margin-bottom:16px;font-size:13px;color:var(--gray)">
+        <div id="cotiz-cliente-dir"></div>
+        <div id="cotiz-cliente-tel"></div>
+      </div>
+
+      <div class="section-title" style="margin-top:4px">Partidas</div>
+
+      <!-- Buscador de artículo para agregar -->
+      <div class="field">
+        <label>Agregar artículo</label>
+        <div class="autocomplete-wrap">
+          <input id="cotiz-art-input" type="text" placeholder="Buscar en catálogo…" oninput="autocompleteArticulo(this.value,'cotiz')" autocomplete="off"/>
+          <div class="autocomplete-list" id="cotiz-art-list"></div>
+        </div>
+      </div>
+
+      <div id="cotiz-items-list"></div>
+
+      <!-- Totales -->
+      <div class="cotiz-total-box">
+        <div class="cotiz-total-row"><span class="cotiz-total-label">Subtotal</span><span class="cotiz-total-val" id="cotiz-subtotal">$0.00</span></div>
+        <div class="cotiz-total-row">
+          <span class="cotiz-total-label">Descuento</span>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input id="cotiz-descuento" type="number" min="0" max="100" value="0" style="width:60px;background:var(--input-bg);border:1px solid rgba(200,168,75,0.2);border-radius:8px;color:var(--white);font-size:14px;padding:6px 8px;outline:none;text-align:center" oninput="recalcularCotiz()"/> %
+          </div>
+        </div>
+        <div class="cotiz-total-row">
+          <span class="cotiz-total-label">IVA</span>
+          <div style="display:flex;align-items:center;gap:6px">
+            <select id="cotiz-iva" onchange="recalcularCotiz()" style="background:var(--input-bg);border:1px solid rgba(200,168,75,0.2);border-radius:8px;color:var(--white);font-size:14px;padding:6px 8px;outline:none">
+              <option value="0">Sin IVA</option>
+              <option value="0.16">16%</option>
+            </select>
+          </div>
+        </div>
+        <div class="cotiz-total-row final"><span class="cotiz-total-label" style="font-weight:700;color:var(--white)">TOTAL</span><span id="cotiz-total">$0.00</span></div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-cotizacion')">Cancelar</button>
+        <button class="btn btn-primary" style="flex:1;margin-top:0" onclick="guardarCotizacion()">Guardar</button>
+      </div>
+    </div>
   </div>
+</div>
 
-  <script>
-    // Registrar Service Worker
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').catch(() => {});
+<!-- Modal Factura / Nota de Pago -->
+<div class="modal-overlay" id="modal-factura">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <h3 id="modal-factura-title">Nueva Factura / Nota de Pago</h3>
+      <button class="modal-close" onclick="closeModal('modal-factura')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="factura-id"/>
+      <input type="hidden" id="factura-cotizacion-id"/>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field"><label>No. Factura</label><input id="fact-num" type="number" placeholder="Auto"/></div>
+        <div class="field"><label>Fecha</label><input id="fact-fecha" type="date"/></div>
+      </div>
+
+      <!-- Selector de cotización origen -->
+      <div class="field">
+        <label>Cotización origen (opcional)</label>
+        <select id="fact-cotiz-origen" onchange="cargarDesdeCoizacion()">
+          <option value="">— Crear sin cotización previa —</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Cliente</label>
+        <div class="autocomplete-wrap">
+          <input id="fact-cliente-input" type="text" placeholder="Buscar cliente…" oninput="autocompleteCliente(this.value,'fact')" autocomplete="off"/>
+          <div class="autocomplete-list" id="fact-cliente-list"></div>
+        </div>
+        <input type="hidden" id="fact-cliente-id"/>
+      </div>
+
+      <div id="fact-cliente-info" style="display:none;background:var(--navy3);border:1px solid var(--gold-dim);border-radius:var(--radius);padding:12px;margin-top:-8px;margin-bottom:16px;font-size:13px;color:var(--gray)">
+        <div id="fact-cliente-dir"></div>
+        <div id="fact-cliente-tel"></div>
+      </div>
+
+      <div class="section-title">Partidas</div>
+
+      <div class="field">
+        <label>Agregar artículo</label>
+        <div class="autocomplete-wrap">
+          <input id="fact-art-input" type="text" placeholder="Buscar en catálogo…" oninput="autocompleteArticulo(this.value,'fact')" autocomplete="off"/>
+          <div class="autocomplete-list" id="fact-art-list"></div>
+        </div>
+      </div>
+
+      <div id="fact-items-list"></div>
+
+      <div class="cotiz-total-box">
+        <div class="cotiz-total-row"><span class="cotiz-total-label">Subtotal</span><span class="cotiz-total-val" id="fact-subtotal">$0.00</span></div>
+        <div class="cotiz-total-row">
+          <span class="cotiz-total-label">Descuento</span>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input id="fact-descuento" type="number" min="0" max="100" value="0" style="width:60px;background:var(--input-bg);border:1px solid rgba(200,168,75,0.2);border-radius:8px;color:var(--white);font-size:14px;padding:6px 8px;outline:none;text-align:center" oninput="recalcularFact()"/> %
+          </div>
+        </div>
+        <div class="cotiz-total-row">
+          <span class="cotiz-total-label">IVA</span>
+          <div style="display:flex;align-items:center;gap:6px">
+            <select id="fact-iva" onchange="recalcularFact()" style="background:var(--input-bg);border:1px solid rgba(200,168,75,0.2);border-radius:8px;color:var(--white);font-size:14px;padding:6px 8px;outline:none">
+              <option value="0">Sin IVA</option>
+              <option value="0.16">16%</option>
+            </select>
+          </div>
+        </div>
+        <div class="cotiz-total-row final"><span class="cotiz-total-label" style="font-weight:700;color:var(--white)">TOTAL</span><span id="fact-total">$0.00</span></div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-factura')">Cancelar</button>
+        <button class="btn btn-primary" style="flex:1;margin-top:0" onclick="guardarFactura()">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Orden de Servicio -->
+<div class="modal-overlay" id="modal-orden">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <h3 id="modal-orden-title">Nueva Orden de Servicio</h3>
+      <button class="modal-close" onclick="closeModal('modal-orden')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="orden-id"/>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field"><label>No. Orden</label><input id="orden-num" type="number" placeholder="Auto"/></div>
+        <div class="field"><label>Fecha</label><input id="orden-fecha" type="date"/></div>
+      </div>
+
+      <div class="field"><label>Lugar</label><input id="orden-lugar" type="text" placeholder="Lugar del servicio"/></div>
+
+      <!-- Tipo de forma -->
+      <div class="field">
+        <label>Tipo de formato</label>
+        <select id="orden-formato" onchange="renderOrdenFormato()">
+          <option value="1">Formato 1 — Orden HVAC (Básica)</option>
+          <option value="3">Formato 3 — Orden Eléctrica</option>
+          <option value="4">Formato 4 — Orden HVAC (Parámetros)</option>
+        </select>
+      </div>
+
+      <!-- Cliente con autocomplete -->
+      <div class="field">
+        <label>Cliente</label>
+        <div class="autocomplete-wrap">
+          <input id="orden-cliente-input" type="text" placeholder="Buscar cliente…" oninput="autocompleteCliente(this.value,'orden')" autocomplete="off"/>
+          <div class="autocomplete-list" id="orden-cliente-list"></div>
+        </div>
+        <input type="hidden" id="orden-cliente-id"/>
+      </div>
+
+      <div id="orden-cliente-info" style="display:none;background:var(--navy3);border:1px solid var(--gold-dim);border-radius:var(--radius);padding:12px;margin-top:-8px;margin-bottom:16px;font-size:13px;color:var(--gray)">
+        <div id="orden-cliente-dir"></div>
+        <div id="orden-cliente-tel"></div>
+      </div>
+
+      <div class="field"><label>Técnico responsable</label><input id="orden-tecnico" type="text" placeholder="Nombre del técnico"/></div>
+
+      <!-- Tipo de servicio (checkboxes) -->
+      <div class="field">
+        <label>Tipo de servicio</label>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px" id="orden-tipo-servicio">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input type="checkbox" value="REVISION" style="accent-color:var(--gold)"> Revisión</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input type="checkbox" value="INSTALACION" style="accent-color:var(--gold)"> Instalación</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input type="checkbox" value="MANTENIMIENTO" style="accent-color:var(--gold)"> Mantenimiento</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input type="checkbox" value="OPTIMIZACION" style="accent-color:var(--gold)"> Optimización</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input type="checkbox" value="RECARGA" style="accent-color:var(--gold)"> Recarga</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input type="checkbox" value="DESINSTALACION" style="accent-color:var(--gold)"> Desinstalación</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input type="checkbox" value="OTROS" style="accent-color:var(--gold)"> Otros</label>
+        </div>
+      </div>
+
+      <!-- Campos dinámicos según formato -->
+      <div id="orden-campos-dinamicos"></div>
+
+      <!-- Materiales necesarios -->
+      <div class="section-title">Materiales necesarios</div>
+      <div class="field">
+        <div class="autocomplete-wrap">
+          <input id="orden-art-input" type="text" placeholder="Buscar en catálogo…" oninput="autocompleteArticulo(this.value,'orden')" autocomplete="off"/>
+          <div class="autocomplete-list" id="orden-art-list"></div>
+        </div>
+      </div>
+      <div id="orden-items-list"></div>
+
+      <div class="field"><label>Observaciones</label><textarea id="orden-obs" placeholder="Observaciones adicionales…"></textarea></div>
+
+      <!-- Garantía -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field"><label>Garantía desde</label><input id="orden-gar-desde" type="date"/></div>
+        <div class="field"><label>Garantía hasta</label><input id="orden-gar-hasta" type="date"/></div>
+      </div>
+
+      <div class="field"><label>A excepción de</label><input id="orden-excepcion" type="text" placeholder="Excepciones de garantía…"/></div>
+
+      <!-- Fotos -->
+      <div class="section-title">Fotos (máximo 6)</div>
+      <input type="file" id="orden-foto-input" accept="image/*" capture="environment" style="display:none" onchange="agregarFoto(this)"/>
+      <div class="foto-grid" id="orden-fotos-grid"></div>
+
+      <div style="display:flex;gap:10px;margin-top:8px">
+        <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-orden')">Cancelar</button>
+        <button class="btn btn-primary" style="flex:1;margin-top:0" onclick="guardarOrden()">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════ -->
+<script>
+// ───────────────────────────────────────
+// FIREBASE CONFIG — reemplaza con los datos de tu proyecto
+// ───────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyBhQtYymTnYOcqSKiQprl7z91O0d26-s8s",
+  authDomain: "obrex-ingenieria.firebaseapp.com",
+  projectId: "obrex-ingenieria",
+  storageBucket: "obrex-ingenieria.firebasestorage.app",
+  messagingSenderId: "658326612862",
+  appId: "1:658326612862:web:fe4807a9076bf0d449612f",
+  measurementId: "G-NVQGR4J5EH"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.firestore();
+db.enablePersistence().catch(()=>{});
+
+// ───────────────────────────────────────
+// BASE DE DATOS LOCAL (del Excel)
+// ───────────────────────────────────────
+const CATALOGO_INICIAL = [
+  // MATERIAL ELÉCTRICO
+  {tipo:"MATERIAL ELÉCT.",producto:"CENTRO DE CARGA",um:"PIEZA",desc:"CENTRO DE CARGA SQUARE D DE 100A, 120/240 VCA, 2 FASES, 3 HILOS, 2+6 POLOS, NEMA",precio:1699}
+  {tipo:"MATERIAL ELÉCT.",producto:"CENTRO DE CARGA",um:"PIEZA",desc:"CENTRO DE CARGA SQUARE D DE 60A, 120/240 VCA, 2 FASES, 3 HILOS, 2+4 POLOS, NEMA 1",precio:1425},
+  {tipo:"MATERIAL ELÉCT.",producto:"CENTRO DE CARGA",um:"PIEZA",desc:"CENTRO DE CARGA DE 6 ESPACIOS EMPOTRABLE 100 AMP.",precio:600},
+  {tipo:"MATERIAL ELÉCT.",producto:"CENTRO DE CARGA",um:"PIEZA",desc:"CENTRO DE CARGA QO02 NEMA1 SQUARE D",precio:260},
+  {tipo:"MATERIAL ELÉCT.",producto:"INTERRUPTOR",um:"PIEZA",desc:"INTERRUPTOR TERMOMAGNETICO SQUARE D 1 POLO",precio:229},
+  {tipo:"MATERIAL ELÉCT.",producto:"INTERRUPTOR",um:"PIEZA",desc:"INTERRUPTOR TERMOMAGNETICO SQUARE D 2 POLOS",precio:750},
+  {tipo:"MATERIAL ELÉCT.",producto:"MEDIDOR",um:"PIEZA",desc:"MORDAZA DE BAQUELITA PARA MEDIDOR",precio:505},
+  {tipo:"MATERIAL ELÉCT.",producto:"CABLE",um:"METRO",desc:"CABLE UNIPOLAR CALIBRE #10 MCA. CONDUMEX",precio:20},
+  {tipo:"MATERIAL ELÉCT.",producto:"CABLE",um:"METRO",desc:"CABLE UNIPOLAR CALIBRE #12 MCA. CONDUMEX",precio:15},
+  {tipo:"MATERIAL ELÉCT.",producto:"CABLE",um:"METRO",desc:"CABLE UNIPOLAR CALIBRE #14 MCA. CONDUMEX",precio:12},
+  {tipo:"MATERIAL ELÉCT.",producto:"CABLE",um:"METRO",desc:"CABLE UNIPOLAR CALIBRE #8 MCA. CONDUMEX",precio:40},
+  {tipo:"MATERIAL ELÉCT.",producto:"CABLE",um:"METRO",desc:"CABLE USO RUDO 3x14 AWG",precio:48.5},
+  {tipo:"MATERIAL ELÉCT.",producto:"VARILLA DE TIERRA",um:"PIEZA",desc:"VARILLA DE 1.5M DE ACERO REVESTIDO DE COBRE 1/2",precio:200},
+  {tipo:"MATERIAL ELÉCT.",producto:"CONECTOR",um:"PIEZA",desc:"CONECTOR PARA VARILLA DE TIERRA",precio:20},
+  {tipo:"MATERIAL ELÉCT.",producto:"ABRAZADERA",um:"PIEZA",desc:"ABRAZADERA TIPO UÑA DE 3/4",precio:4.5},
+  {tipo:"MATERIAL ELÉCT.",producto:"CAJA",um:"PIEZA",desc:"CAJA DE PASO PVC 3 X 3",precio:10},
+  {tipo:"MATERIAL ELÉCT.",producto:"CAJA",um:"PIEZA",desc:"CAJA ESTANCA",precio:40},
+  {tipo:"MATERIAL ELÉCT.",producto:"TAPA",um:"PIEZA",desc:"PLACA PARA INTERPERIE DUPLEX",precio:129},
+  {tipo:"MATERIAL ELÉCT.",producto:"CONTACTO",um:"PIEZA",desc:"CONTACTO DUPLEX 15 AMP",precio:90},
+  {tipo:"MATERIAL ELÉCT.",producto:"CONTACTO",um:"PIEZA",desc:"CONTACTO DUPLEX 20 AMP",precio:55},
+  {tipo:"MATERIAL ELÉCT.",producto:"APAGADOR",um:"PIEZA",desc:"APAGADOR SENCILLO CON CONTACTOS",precio:145},
+  {tipo:"MATERIAL ELÉCT.",producto:"CHALUPA",um:"PIEZA",desc:"CHALUPA PARA CONTACTO",precio:15},
+  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"TUBO CONDUIT DE 3/4",precio:25},
+  {tipo:"MATERIAL ELÉCT.",producto:"CANALETA",um:"PIEZA",desc:"CANALETA 1 VÍA 12x12 MM",precio:21},
+  {tipo:"MATERIAL ELÉCT.",producto:"REFLECTOR",um:"PIEZA",desc:"REFLECTOR LED 100 WATTS",precio:350},
+  {tipo:"MATERIAL ELÉCT.",producto:"REFLECTOR",um:"PIEZA",desc:"REFLECTOR LED 50 WATTS",precio:250},
+  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"TUBO CONDUIT PVC DE 1/2",precio:30},
+  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"TUBO CONDUIT PVC DE 1 1/4",precio:57},
+  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"TUBO CONDUIT PVC DE 3/4",precio:25},
+  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"TUBO CONDUIT METÁLICO PARED DELGADA DE 3/4",precio:150},
+  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"COPLE PARED DELGADA 3/4",precio:20},
+  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"ABRAZADERA TIPO CLIP 3/4",precio:12},
+  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"CONECTOR PARA TUBO CONDUIT 3/4",precio:20},
+  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"CAJA OVAL CON TAPA TIPO OT DE 3/4",precio:80},
+  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"CAJA OVAL CON TAPA TIPO OLL DE 3/4",precio:70},
+  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"CAJA OVAL DE TAPA TIPO OLR DE 3/4",precio:75},
+  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"CONECTOR GLÁNDULA 3/4",precio:30},
+  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"CURVA CONDUIT 1 1/4",precio:22},
+  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"ABRAZADERA TIPO UÑA 1 1/4",precio:8},
+  // MATERIAL HVAC
+  {tipo:"MATERIAL HVAC",producto:"REFRIGERANTE",um:"PIEZA",desc:"GAS REFRIGERANTE R410A",precio:250},
+  {tipo:"MATERIAL HVAC",producto:"REFRIGERANTE",um:"PIEZA",desc:"GAS REFRIGERANTE R22",precio:350},
+  {tipo:"MATERIAL HVAC",producto:"CAPACITOR DE ARRANQUE",um:"PIEZA",desc:"CAPACITOR DE TRABAJO VARIAS CAPACIDADES",precio:300},
+  {tipo:"MATERIAL HVAC",producto:"CAPACITOR DE ARRANQUE",um:"PIEZA",desc:"CAPACITOR PARA VENTILADOR",precio:150},
+  {tipo:"MATERIAL HVAC",producto:"PROTECTOR TERMICO",um:"PIEZA",desc:"PROTECTOR TERMICO VARIAS CAPACIDADES",precio:250},
+  {tipo:"MATERIAL HVAC",producto:"CINTA",um:"PIEZA",desc:"CINTA MOMIA",precio:80},
+  {tipo:"MATERIAL HVAC",producto:"MINISPLIT",um:"PIEZA",desc:"MINISPLIT MARCA MIRAGE 220V 1 TONELADA",precio:4800},
+  {tipo:"MATERIAL HVAC",producto:"MINISPLIT",um:"PIEZA",desc:"MINISPLIT MARCA MIRAGE 110V 1 TONELADA",precio:4900},
+  {tipo:"MATERIAL HVAC",producto:"MINISPLIT",um:"PIEZA",desc:"MINISPLIT MARCA MIRAGE 220V 1.5 TONELADAS",precio:8400},
+  {tipo:"MATERIAL HVAC",producto:"MINISPLIT",um:"PIEZA",desc:"MINISPLIT MARCA UNITED APPLIANCE 220V 1 TONELADA",precio:4733},
+  {tipo:"MATERIAL HVAC",producto:"MINISPLIT",um:"PIEZA",desc:"MINISPLIT MARCA UNITED APPLIANCE 110V 1 TONELADA",precio:4800},
+  {tipo:"MATERIAL HVAC",producto:"MINISPLIT",um:"PIEZA",desc:"MINISPLIT MARCA UNITED APPLIANCE 220V 1.5 TONELADAS",precio:7466},
+  {tipo:"MATERIAL HVAC",producto:"MINISPLIT",um:"PIEZA",desc:"MINISPLIT MARCA UNITED APPLIANCE 220V 2 TONELADAS",precio:9333},
+  {tipo:"MATERIAL HVAC",producto:"ARMAFLEX",um:"PIEZA",desc:"AISLAMIENTO PARA TUBERIA ARMAFLEX 3/8 X 3/8",precio:55},
+  // SERVICIO ELÉCTRICO
+  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"ACOMEDITA MONOFASICA TIPO CFE",precio:1000},
+  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"ACOMEDITA BIFASICA TIPO CFE",precio:1800},
+  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"INSTALACION SWITCH 2X30",precio:700},
+  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"INSTALACION SWITCH 2X60 O 3X60",precio:1200},
+  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"INSTALACION DE CENTRO DE CARGA 2/4 BREAKS",precio:800},
+  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"INSTALACION DE CENTRO DE CARGA 6 BREAKS",precio:1000},
+  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"INSTALACION DE CENTRO DE CARGA 8 BREAKS",precio:1200},
+  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"INSTALACION 5TA TERMINAL",precio:800},
+  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"CABLEADO E INSTALACION DE LAMPARA",precio:300},
+  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"CABLEADO E INSTALACIÓN DE CONTACTOS",precio:300},
+  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"CABLEADO E INSTALACION DE PLACA DE APAGADOR",precio:300},
+  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"CABLEADO E INSTALACION DE APAGADOR DE 3 VIAS",precio:500},
+  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"CABLEADO E INSTALACIÓN DE REFLECTOR",precio:500},
+  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"CAMBIO DE REFLECTOR",precio:350},
+  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"CAMBIO DE SOCKET, APAGADORES Y CONTACTOS",precio:200},
+  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"REVISION, DETECCION DE CORTO CIRCUITO O FALLAS",precio:600},
+  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"BALANCEO DE CARGAS",precio:600},
+  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"INSTALACIÓN DE SISTEMA DE TIERRA",precio:600},
+  {tipo:"SERV. ELECTRICO",producto:"INSTALACION ESPECIAL",um:"SERVICIO",desc:"INSTALACION DE FOTOCELDA 1 LAMPARA",precio:500},
+  {tipo:"SERV. ELECTRICO",producto:"INSTALACION ESPECIAL",um:"SERVICIO",desc:"INSTALACION DE VENTILADOR DE TECHO SENCILLO",precio:600},
+  {tipo:"SERV. ELECTRICO",producto:"INSTALACION ESPECIAL",um:"SERVICIO",desc:"INSTALACION DE VENTILADOR DE TECHO CON LAMPARA",precio:1000},
+  {tipo:"SERV. ELECTRICO",producto:"INSTALACION ESPECIAL",um:"SERVICIO",desc:"INSTALACION DE LAMPARA PESADA O DELICADA",precio:1000},
+  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"METRO",desc:"RANURADO EN MURO HASTA 1\" DE ANCHO",precio:150},
+  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"METRO",desc:"CANALIZADO EN LOZA CON POLIDUCTO",precio:120},
+  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"METRO",desc:"CANALIZADO SUPERFICIAL CON TUBO CONDUIT 1/2 O 3/4 O CANALETA",precio:70},
+  // SERVICIO HVAC
+  {tipo:"SERVICIO HVAC",producto:"MANTTO. COMPLETO",um:"1 TON.",desc:"1 TON. MANTENIMIENTO A MINISPLIT INCLUYE DESMONTADO DE EVAPORADORA Y CONDENSADORA",precio:1200},
+  {tipo:"SERVICIO HVAC",producto:"MANTTO. COMPLETO",um:"1.5 TON.",desc:"1.5 TON. MANTENIMIENTO A MINISPLIT INCLUYE DESMONTADO DE EVAPORADORA Y CONDENSADORA",precio:1600},
+  {tipo:"SERVICIO HVAC",producto:"MANTTO. COMPLETO",um:"2 TON.",desc:"2 TON. MANTENIMIENTO A MINISPLIT INCLUYE DESMONTADO DE EVAPORADORA Y CONDENSADORA",precio:2000},
+  {tipo:"SERVICIO HVAC",producto:"MANTTO. COMPLETO",um:"INV. 1 TON.",desc:"INV. 1 TON. MANTENIMIENTO A MINISPLIT INCLUYE DESMONTADO DE EVAPORADORA Y CONDENSADORA",precio:1600},
+  {tipo:"SERVICIO HVAC",producto:"MANTTO. COMPLETO",um:"INV. 1.5 TON.",desc:"INV. 1.5 TON. MANTENIMIENTO A MINISPLIT INCLUYE DESMONTADO DE EVAPORADORA Y CONDENSADORA",precio:1800},
+  {tipo:"SERVICIO HVAC",producto:"MANTTO. COMPLETO",um:"INV. 2 TON.",desc:"INV. 2 TON. MANTENIMIENTO A MINISPLIT INCLUYE DESMONTADO DE EVAPORADORA Y CONDENSADORA",precio:2200},
+  {tipo:"SERVICIO HVAC",producto:"INST. BASICA",um:"1 TON.",desc:"1 TON. INSTALACIÓN DE MINISPLIT SIN INSTALACION ELECTRICA, PLANTA BAJA, CONDENSADORA A NIVEL DE PISO",precio:1500},
+  {tipo:"SERVICIO HVAC",producto:"INST. BASICA",um:"1.5 TON.",desc:"1.5 TON. INSTALACIÓN DE MINISPLIT SIN INSTALACION ELECTRICA, PLANTA BAJA, CONDENSADORA A NIVEL DE PISO",precio:1800},
+  {tipo:"SERVICIO HVAC",producto:"INST. BASICA",um:"2 TON.",desc:"2 TON. INSTALACIÓN DE MINISPLIT SIN INSTALACION ELECTRICA, PLANTA BAJA, CONDENSADORA A NIVEL DE PISO",precio:2500},
+  {tipo:"SERVICIO HVAC",producto:"INST. COMP.",um:"1 TON.",desc:"1 TON. INSTALACION DE MINISPLIT CON INSTALACIÓN ELECTRICA A NO MAS DE 3 MTS DEL CENTRO DE CARGA GRAL; CONDENSADORA A NIVEL DE PISO, INST. TIERRA FISICA",precio:2000},
+  {tipo:"SERVICIO HVAC",producto:"INST. COMP.",um:"1.5 TON.",desc:"1.5 TON. INSTALACION DE MINISPLIT CON INSTALACIÓN ELECTRICA A NO MAS DE 3 MTS DEL CENTRO DE CARGA GRAL; CONDENSADORA A NIVEL DE PISO, INST. TIERRA FISICA",precio:2300},
+  {tipo:"SERVICIO HVAC",producto:"INST. COMP.",um:"2 TON.",desc:"2 TON. INSTALACION DE MINISPLIT CON INSTALACIÓN ELECTRICA A NO MAS DE 3 MTS DEL CENTRO DE CARGA GRAL; CONDENSADORA A NIVEL DE PISO, INST. TIERRA FISICA",precio:3000},
+  {tipo:"SERVICIO HVAC",producto:"INST. BASICA",um:"INV. 1 TON.",desc:"INSTALACIÓN DE MINISPLIT DE 1 TON. INV. SIN INSTALACION ELECTRICA, PLANTA BAJA, CONDENSADORA A NIVEL DE PISO",precio:1600},
+  {tipo:"SERVICIO HVAC",producto:"INST. BASICA",um:"INV. 1.5 TON.",desc:"INSTALACIÓN DE MINISPLIT DE 1.5 TON. INV. SIN INSTALACION ELECTRICA, PLANTA BAJA, CONDENSADORA A NIVEL DE PISO",precio:2000},
+  {tipo:"SERVICIO HVAC",producto:"INST. BASICA",um:"INV. 2 TON.",desc:"INSTALACIÓN DE MINISPLIT DE 2 TON. INV. SIN INSTALACION ELECTRICA, PLANTA BAJA, CONDENSADORA A NIVEL DE PISO",precio:2500},
+  {tipo:"SERVICIO HVAC",producto:"INST. COMP.",um:"INV. 1 TON.",desc:"INSTALACION DE MINISPLIT 1 TON. INV. CON INSTALACIÓN ELECTRICA A NO MAS DE 3 MTS DEL CENTRO DE CARGA GRAL; CONDENSADORA A NIVEL DE PISO, INST. TIERRA FISICA",precio:2100},
+  {tipo:"SERVICIO HVAC",producto:"INST. COMP.",um:"INV. 1.5 TON.",desc:"INSTALACION DE MINISPLIT 1.5 TON. INV. CON INSTALACIÓN ELECTRICA A NO MAS DE 3 MTS DEL CENTRO DE CARGA GRAL; CONDENSADORA A NIVEL DE PISO, INST. TIERRA FISICA",precio:2500},
+  {tipo:"SERVICIO HVAC",producto:"INST. COMP.",um:"INV. 2 TON.",desc:"INSTALACION DE MINISPLIT 2 TON. INV. CON INSTALACIÓN ELECTRICA A NO MAS DE 3 MTS DEL CENTRO DE CARGA GRAL; CONDENSADORA A NIVEL DE PISO, INST. TIERRA FISICA",precio:3100},
+  {tipo:"SERVICIO HVAC",producto:"REVISION",um:"EQUIPOS",desc:"REVISION Y DIAGNOSTICO DE FALLA DE EQUIPOS",precio:500},
+  {tipo:"SERVICIO HVAC",producto:"REPARACION",um:"TARJETA",desc:"REVISIÓN Y REPARACIÓN DE TARJETA CONVENCIONAL",precio:1600},
+  {tipo:"SERVICIO HVAC",producto:"REPARACION",um:"CARGA DE REFRIGERANTE",desc:"SOLO CARGA NO INCLUYE REFRIGERANTE NI DETECCION DE FUGA",precio:500},
+  {tipo:"SERVICIO HVAC",producto:"REPARACION",um:"REPARACION DE FUGA",desc:"REVISION Y REPARACION DE FUGA",precio:1000},
+  {tipo:"SERVICIO HVAC",producto:"TRABAJO EN ALTURA",um:"ALTURA",desc:"PARA TRABAJOS EN ALTURA, SE CONSIDERA RIESGOS A TOMAR, EL PRECIO VARIA",precio:500},
+  {tipo:"SERVICIO HVAC",producto:"DESINSTALACION",um:"SERVICIO",desc:"DESMONTAJE DE EQUIPO NO INCLUYE TRANSPORTE",precio:700},
+  {tipo:"SERVICIO HVAC",producto:"INSTALACION",um:"SERVICIO",desc:"INSTALACION DE SOPORTERIA PARA CONDENSADORA EN ALTURA",precio:500},
+  {tipo:"SERVICIO HVAC",producto:"REPARACION",um:"PIEZA",desc:"CAMBIO DE CAPACITOR (NO INCLUYE CAPACITOR)",precio:500},
+  // IMPERMEABILIZACIÓN
+  {tipo:"SERVICIO",producto:"IMPERMEABILIZACIÓN",um:"M2",desc:"LIMPIEZA, LAVADO Y RETIRO DE DESECHOS",precio:80},
+  {tipo:"SERVICIO",producto:"IMPERMEABILIZACIÓN",um:"M2",desc:"APLICACIÓN DE IMPERMEABILIZANTE A DOS CAPAS",precio:105},
+];
+
+const CLIENTES_INICIAL = [
+  {nombre:"BULMARO CASTILLEJOS",dir:"MAR MEDITERRANEO S/N",colonia:"PUERTO ESMERALDA",ciudad:"COATZACOALCOS",tel:"9211320378"},
+  {nombre:"FELIPE ALVAREZ",dir:"AV. LUIS MADRAZO #112",colonia:"PUERTO ESMERALDA",ciudad:"COATZACOALCOS",tel:"9211245289"},
+  {nombre:"JULIA AMADOR LOPEZ",dir:"AV. BELLAVISTA #243",colonia:"CENTRO",ciudad:"COATZACOALCOS",tel:"9212309107"},
+  {nombre:"AMADA MIJANGOS MORALES",dir:"SANTA JULIA #403",colonia:"SANTA MARIA",ciudad:"COATZACOALCOS",tel:"9211468943"},
+  {nombre:"EVA CITLALLI",dir:"FERNANDO LEAL #111",colonia:"PARAISO",ciudad:"COATZACOALCOS",tel:"9212761059"},
+  {nombre:"JOSE ANTONIO HERNANDEZ MARTINEZ",dir:"RIO AMECA #123",colonia:"TROPICO DE LA RIVERA",ciudad:"COATZACOALCOS",tel:"9211011482"},
+  {nombre:"JOSE MANUEL VELAZQUEZ GONZALEZ",dir:"PRIMAVERAS #64",colonia:"SANTA ISABEL 3ERA ETAPA",ciudad:"COATZACOALCOS",tel:"9211375258"},
+  {nombre:"JOSSELYN ZUÑIGA",dir:"AV. ZAMORA #1104",colonia:"MARIA DE LA PIEDAD",ciudad:"COATZACOALCOS",tel:"9211121842"},
+  {nombre:"LUIS LARA",dir:"SIN NOMBRE #476",colonia:"BRISAS DEL GOLFO",ciudad:"COATZACOALCOS",tel:"9212300720"},
+  {nombre:"MAMÁ DE ALEJANDRO MARQUEZ",dir:"AV. JUVENTINO ROSAS #2703",colonia:"PLAYASOL",ciudad:"COATZACOALCOS",tel:"4447168646"},
+  {nombre:"MARIA IRENE JARA VALLS",dir:"CISNES #18",colonia:"SANTA ISABEL",ciudad:"COATZACOALCOS",tel:"6121835532"},
+  {nombre:"RAFAEL MORENO",dir:"AV. DIAZ MIRON #1214",colonia:"MARIA DE LA PIEDAD",ciudad:"COATZACOALCOS",tel:"9211049645"},
+  {nombre:"RICARDO ROBLERO CANTERO",dir:"ZEMPOALA #207",colonia:"SANTA MARIA",ciudad:"COATZACOALCOS",tel:"9211106480"},
+  {nombre:"SHEILA USCANGA",dir:"HERIBERTO JARA #321",colonia:"VISTALMAR",ciudad:"COATZACOALCOS",tel:"9211204120"},
+  {nombre:"XOCHITL LOPEZ LARES",dir:"BOGOTA MANZANA 7",colonia:"MARADUNAS",ciudad:"COATZACOALCOS",tel:"9212409428"},
+  {nombre:"YESMINA LILI SOSA",dir:"CORA #26",colonia:"FOVISSTE",ciudad:"COATZACOALCOS",tel:"9211185287"},
+  {nombre:"ZURISADAI CASTRO",dir:"AZTECA S/N",colonia:"FRANCISCO VILLA",ciudad:"COATZACOALCOS",tel:"9213070745"},
+  {nombre:"CARLOS ALEMAN",dir:"CEIBA #159",colonia:"PUNTA DEL MAR",ciudad:"COATZACOALCOS",tel:"9212000650"},
+  {nombre:"CAROLINA GONZALEZ CARCAMO",dir:"MAR BALTICO 17",colonia:"PUERTO ESMERALDA",ciudad:"COATZACOALCOS",tel:"9222177729"},
+  {nombre:"GERARDO WILLIAMS JARA",dir:"AVESTRUCES #90",colonia:"SANTA ISABEL",ciudad:"COATZACOALCOS",tel:"6121835532"},
+  {nombre:"SARA CARRIZAL GONZALEZ",dir:"AV. 5 DE MAYO #711",colonia:"FRUTOS DE LA REVOLUCION",ciudad:"COATZACOALCOS",tel:"9213082277"},
+  {nombre:"EJÉRCITO DE SALVACIÓN CASA HOGAR",dir:"AV. ZAMORA #1120",colonia:"MARIA DE LA PIEDAD",ciudad:"COATZACOALCOS",tel:"3332219808"},
+  {nombre:"YESSICA REYES",dir:"AV. LUIS MADRAZO",colonia:"PUERTO ESMERALDA",ciudad:"COATZACOALCOS",tel:"9212346163"},
+  {nombre:"GUSTAVO MALDONADO",dir:"CLAUSTRO",colonia:"PUERTO ESMERALDA",ciudad:"COATZACOALCOS",tel:"9212593736"},
+  {nombre:"JOAQUINA AMADOR",dir:"REVOLUCIÓN #903",colonia:"MARIA DE LA PIEDAD",ciudad:"COATZACOALCOS",tel:"9212528902"},
+  {nombre:"ZULLY DIAZ",dir:"ANDADOR PTO. ESMERALDA EDIFICIO F-102",colonia:"PUERTO ESMERALDA",ciudad:"COATZACOALCOS",tel:"9212710980"},
+  {nombre:"EDDY FERNANDO FONSECA",dir:"HIDALGO #410",colonia:"CENTRO",ciudad:"COATZACOALCOS",tel:"9212548649"},
+  {nombre:"EDUKIDS BILINGÜE",dir:"AV. IGNACIO ALDAMA #203",colonia:"MANUEL ÁVILA CAMACHO",ciudad:"COATZACOALCOS",tel:"2293612311"},
+  {nombre:"CHRISTIAN MORALES",dir:"AV. LÓPEZ MATEOS #629",colonia:"PETROLERA",ciudad:"COATZACOALCOS",tel:"9212560081"},
+  {nombre:"ALEJANDRO MORALES",dir:"AV. CUAUTEMOC #3312",colonia:"GUADALUPE VICTORIA",ciudad:"COATZACOALCOS",tel:""},
+  {nombre:"ISRAEL MARTÍNEZ HUERTA",dir:"AV. FLORES MAGON #1820",colonia:"PROCORO ALOR",ciudad:"COATZACOALCOS",tel:"9211171065"},
+];
+
+// ───────────────────────────────────────
+// ESTADO LOCAL
+// ───────────────────────────────────────
+let currentUser = null;
+let clientes    = [];
+let articulos   = [];
+let cotizaciones= [];
+let ordenes     = [];
+let cotizItems  = [];   // partidas en cotización activa
+let ordenItems  = [];   // materiales en orden activa
+let ordenFotos  = [];   // fotos (base64) en orden activa — máx 6
+let facturas    = [];
+let factItems   = [];
+let currentView = 'dashboard';
+let config = {
+  empresa:"OBREX INGENIERÍA", dir:"GIRASOL 233 COL. EJIDAL",
+  ciudad:"COATZACOALCOS VERACRUZ", tel:"9213104062",
+  banco:"BBVA", cuenta:"4152 3145 9299 9596"
+};
+
+// ───────────────────────────────────────
+// AUTH
+// ───────────────────────────────────────
+let authResuelto = false;
+let introTerminada = false;
+
+auth.onAuthStateChanged(user => {
+  authResuelto = true;
+  if (user) {
+    currentUser = user;
+    if (introTerminada) showApp();
+  } else {
+    currentUser = null;
+    if (introTerminada) showScreen('screen-login');
+  }
+});
+
+function skipIntro() {
+  if (introTerminada) return;
+  introTerminada = true;
+  if (currentUser) showApp();
+  else showScreen('screen-login');
+}
+setTimeout(skipIntro, 3200);
+
+async function doLogin() {
+  const email = document.getElementById('inp-email').value.trim();
+  const pass  = document.getElementById('inp-pass').value;
+  const err   = document.getElementById('login-error');
+  err.style.display = 'none';
+  if (!email || !pass) { err.textContent='Ingresa correo y contraseña'; err.style.display='block'; return; }
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+  } catch(e) {
+    err.textContent = e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found'
+      ? 'Correo o contraseña incorrectos' : 'Error al iniciar sesión';
+    err.style.display = 'block';
+  }
+}
+
+function doLogout() { auth.signOut(); }
+
+document.getElementById('inp-pass').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
+
+// ───────────────────────────────────────
+// PANTALLAS
+// ───────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+async function showApp() {
+  showScreen('screen-app');
+  cargarConfig();
+  await Promise.all([cargarClientes(), cargarArticulos()]);
+  cargarCotizaciones();
+  cargarOrdenes();
+  cargarFacturas();
+  actualizarDashboard();
+  // iOS hint
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if (isIOS && !window.navigator.standalone) {
+    setTimeout(()=>{ document.getElementById('ios-hint').style.display='block'; }, 3000);
+  }
+}
+
+// ───────────────────────────────────────
+// NAVEGACIÓN
+// ───────────────────────────────────────
+const NAV_TITLES = { dashboard:'Dashboard', clientes:'Clientes', articulos:'Artículos', cotizaciones:'Cotizaciones', ordenes:'Órdenes de Servicio', facturas:'Facturas / Notas de Pago', config:'Configuración' };
+const NAV_FABS   = { clientes:true, articulos:true, cotizaciones:true, ordenes:true, facturas:true };
+
+function navTo(view) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const el = document.getElementById('view-'+view);
+  if (el) el.classList.add('active');
+  const nav = document.getElementById('nav-'+view);
+  if (nav) nav.classList.add('active');
+  document.getElementById('topbar-title').textContent = NAV_TITLES[view] || '';
+  currentView = view;
+  const fab = document.getElementById('fab-btn');
+  fab.style.display = NAV_FABS[view] ? 'flex' : 'none';
+}
+
+function fabAction() {
+  if (currentView==='clientes')     openNuevoCliente();
+  else if (currentView==='articulos')    openNuevoArticulo();
+  else if (currentView==='cotizaciones') openNuevaCotizacion();
+  else if (currentView==='ordenes')      openNuevaOrden();
+  else if (currentView==='facturas')     openNuevaFactura();
+}
+
+// ───────────────────────────────────────
+// CONFIG
+// ───────────────────────────────────────
+function cargarConfig() {
+  const saved = localStorage.getItem('obrex_config');
+  if (saved) config = JSON.parse(saved);
+  document.getElementById('cfg-empresa').value = config.empresa;
+  document.getElementById('cfg-dir').value     = config.dir;
+  document.getElementById('cfg-ciudad').value  = config.ciudad;
+  document.getElementById('cfg-tel').value     = config.tel;
+  document.getElementById('cfg-banco').value   = config.banco;
+  document.getElementById('cfg-cuenta').value  = config.cuenta;
+}
+
+function guardarConfig() {
+  config = {
+    empresa: document.getElementById('cfg-empresa').value,
+    dir:     document.getElementById('cfg-dir').value,
+    ciudad:  document.getElementById('cfg-ciudad').value,
+    tel:     document.getElementById('cfg-tel').value,
+    banco:   document.getElementById('cfg-banco').value,
+    cuenta:  document.getElementById('cfg-cuenta').value,
+  };
+  localStorage.setItem('obrex_config', JSON.stringify(config));
+  toast('Configuración guardada');
+}
+
+// ───────────────────────────────────────
+// CLIENTES
+// ───────────────────────────────────────
+async function cargarClientes() {
+  try {
+    const snap = await db.collection('clientes').orderBy('nombre').get();
+    if (snap.empty) {
+      // Sembrar datos iniciales
+      const batch = db.batch();
+      CLIENTES_INICIAL.forEach(c => batch.set(db.collection('clientes').doc(), c));
+      await batch.commit();
+      return cargarClientes();
     }
+    clientes = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    renderClientes(clientes);
+  } catch(e) { console.error(e); }
+}
 
-    // Mostrar hint en iOS si no está instalada
-    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    const isStandalone = window.navigator.standalone === true;
-    if (isIOS && !isStandalone) {
-      setTimeout(() => {
-        document.getElementById('ios-hint').style.display = 'block';
-      }, 2500);
+function renderClientes(lista) {
+  const el = document.getElementById('lista-clientes');
+  if (!lista.length) { el.innerHTML='<div class="empty-state"><p>Sin clientes</p></div>'; return; }
+  el.innerHTML = lista.map(c => `
+    <div class="list-item">
+      <div class="list-item-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div class="list-item-body">
+        <div class="list-item-title">${c.nombre}</div>
+        <div class="list-item-sub">${c.colonia}, ${c.ciudad} · ${c.tel||'—'}</div>
+      </div>
+      <div class="list-item-actions">
+        <button class="btn btn-secondary btn-sm btn-icon" onclick="editarCliente('${c.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="eliminarCliente('${c.id}')">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+function filtrarClientes(q) {
+  const f = q.toLowerCase();
+  renderClientes(clientes.filter(c => c.nombre.toLowerCase().includes(f) || (c.colonia||'').toLowerCase().includes(f)));
+}
+
+function openNuevoCliente() {
+  document.getElementById('modal-cliente-title').textContent = 'Nuevo Cliente';
+  document.getElementById('cliente-id').value = '';
+  ['cli-nombre','cli-dir','cli-colonia','cli-tel'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('cli-ciudad').value = 'COATZACOALCOS';
+  openModal('modal-cliente');
+}
+
+function editarCliente(id) {
+  const c = clientes.find(x=>x.id===id); if(!c) return;
+  document.getElementById('modal-cliente-title').textContent = 'Editar Cliente';
+  document.getElementById('cliente-id').value  = id;
+  document.getElementById('cli-nombre').value  = c.nombre;
+  document.getElementById('cli-dir').value     = c.dir;
+  document.getElementById('cli-colonia').value = c.colonia;
+  document.getElementById('cli-ciudad').value  = c.ciudad;
+  document.getElementById('cli-tel').value     = c.tel;
+  openModal('modal-cliente');
+}
+
+async function guardarCliente() {
+  const id     = document.getElementById('cliente-id').value;
+  const data   = {
+    nombre:  document.getElementById('cli-nombre').value.trim().toUpperCase(),
+    dir:     document.getElementById('cli-dir').value.trim().toUpperCase(),
+    colonia: document.getElementById('cli-colonia').value.trim().toUpperCase(),
+    ciudad:  document.getElementById('cli-ciudad').value.trim().toUpperCase(),
+    tel:     document.getElementById('cli-tel').value.trim(),
+  };
+  if (!data.nombre) { toast('Ingresa el nombre'); return; }
+  try {
+    if (id) await db.collection('clientes').doc(id).update(data);
+    else    await db.collection('clientes').doc().set(data);
+    closeModal('modal-cliente');
+    await cargarClientes();
+    actualizarDashboard();
+    toast(id ? 'Cliente actualizado' : 'Cliente guardado');
+  } catch(e) { toast('Error al guardar'); }
+}
+
+async function eliminarCliente(id) {
+  if (!confirm('¿Eliminar este cliente?')) return;
+  await db.collection('clientes').doc(id).delete();
+  await cargarClientes();
+  actualizarDashboard();
+  toast('Cliente eliminado');
+}
+
+// ───────────────────────────────────────
+// ARTÍCULOS
+// ───────────────────────────────────────
+async function cargarArticulos() {
+  try {
+    const snap = await db.collection('articulos').orderBy('tipo').get();
+    if (snap.empty) {
+      const batch = db.batch();
+      CATALOGO_INICIAL.forEach(a => batch.set(db.collection('articulos').doc(), a));
+      await batch.commit();
+      return cargarArticulos();
     }
+    articulos = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    renderArticulos(articulos);
+  } catch(e) { console.error(e); }
+}
 
-    function show(id) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-    }
+function tagClase(tipo) {
+  if (tipo.includes('ELÉCT')) return 'tag-elec';
+  if (tipo.includes('HVAC'))  return 'tag-hvac';
+  if (tipo.includes('SERV'))  return 'tag-serv';
+  return 'tag-imp';
+}
 
-    // Pantalla de intro: pasa sola a login después de la animación
-    let introDone = false;
-    function skipIntro() {
-      if (introDone) return;
-      introDone = true;
-      show('screen-login');
-    }
-    setTimeout(skipIntro, 3200);
+function renderArticulos(lista) {
+  const el = document.getElementById('lista-articulos');
+  if (!lista.length) { el.innerHTML='<div class="empty-state"><p>Sin artículos</p></div>'; return; }
+  el.innerHTML = lista.map(a => `
+    <div class="list-item">
+      <div class="list-item-body">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <span class="tag ${tagClase(a.tipo)}">${a.tipo}</span>
+          <span style="font-size:12px;color:var(--gray)">${a.um}</span>
+        </div>
+        <div class="list-item-title" style="font-size:13px">${a.desc}</div>
+        <div class="list-item-sub">$${Number(a.precio).toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
+      </div>
+      <div class="list-item-actions">
+        <button class="btn btn-secondary btn-sm btn-icon" onclick="editarArticulo('${a.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="eliminarArticulo('${a.id}')">🗑</button>
+      </div>
+    </div>`).join('');
+}
 
-    function doLogin() {
-      const u = document.getElementById('inp-user').value.trim();
-      const p = document.getElementById('inp-pass').value.trim();
-      if (!u || !p) {
-        alert('Por favor ingresa usuario y contraseña.');
-        return;
-      }
-      show('screen-welcome');
-    }
+function filtrarArticulos(q) {
+  const f = q.toLowerCase();
+  renderArticulos(articulos.filter(a => a.desc.toLowerCase().includes(f) || a.tipo.toLowerCase().includes(f) || a.producto.toLowerCase().includes(f)));
+}
 
-    function doLogout() {
-      document.getElementById('inp-user').value = '';
-      document.getElementById('inp-pass').value = '';
-      show('screen-login');
-    }
+function openNuevoArticulo() {
+  document.getElementById('modal-articulo-title').textContent = 'Nuevo Artículo';
+  document.getElementById('articulo-id').value = '';
+  ['art-producto','art-um','art-desc','art-precio'].forEach(id => document.getElementById(id).value='');
+  openModal('modal-articulo');
+}
 
-    // Enter key support
-    document.getElementById('inp-pass').addEventListener('keydown', e => {
-      if (e.key === 'Enter') doLogin();
+function editarArticulo(id) {
+  const a = articulos.find(x=>x.id===id); if(!a) return;
+  document.getElementById('modal-articulo-title').textContent = 'Editar Artículo';
+  document.getElementById('articulo-id').value  = id;
+  document.getElementById('art-tipo').value     = a.tipo;
+  document.getElementById('art-producto').value = a.producto;
+  document.getElementById('art-um').value       = a.um;
+  document.getElementById('art-desc').value     = a.desc;
+  document.getElementById('art-precio').value   = a.precio;
+  openModal('modal-articulo');
+}
+
+async function guardarArticulo() {
+  const id   = document.getElementById('articulo-id').value;
+  const data = {
+    tipo:    document.getElementById('art-tipo').value,
+    producto:document.getElementById('art-producto').value.trim().toUpperCase(),
+    um:      document.getElementById('art-um').value.trim().toUpperCase(),
+    desc:    document.getElementById('art-desc').value.trim().toUpperCase(),
+    precio:  parseFloat(document.getElementById('art-precio').value)||0,
+  };
+  if (!data.desc) { toast('Ingresa la descripción'); return; }
+  try {
+    if (id) await db.collection('articulos').doc(id).update(data);
+    else    await db.collection('articulos').doc().set(data);
+    closeModal('modal-articulo');
+    await cargarArticulos();
+    actualizarDashboard();
+    toast(id ? 'Artículo actualizado' : 'Artículo guardado');
+  } catch(e) { toast('Error al guardar'); }
+}
+
+async function eliminarArticulo(id) {
+  if (!confirm('¿Eliminar este artículo?')) return;
+  await db.collection('articulos').doc(id).delete();
+  await cargarArticulos();
+  actualizarDashboard();
+  toast('Artículo eliminado');
+}
+
+// ───────────────────────────────────────
+// AUTOCOMPLETE
+// ───────────────────────────────────────
+function autocompleteCliente(q, ctx) {
+  const list = document.getElementById(ctx+'-cliente-list');
+  if (!q || q.length < 1) { list.classList.remove('open'); return; }
+  const matches = clientes.filter(c => c.nombre.toLowerCase().includes(q.toLowerCase())).slice(0,6);
+  if (!matches.length) { list.classList.remove('open'); return; }
+  list.innerHTML = matches.map(c =>
+    `<div class="autocomplete-opt" onclick="selectCliente('${c.id}','${ctx}')">
+      ${c.nombre}<small>${c.colonia}, ${c.ciudad}</small>
+    </div>`).join('');
+  list.classList.add('open');
+}
+
+function selectCliente(id, ctx) {
+  const c = clientes.find(x=>x.id===id); if(!c) return;
+  document.getElementById(ctx+'-cliente-input').value = c.nombre;
+  document.getElementById(ctx+'-cliente-id').value   = id;
+  document.getElementById(ctx+'-cliente-list').classList.remove('open');
+  const info = document.getElementById(ctx+'-cliente-info');
+  const dir  = document.getElementById(ctx+'-cliente-dir');
+  const tel  = document.getElementById(ctx+'-cliente-tel');
+  if (info) {
+    dir.textContent = `${c.dir}, ${c.colonia}, ${c.ciudad}`;
+    tel.textContent = `Tel: ${c.tel||'—'}`;
+    info.style.display = 'block';
+  }
+}
+
+function autocompleteArticulo(q, ctx) {
+  const list = document.getElementById(ctx+'-art-list');
+  if (!q || q.length < 1) { list.classList.remove('open'); return; }
+  const matches = articulos.filter(a =>
+    a.desc.toLowerCase().includes(q.toLowerCase()) ||
+    a.producto.toLowerCase().includes(q.toLowerCase()) ||
+    a.tipo.toLowerCase().includes(q.toLowerCase())
+  ).slice(0,8);
+  if (!matches.length) { list.classList.remove('open'); return; }
+  list.innerHTML = matches.map(a =>
+    `<div class="autocomplete-opt" onclick="selectArticulo('${a.id}','${ctx}')">
+      ${a.desc}<small>${a.tipo} · ${a.um} · $${Number(a.precio).toLocaleString('es-MX')}</small>
+    </div>`).join('');
+  list.classList.add('open');
+}
+
+function selectArticulo(id, ctx) {
+  const a = articulos.find(x=>x.id===id); if(!a) return;
+  document.getElementById(ctx+'-art-input').value = '';
+  document.getElementById(ctx+'-art-list').classList.remove('open');
+  if (ctx==='cotiz')     { cotizItems.push({...a, cantidad:1, precio:a.precio}); renderCotizItems(); }
+  else if (ctx==='fact') { factItems.push({...a, cantidad:1, precio:a.precio}); renderFactItems(); }
+  else                   { ordenItems.push({...a, cantidad:1, precio:a.precio}); renderOrdenItems(); }
+}
+
+// ───────────────────────────────────────
+// COTIZACIONES
+// ───────────────────────────────────────
+async function cargarCotizaciones() {
+  try {
+    const snap = await db.collection('cotizaciones').orderBy('num','desc').get();
+    cotizaciones = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderCotizaciones();
+    actualizarDashboard();
+  } catch(e){}
+}
+
+function renderCotizaciones() {
+  const el = document.getElementById('lista-cotizaciones');
+  if (!cotizaciones.length) { el.innerHTML='<div class="empty-state"><p>Sin cotizaciones</p></div>'; return; }
+  el.innerHTML = cotizaciones.map(c => `
+    <div class="list-item">
+      <div class="list-item-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      </div>
+      <div class="list-item-body">
+        <div class="list-item-title">Cotiz. #${c.num} — ${c.clienteNombre||'—'}</div>
+        <div class="list-item-sub">${c.fecha||''} · $${Number(c.total||0).toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
+      </div>
+      <div class="list-item-actions">
+        <button class="btn btn-success btn-sm btn-icon" title="Generar PDF" onclick="generarPDFCotizacion('${c.id}')">📄</button>
+        <button class="btn btn-secondary btn-sm btn-icon" title="Pasar a Factura" onclick="crearFacturaDesdeCotizacion('${c.id}')">➡️</button>
+        <button class="btn btn-secondary btn-sm btn-icon" onclick="editarCotizacion('${c.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="eliminarCotizacion('${c.id}')">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+async function openNuevaCotizacion() {
+  cotizItems = [];
+  const maxNum = cotizaciones.reduce((m,c)=>Math.max(m,Number(c.num)||0),0);
+  document.getElementById('cotizacion-id').value          = '';
+  document.getElementById('cotiz-num').value              = maxNum+1;
+  document.getElementById('cotiz-fecha').value            = new Date().toISOString().split('T')[0];
+  document.getElementById('cotiz-cliente-input').value   = '';
+  document.getElementById('cotiz-cliente-id').value      = '';
+  document.getElementById('cotiz-cliente-info').style.display = 'none';
+  document.getElementById('cotiz-descuento').value        = 0;
+  document.getElementById('cotiz-iva').value              = '0';
+  renderCotizItems();
+  recalcularCotiz();
+  openModal('modal-cotizacion');
+}
+
+function editarCotizacion(id) {
+  const c = cotizaciones.find(x=>x.id===id); if(!c) return;
+  cotizItems = c.items ? JSON.parse(JSON.stringify(c.items)) : [];
+  document.getElementById('cotizacion-id').value         = id;
+  document.getElementById('modal-cotizacion-title').textContent = 'Editar Cotización';
+  document.getElementById('cotiz-num').value             = c.num;
+  document.getElementById('cotiz-fecha').value           = c.fecha;
+  document.getElementById('cotiz-cliente-input').value  = c.clienteNombre||'';
+  document.getElementById('cotiz-cliente-id').value     = c.clienteId||'';
+  document.getElementById('cotiz-descuento').value       = (c.descuento||0)*100;
+  document.getElementById('cotiz-iva').value             = String(c.iva||0);
+  if (c.clienteId) selectCliente(c.clienteId,'cotiz');
+  renderCotizItems();
+  recalcularCotiz();
+  openModal('modal-cotizacion');
+}
+
+function renderCotizItems() {
+  const el = document.getElementById('cotiz-items-list');
+  if (!cotizItems.length) { el.innerHTML='<p style="color:var(--gray);font-size:13px;text-align:center;padding:12px">Sin partidas — busca un artículo arriba</p>'; recalcularCotiz(); return; }
+  el.innerHTML = cotizItems.map((item, i) => `
+    <div class="cotiz-item">
+      <div class="cotiz-item-header">
+        <div class="cotiz-item-desc">${item.desc}</div>
+        <button class="cotiz-item-remove" onclick="removeCotizItem(${i})">✕</button>
+      </div>
+      <div class="cotiz-item-row">
+        <div class="cotiz-item-field">
+          <label>Cant.</label>
+          <input type="number" value="${item.cantidad}" min="0.01" step="0.01" oninput="updateCotizItem(${i},'cantidad',this.value)"/>
+        </div>
+        <div class="cotiz-item-field">
+          <label>P. Unit.</label>
+          <input type="number" value="${item.precio}" min="0" step="0.01" oninput="updateCotizItem(${i},'precio',this.value)"/>
+        </div>
+        <div class="cotiz-item-field">
+          <label>Importe</label>
+          <input type="number" value="${(item.cantidad*item.precio).toFixed(2)}" readonly style="opacity:0.6"/>
+        </div>
+      </div>
+    </div>`).join('');
+  recalcularCotiz();
+}
+
+function updateCotizItem(i, field, val) {
+  cotizItems[i][field] = parseFloat(val)||0;
+  const imp = cotizItems[i].cantidad * cotizItems[i].precio;
+  const row = document.querySelectorAll('.cotiz-item')[i];
+  if (row) { const inputs = row.querySelectorAll('input'); inputs[2].value = imp.toFixed(2); }
+  recalcularCotiz();
+}
+
+function removeCotizItem(i) { cotizItems.splice(i,1); renderCotizItems(); }
+
+function recalcularCotiz() {
+  const sub  = cotizItems.reduce((s,i)=>s+(i.cantidad*i.precio),0);
+  const desc = (parseFloat(document.getElementById('cotiz-descuento').value)||0)/100;
+  const iva  = parseFloat(document.getElementById('cotiz-iva').value)||0;
+  const conDesc = sub*(1-desc);
+  const total   = conDesc*(1+iva);
+  document.getElementById('cotiz-subtotal').textContent = '$'+sub.toLocaleString('es-MX',{minimumFractionDigits:2});
+  document.getElementById('cotiz-total').textContent    = '$'+total.toLocaleString('es-MX',{minimumFractionDigits:2});
+}
+
+async function guardarCotizacion() {
+  const clienteId = document.getElementById('cotiz-cliente-id').value;
+  if (!clienteId) { toast('Selecciona un cliente'); return; }
+  const cliente   = clientes.find(x=>x.id===clienteId);
+  const sub  = cotizItems.reduce((s,i)=>s+(i.cantidad*i.precio),0);
+  const desc = (parseFloat(document.getElementById('cotiz-descuento').value)||0)/100;
+  const iva  = parseFloat(document.getElementById('cotiz-iva').value)||0;
+  const data = {
+    num:           parseInt(document.getElementById('cotiz-num').value),
+    fecha:         document.getElementById('cotiz-fecha').value,
+    clienteId,
+    clienteNombre: cliente ? cliente.nombre : '',
+    clienteData:   cliente || {},
+    items:         cotizItems,
+    subtotal:      sub,
+    descuento:     desc,
+    iva,
+    total:         sub*(1-desc)*(1+iva),
+    creadoEn:      firebase.firestore.FieldValue.serverTimestamp(),
+  };
+  const id = document.getElementById('cotizacion-id').value;
+  try {
+    if (id) await db.collection('cotizaciones').doc(id).update(data);
+    else    await db.collection('cotizaciones').doc().set(data);
+    closeModal('modal-cotizacion');
+    await cargarCotizaciones();
+    toast('Cotización guardada');
+  } catch(e) { toast('Error al guardar'); }
+}
+
+async function eliminarCotizacion(id) {
+  if (!confirm('¿Eliminar cotización?')) return;
+  await db.collection('cotizaciones').doc(id).delete();
+  await cargarCotizaciones();
+  toast('Cotización eliminada');
+}
+
+// ───────────────────────────────────────
+// FACTURAS / NOTAS DE PAGO
+// ───────────────────────────────────────
+async function cargarFacturas() {
+  try {
+    const snap = await db.collection('facturas').orderBy('num','desc').get();
+    facturas = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderFacturas();
+    actualizarDashboard();
+  } catch(e){}
+}
+
+function renderFacturas() {
+  const el = document.getElementById('lista-facturas');
+  if (!facturas.length) { el.innerHTML='<div class="empty-state"><p>Sin facturas / notas de pago</p></div>'; return; }
+  el.innerHTML = facturas.map(f => `
+    <div class="list-item">
+      <div class="list-item-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      </div>
+      <div class="list-item-body">
+        <div class="list-item-title">Factura #${f.num} — ${f.clienteNombre||'—'}</div>
+        <div class="list-item-sub">${f.fecha||''} · $${Number(f.total||0).toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
+      </div>
+      <div class="list-item-actions">
+        <button class="btn btn-success btn-sm btn-icon" title="Generar PDF" onclick="generarPDFFactura('${f.id}')">📄</button>
+        <button class="btn btn-secondary btn-sm btn-icon" onclick="editarFactura('${f.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="eliminarFactura('${f.id}')">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+function poblarSelectCotizaciones() {
+  const sel = document.getElementById('fact-cotiz-origen');
+  sel.innerHTML = '<option value="">— Crear sin cotización previa —</option>' +
+    cotizaciones.map(c=>`<option value="${c.id}">Cotiz. #${c.num} — ${c.clienteNombre||''}</option>`).join('');
+}
+
+function openNuevaFactura() {
+  factItems = [];
+  const maxNum = facturas.reduce((m,f)=>Math.max(m,Number(f.num)||0),0);
+  document.getElementById('factura-id').value             = '';
+  document.getElementById('factura-cotizacion-id').value  = '';
+  document.getElementById('modal-factura-title').textContent = 'Nueva Factura / Nota de Pago';
+  document.getElementById('fact-num').value                = maxNum+1;
+  document.getElementById('fact-fecha').value               = new Date().toISOString().split('T')[0];
+  document.getElementById('fact-cliente-input').value      = '';
+  document.getElementById('fact-cliente-id').value         = '';
+  document.getElementById('fact-cliente-info').style.display = 'none';
+  document.getElementById('fact-descuento').value           = 0;
+  document.getElementById('fact-iva').value                 = '0';
+  poblarSelectCotizaciones();
+  document.getElementById('fact-cotiz-origen').value        = '';
+  renderFactItems();
+  recalcularFact();
+  openModal('modal-factura');
+}
+
+function crearFacturaDesdeCotizacion(cotizId) {
+  navTo('facturas');
+  openNuevaFactura();
+  document.getElementById('fact-cotiz-origen').value = cotizId;
+  cargarDesdeCoizacion();
+}
+
+function cargarDesdeCoizacion() {
+  const cotizId = document.getElementById('fact-cotiz-origen').value;
+  document.getElementById('factura-cotizacion-id').value = cotizId;
+  if (!cotizId) return;
+  const c = cotizaciones.find(x=>x.id===cotizId);
+  if (!c) return;
+  factItems = c.items ? JSON.parse(JSON.stringify(c.items)) : [];
+  document.getElementById('fact-descuento').value = (c.descuento||0)*100;
+  document.getElementById('fact-iva').value        = String(c.iva||0);
+  if (c.clienteId) selectCliente(c.clienteId,'fact');
+  renderFactItems();
+}
+
+function editarFactura(id) {
+  const f = facturas.find(x=>x.id===id); if(!f) return;
+  factItems = f.items ? JSON.parse(JSON.stringify(f.items)) : [];
+  document.getElementById('factura-id').value             = id;
+  document.getElementById('factura-cotizacion-id').value  = f.cotizacionId||'';
+  document.getElementById('modal-factura-title').textContent = 'Editar Factura / Nota de Pago';
+  document.getElementById('fact-num').value                = f.num;
+  document.getElementById('fact-fecha').value               = f.fecha;
+  document.getElementById('fact-cliente-input').value      = f.clienteNombre||'';
+  document.getElementById('fact-cliente-id').value         = f.clienteId||'';
+  document.getElementById('fact-descuento').value           = (f.descuento||0)*100;
+  document.getElementById('fact-iva').value                 = String(f.iva||0);
+  poblarSelectCotizaciones();
+  document.getElementById('fact-cotiz-origen').value        = f.cotizacionId||'';
+  if (f.clienteId) selectCliente(f.clienteId,'fact');
+  renderFactItems();
+  recalcularFact();
+  openModal('modal-factura');
+}
+
+function renderFactItems() {
+  const el = document.getElementById('fact-items-list');
+  if (!factItems.length) { el.innerHTML='<p style="color:var(--gray);font-size:13px;text-align:center;padding:12px">Sin partidas — busca un artículo arriba</p>'; recalcularFact(); return; }
+  el.innerHTML = factItems.map((item,i) => `
+    <div class="cotiz-item">
+      <div class="cotiz-item-header">
+        <div class="cotiz-item-desc">${item.desc}</div>
+        <button class="cotiz-item-remove" onclick="removeFactItem(${i})">✕</button>
+      </div>
+      <div class="cotiz-item-row">
+        <div class="cotiz-item-field"><label>Cant.</label><input type="number" value="${item.cantidad}" min="0.01" step="0.01" oninput="updateFactItem(${i},'cantidad',this.value)"/></div>
+        <div class="cotiz-item-field"><label>P. Unit.</label><input type="number" value="${item.precio}" min="0" step="0.01" oninput="updateFactItem(${i},'precio',this.value)"/></div>
+        <div class="cotiz-item-field"><label>Importe</label><input type="number" value="${(item.cantidad*item.precio).toFixed(2)}" readonly style="opacity:0.6"/></div>
+      </div>
+    </div>`).join('');
+  recalcularFact();
+}
+
+function updateFactItem(i, field, val) {
+  factItems[i][field] = parseFloat(val)||0;
+  const row = document.querySelectorAll('#fact-items-list .cotiz-item')[i];
+  if (row) { const inputs = row.querySelectorAll('input'); inputs[2].value = (factItems[i].cantidad*factItems[i].precio).toFixed(2); }
+  recalcularFact();
+}
+
+function removeFactItem(i) { factItems.splice(i,1); renderFactItems(); }
+
+function recalcularFact() {
+  const sub  = factItems.reduce((s,i)=>s+(i.cantidad*i.precio),0);
+  const desc = (parseFloat(document.getElementById('fact-descuento').value)||0)/100;
+  const iva  = parseFloat(document.getElementById('fact-iva').value)||0;
+  const total = sub*(1-desc)*(1+iva);
+  document.getElementById('fact-subtotal').textContent = '$'+sub.toLocaleString('es-MX',{minimumFractionDigits:2});
+  document.getElementById('fact-total').textContent    = '$'+total.toLocaleString('es-MX',{minimumFractionDigits:2});
+}
+
+async function guardarFactura() {
+  const clienteId = document.getElementById('fact-cliente-id').value;
+  if (!clienteId) { toast('Selecciona un cliente'); return; }
+  const cliente = clientes.find(x=>x.id===clienteId);
+  const sub  = factItems.reduce((s,i)=>s+(i.cantidad*i.precio),0);
+  const desc = (parseFloat(document.getElementById('fact-descuento').value)||0)/100;
+  const iva  = parseFloat(document.getElementById('fact-iva').value)||0;
+  const data = {
+    num:            parseInt(document.getElementById('fact-num').value),
+    fecha:          document.getElementById('fact-fecha').value,
+    cotizacionId:   document.getElementById('fact-cotiz-origen').value || null,
+    clienteId,
+    clienteNombre:  cliente ? cliente.nombre : '',
+    clienteData:    cliente || {},
+    items:          factItems,
+    subtotal:       sub,
+    descuento:      desc,
+    iva,
+    total:          sub*(1-desc)*(1+iva),
+    creadoEn:       firebase.firestore.FieldValue.serverTimestamp(),
+  };
+  const id = document.getElementById('factura-id').value;
+  try {
+    if (id) await db.collection('facturas').doc(id).update(data);
+    else    await db.collection('facturas').doc().set(data);
+    closeModal('modal-factura');
+    await cargarFacturas();
+    toast('Factura guardada');
+  } catch(e) { toast('Error al guardar'); }
+}
+
+async function eliminarFactura(id) {
+  if (!confirm('¿Eliminar factura?')) return;
+  await db.collection('facturas').doc(id).delete();
+  await cargarFacturas();
+  toast('Factura eliminada');
+}
+
+function generarPDFFactura(id) {
+  const f = facturas.find(x=>x.id===id); if(!f) return;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'mm', format:'letter' });
+  const W=215.9, mg=14, gold=[200,168,75], navy=[10,22,40], white=[240,244,255], gray=[136,150,179];
+
+  doc.setFillColor(...navy); doc.rect(0,0,W,279,'F');
+  doc.setFillColor(...gold); doc.rect(0,0,W,22,'F');
+  doc.setFontSize(18); doc.setFont('helvetica','bold');
+  doc.setTextColor(...navy); doc.text('OBREX INGENIERÍA',mg,14);
+  doc.setFontSize(9); doc.text('FACTURA',W-mg,14,{align:'right'});
+
+  doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(...gray);
+  doc.text(config.dir,mg,30); doc.text(config.ciudad,mg,35); doc.text('Tel: '+config.tel,mg,40);
+
+  doc.setTextColor(...gold); doc.setFont('helvetica','bold'); doc.setFontSize(8);
+  doc.text('No. FACTURA:',W/2,30); doc.text('FECHA:',W/2,35);
+  doc.setTextColor(...white); doc.setFont('helvetica','normal');
+  doc.text(String(f.num),W/2+28,30); doc.text(f.fecha||'',W/2+28,35);
+
+  doc.setFillColor(15,31,61); doc.roundedRect(mg,46,W-mg*2,28,2,2,'F');
+  doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(...gold);
+  doc.text('DATOS DEL CLIENTE',mg+4,53);
+  doc.setFont('helvetica','normal'); doc.setTextColor(...white);
+  const cd = f.clienteData||{};
+  doc.text('NOMBRE: '+(f.clienteNombre||''),mg+4,59);
+  doc.text('DIRECCIÓN: '+(cd.dir||''),mg+4,64);
+  doc.text('COLONIA: '+(cd.colonia||'')+'   CIUDAD: '+(cd.ciudad||''),mg+4,69);
+  doc.text('TEL: '+(cd.tel||''), W/2+10,59);
+
+  let y=84;
+  const cols=[mg,mg+36,mg+52,mg+120,mg+142,mg+166];
+  const hdrs=['TIPO','PRODUCTO','DESCRIPCIÓN','CANT.','P. UNIT.','PRECIO'];
+  doc.setFillColor(...gold); doc.rect(mg,y-5,W-mg*2,8,'F');
+  doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.setTextColor(...navy);
+  hdrs.forEach((h,i)=>doc.text(h,cols[i]+1,y));
+  y+=6;
+
+  doc.setFont('helvetica','normal'); doc.setTextColor(...white); doc.setFontSize(7);
+  (f.items||[]).forEach((item,idx)=>{
+    if (y>240){ doc.addPage(); doc.setFillColor(...navy); doc.rect(0,0,W,279,'F'); y=20; }
+    if(idx%2===0){doc.setFillColor(15,31,61); doc.rect(mg,y-4,W-mg*2,7,'F');}
+    const precio=(item.cantidad*item.precio);
+    doc.text((item.tipo||'').substring(0,14),cols[0]+1,y,{maxWidth:34});
+    doc.text((item.producto||'').substring(0,13),cols[1]+1,y,{maxWidth:15});
+    doc.text((item.desc||'').substring(0,48),cols[2]+1,y,{maxWidth:66});
+    doc.text(String(item.cantidad),cols[3]+1,y);
+    doc.text('$'+Number(item.precio).toLocaleString('es-MX'),cols[4]+1,y);
+    doc.text('$'+precio.toLocaleString('es-MX'),cols[5]+1,y);
+    y+=8;
+  });
+
+  y+=4;
+  const sub   = f.subtotal||0;
+  const desc  = (f.descuento||0)*100;
+  const iva   = (f.iva||0)*100;
+  const total = f.total||0;
+
+  doc.setFillColor(15,31,61); doc.roundedRect(W/2,y,W/2-mg,36,2,2,'F');
+  doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(...gray);
+  doc.text('SUBTOTAL',W/2+4,y+8); doc.setTextColor(...white); doc.text('$'+sub.toLocaleString('es-MX',{minimumFractionDigits:2}),W-mg-2,y+8,{align:'right'});
+  doc.setTextColor(...gray); doc.text('DESCUENTO '+desc+'%',W/2+4,y+16); doc.setTextColor(200,80,80); doc.text('-$'+(sub*(f.descuento||0)).toLocaleString('es-MX',{minimumFractionDigits:2}),W-mg-2,y+16,{align:'right'});
+  doc.setTextColor(...gray); doc.text('IVA '+iva+'%',W/2+4,y+24); doc.setTextColor(...white); doc.text('$'+((sub*(1-(f.descuento||0)))*((f.iva||0))).toLocaleString('es-MX',{minimumFractionDigits:2}),W-mg-2,y+24,{align:'right'});
+  doc.setDrawColor(...gold); doc.line(W/2+2,y+27,W-mg,y+27);
+  doc.setFont('helvetica','bold'); doc.setTextColor(...gold); doc.setFontSize(10);
+  doc.text('TOTAL',W/2+4,y+34); doc.text('$'+total.toLocaleString('es-MX',{minimumFractionDigits:2}),W-mg-2,y+34,{align:'right'});
+
+  y+=44;
+  doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(...gray);
+  doc.text('FORMA DE PAGO: TRANSFERENCIA BANCARIA',mg,y);
+  doc.text('BANCO: '+config.banco+'   CUENTA: '+config.cuenta,mg,y+5);
+  doc.text('"AGRADECEMOS SU CONFIANZA. NUESTRO COMPROMISO ES SU CONFORT Y SEGURIDAD"',mg,y+10);
+
+  doc.save('Factura_'+f.num+'_'+(f.clienteNombre||'cliente').replace(/\s+/g,'_')+'.pdf');
+  toast('PDF generado');
+}
+
+// ───────────────────────────────────────
+// ÓRDENES DE SERVICIO
+// ───────────────────────────────────────
+async function cargarOrdenes() {
+  try {
+    const snap = await db.collection('ordenes').orderBy('num','desc').get();
+    ordenes = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderOrdenes();
+    actualizarDashboard();
+  } catch(e){}
+}
+
+function renderOrdenes() {
+  const el = document.getElementById('lista-ordenes');
+  if (!ordenes.length) { el.innerHTML='<div class="empty-state"><p>Sin órdenes de servicio</p></div>'; return; }
+  el.innerHTML = ordenes.map(o => `
+    <div class="list-item">
+      <div class="list-item-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+      </div>
+      <div class="list-item-body">
+        <div class="list-item-title">Orden #${o.num} — ${o.clienteNombre||'—'}</div>
+        <div class="list-item-sub">${o.fecha||''} · Formato ${o.formato||1}</div>
+      </div>
+      <div class="list-item-actions">
+        <button class="btn btn-success btn-sm btn-icon" title="Generar PDF" onclick="generarPDFOrden('${o.id}')">📄</button>
+        <button class="btn btn-secondary btn-sm btn-icon" onclick="editarOrden('${o.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="eliminarOrden('${o.id}')">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderOrdenFormato() {
+  const fmt = document.getElementById('orden-formato').value;
+  const el  = document.getElementById('orden-campos-dinamicos');
+  if (fmt==='1' || fmt==='2') {
+    el.innerHTML = `
+      <div class="section-title">Equipo</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field"><label>Marca</label><input id="ord-marca" type="text" placeholder=""/></div>
+        <div class="field"><label>Capacidad</label><input id="ord-cap" type="text" placeholder="1 TON."/></div>
+        <div class="field"><label>Refrigerante</label><input id="ord-ref" type="text" placeholder="R410A"/></div>
+        <div class="field"><label>Voltaje</label><input id="ord-volt" type="text" placeholder="220V"/></div>
+        <div class="field"><label># de Serie</label><input id="ord-serie" type="text" placeholder=""/></div>
+        <div class="field"><label>Ubicación</label><input id="ord-ubic" type="text" placeholder=""/></div>
+      </div>
+      <div class="field"><label>Descripción del servicio</label><textarea id="ord-desc-serv" placeholder="Descripción detallada…"></textarea></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field"><label>Valores ANTES</label><input id="ord-val-antes" type="text" placeholder=""/></div>
+        <div class="field"><label>Valores DESPUÉS</label><input id="ord-val-despues" type="text" placeholder=""/></div>
+      </div>`;
+  } else if (fmt==='3') {
+    el.innerHTML = `
+      <div class="field"><label>Trabajo a realizar</label><textarea id="ord-trabajo" placeholder="Descripción del trabajo eléctrico…"></textarea></div>
+      <div class="field"><label>Descripción del servicio</label><textarea id="ord-desc-serv" placeholder="Descripción detallada…"></textarea></div>`;
+  } else if (fmt==='4') {
+    el.innerHTML = `
+      <div class="section-title">Equipo</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field"><label>Marca</label><input id="ord-marca" type="text"/></div>
+        <div class="field"><label>Capacidad</label><input id="ord-cap" type="text"/></div>
+        <div class="field"><label>Refrigerante</label><input id="ord-ref" type="text"/></div>
+        <div class="field"><label>Voltaje</label><input id="ord-volt" type="text"/></div>
+        <div class="field"><label># de Serie</label><input id="ord-serie" type="text"/></div>
+        <div class="field"><label>Ubicación</label><input id="ord-ubic" type="text"/></div>
+      </div>
+      <div class="section-title">Condiciones Generales</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:13px">
+        ${['Conexiones eléctricas','Aislamiento térmico','Vibraciones/Ruidos','Fijación de soportes','Tubería de desagüe'].map(c=>`
+          <div style="grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--navy3);border-radius:8px">
+            <span style="color:var(--white)">${c}</span>
+            <select style="background:var(--input-bg);border:1px solid rgba(200,168,75,0.2);border-radius:6px;color:var(--white);padding:4px 8px;font-size:12px">
+              <option value="">—</option><option>SÍ</option><option>NO</option><option>N/A</option>
+            </select>
+          </div>`).join('')}
+      </div>
+      <div class="section-title">Parámetros de Operación</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        ${[['Vel. aire evaporadora (m/s)','ord-vel-evap'],['Evaporadora (°C)','ord-temp-evap'],['Vel. aire condensadora (m/s)','ord-vel-cond'],['Condensadora (°C)','ord-temp-cond'],['Corriente condensadora (A)','ord-corr'],['Presión refrigerante (PSI)','ord-pres']].map(([l,id])=>`
+          <div class="field"><label>${l}</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+              <input id="${id}-antes" type="text" placeholder="Antes"/>
+              <input id="${id}-desp" type="text" placeholder="Después"/>
+            </div>
+          </div>`).join('')}
+      </div>
+      <div class="section-title">Componentes</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="field"><label>Capacitor compresor (°F)</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <input id="ord-cap-comp-antes" type="text" placeholder="Antes"/><input id="ord-cap-comp-desp" type="text" placeholder="Después"/>
+          </div>
+        </div>
+        <div class="field"><label>Capacitor ventilador (ůF)</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <input id="ord-cap-vent-antes" type="text" placeholder="Antes"/><input id="ord-cap-vent-desp" type="text" placeholder="Después"/>
+          </div>
+        </div>
+      </div>
+      <div class="field"><label>Descripción del servicio</label><textarea id="ord-desc-serv" placeholder="Descripción detallada…"></textarea></div>`;
+  }
+}
+
+function openNuevaOrden() {
+  ordenItems = [];
+  ordenFotos = [];
+  const maxNum = ordenes.reduce((m,o)=>Math.max(m,Number(o.num)||0),0);
+  document.getElementById('orden-id').value            = '';
+  document.getElementById('modal-orden-title').textContent = 'Nueva Orden de Servicio';
+  document.getElementById('orden-num').value           = maxNum+1;
+  document.getElementById('orden-fecha').value         = new Date().toISOString().split('T')[0];
+  document.getElementById('orden-lugar').value         = '';
+  document.getElementById('orden-formato').value       = '1';
+  document.getElementById('orden-cliente-input').value = '';
+  document.getElementById('orden-cliente-id').value    = '';
+  document.getElementById('orden-cliente-info').style.display = 'none';
+  document.getElementById('orden-tecnico').value       = '';
+  document.getElementById('orden-obs').value           = '';
+  document.getElementById('orden-gar-desde').value     = '';
+  document.getElementById('orden-gar-hasta').value     = '';
+  document.getElementById('orden-excepcion').value     = '';
+  document.querySelectorAll('#orden-tipo-servicio input[type=checkbox]').forEach(cb=>cb.checked=false);
+  renderOrdenFormato();
+  renderOrdenItems();
+  renderOrdenFotos();
+  openModal('modal-orden');
+}
+
+function editarOrden(id) {
+  const o = ordenes.find(x=>x.id===id); if(!o) return;
+  ordenItems = o.items ? JSON.parse(JSON.stringify(o.items)) : [];
+  ordenFotos = [];
+  document.getElementById('orden-id').value            = id;
+  document.getElementById('modal-orden-title').textContent = 'Editar Orden';
+  document.getElementById('orden-num').value           = o.num;
+  document.getElementById('orden-fecha').value         = o.fecha;
+  document.getElementById('orden-lugar').value         = o.lugar||'';
+  document.getElementById('orden-formato').value       = String(o.formato||1);
+  document.getElementById('orden-cliente-input').value = o.clienteNombre||'';
+  document.getElementById('orden-cliente-id').value    = o.clienteId||'';
+  document.getElementById('orden-tecnico').value       = o.tecnico||'';
+  document.getElementById('orden-obs').value           = o.observaciones||'';
+  document.getElementById('orden-gar-desde').value     = o.garDesde||'';
+  document.getElementById('orden-gar-hasta').value     = o.garHasta||'';
+  document.getElementById('orden-excepcion').value     = o.excepcion||'';
+  if (o.clienteId) selectCliente(o.clienteId,'orden');
+  document.querySelectorAll('#orden-tipo-servicio input[type=checkbox]').forEach(cb=>{
+    cb.checked = (o.tipoServicio||[]).includes(cb.value);
+  });
+  renderOrdenFormato();
+  renderOrdenItems();
+  cargarFotosLocal(id).then(fotos=>{ ordenFotos = fotos; renderOrdenFotos(); });
+  openModal('modal-orden');
+}
+
+function renderOrdenItems() {
+  const el = document.getElementById('orden-items-list');
+  if (!ordenItems.length) { el.innerHTML=''; return; }
+  el.innerHTML = ordenItems.map((item,i)=>`
+    <div class="cotiz-item">
+      <div class="cotiz-item-header">
+        <div class="cotiz-item-desc">${item.desc}</div>
+        <button class="cotiz-item-remove" onclick="removeOrdenItem(${i})">✕</button>
+      </div>
+      <div class="cotiz-item-row">
+        <div class="cotiz-item-field"><label>Cant.</label><input type="number" value="${item.cantidad}" min="1" oninput="updateOrdenItem(${i},'cantidad',this.value)"/></div>
+        <div class="cotiz-item-field"><label>P. Unit.</label><input type="number" value="${item.precio}" min="0" step="0.01" oninput="updateOrdenItem(${i},'precio',this.value)"/></div>
+        <div class="cotiz-item-field"><label>Importe</label><input type="number" value="${(item.cantidad*item.precio).toFixed(2)}" readonly style="opacity:0.6"/></div>
+      </div>
+    </div>`).join('');
+}
+
+function updateOrdenItem(i,field,val){ ordenItems[i][field]=parseFloat(val)||0; renderOrdenItems(); }
+function removeOrdenItem(i){ ordenItems.splice(i,1); renderOrdenItems(); }
+
+// ───────────────────────────────────────
+// FOTOS DE ORDEN — almacenadas localmente (IndexedDB), nunca en Firebase
+// ───────────────────────────────────────
+const FOTOS_DB_NAME = 'obrex_fotos_db';
+let fotosDbPromise = null;
+
+function abrirFotosDB() {
+  if (fotosDbPromise) return fotosDbPromise;
+  fotosDbPromise = new Promise((resolve, reject) => {
+    const req = indexedDB.open(FOTOS_DB_NAME, 1);
+    req.onupgradeneeded = e => {
+      const dbi = e.target.result;
+      if (!dbi.objectStoreNames.contains('fotos')) dbi.createObjectStore('fotos', { keyPath:'ordenId' });
+    };
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror   = e => reject(e);
+  });
+  return fotosDbPromise;
+}
+
+async function cargarFotosLocal(ordenId) {
+  if (!ordenId) return [];
+  try {
+    const dbi = await abrirFotosDB();
+    return new Promise(resolve => {
+      const tx = dbi.transaction('fotos','readonly');
+      const req = tx.objectStore('fotos').get(ordenId);
+      req.onsuccess = () => resolve(req.result ? req.result.imagenes : []);
+      req.onerror   = () => resolve([]);
     });
-  </script>
+  } catch(e) { return []; }
+}
+
+async function guardarFotosLocal(ordenId, imagenes) {
+  if (!ordenId) return;
+  try {
+    const dbi = await abrirFotosDB();
+    const tx = dbi.transaction('fotos','readwrite');
+    tx.objectStore('fotos').put({ ordenId, imagenes });
+  } catch(e) { console.error('Error guardando fotos', e); }
+}
+
+function renderOrdenFotos() {
+  const grid = document.getElementById('orden-fotos-grid');
+  let html = '';
+  ordenFotos.forEach((foto, i) => {
+    html += `<div class="foto-slot">
+      <img src="${foto}"/>
+      <button class="foto-remove" onclick="eliminarFoto(${i})">✕</button>
+    </div>`;
+  });
+  if (ordenFotos.length < 6) {
+    html += `<div class="foto-slot" onclick="document.getElementById('orden-foto-input').click()">
+      <svg class="foto-add-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    </div>`;
+  }
+  grid.innerHTML = html;
+}
+
+function agregarFoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (ordenFotos.length >= 6) { toast('Máximo 6 fotos'); input.value=''; return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    // Comprimir antes de guardar para no saturar el dispositivo
+    comprimirImagen(e.target.result, 1000, 0.7).then(comprimida => {
+      ordenFotos.push(comprimida);
+      renderOrdenFotos();
+      input.value = '';
+    });
+  };
+  reader.readAsDataURL(file);
+}
+
+function comprimirImagen(dataUrl, maxAncho, calidad) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > maxAncho) { height = height*(maxAncho/width); width = maxAncho; }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img,0,0,width,height);
+      resolve(canvas.toDataURL('image/jpeg', calidad));
+    };
+    img.src = dataUrl;
+  });
+}
+
+function eliminarFoto(i) { ordenFotos.splice(i,1); renderOrdenFotos(); }
+
+async function guardarOrden() {
+  const clienteId = document.getElementById('orden-cliente-id').value;
+  if (!clienteId) { toast('Selecciona un cliente'); return; }
+  const cliente = clientes.find(x=>x.id===clienteId);
+  const tipoServicio = [...document.querySelectorAll('#orden-tipo-servicio input:checked')].map(c=>c.value);
+  const fmt = document.getElementById('orden-formato').value;
+  // Leer campos dinámicos
+  const extra = {};
+  ['ord-marca','ord-cap','ord-ref','ord-volt','ord-serie','ord-ubic','ord-desc-serv','ord-trabajo'].forEach(id=>{
+    const el = document.getElementById(id); if(el) extra[id]=el.value;
+  });
+  const data = {
+    num:           parseInt(document.getElementById('orden-num').value),
+    fecha:         document.getElementById('orden-fecha').value,
+    lugar:         document.getElementById('orden-lugar').value,
+    formato:       parseInt(fmt),
+    clienteId,
+    clienteNombre: cliente?cliente.nombre:'',
+    clienteData:   cliente||{},
+    tecnico:       document.getElementById('orden-tecnico').value,
+    tipoServicio,
+    items:         ordenItems,
+    observaciones: document.getElementById('orden-obs').value,
+    garDesde:      document.getElementById('orden-gar-desde').value,
+    garHasta:      document.getElementById('orden-gar-hasta').value,
+    excepcion:     document.getElementById('orden-excepcion').value,
+    extra,
+    creadoEn:      firebase.firestore.FieldValue.serverTimestamp(),
+  };
+  const id = document.getElementById('orden-id').value;
+  try {
+    let ordenId = id;
+    if (id) {
+      await db.collection('ordenes').doc(id).update(data);
+    } else {
+      const ref = db.collection('ordenes').doc();
+      await ref.set(data);
+      ordenId = ref.id;
+    }
+    await guardarFotosLocal(ordenId, ordenFotos);
+    closeModal('modal-orden');
+    await cargarOrdenes();
+    toast('Orden guardada');
+  } catch(e){ toast('Error al guardar'); }
+}
+
+async function eliminarOrden(id){
+  if(!confirm('¿Eliminar orden?')) return;
+  await db.collection('ordenes').doc(id).delete();
+  try {
+    const dbi = await abrirFotosDB();
+    dbi.transaction('fotos','readwrite').objectStore('fotos').delete(id);
+  } catch(e){}
+  await cargarOrdenes();
+  toast('Orden eliminada');
+}
+
+// ───────────────────────────────────────
+// GENERACIÓN DE PDF — COTIZACIÓN
+// ───────────────────────────────────────
+function generarPDFCotizacion(id) {
+  const c = cotizaciones.find(x=>x.id===id); if(!c) return;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'mm', format:'letter' });
+  const W=215.9, mg=14, gold=[200,168,75], navy=[10,22,40], white=[240,244,255], gray=[136,150,179];
+
+  // Fondo
+  doc.setFillColor(...navy); doc.rect(0,0,W,279,'F');
+
+  // Header banda
+  doc.setFillColor(...gold); doc.rect(0,0,W,22,'F');
+  doc.setFontSize(18); doc.setFont('helvetica','bold');
+  doc.setTextColor(...navy); doc.text('OBREX INGENIERÍA',mg,14);
+  doc.setFontSize(9); doc.text('COTIZACIÓN',W-mg,14,{align:'right'});
+
+  // Info empresa & cliente
+  doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(...gray);
+  doc.text(config.dir,mg,30); doc.text(config.ciudad,mg,35); doc.text('Tel: '+config.tel,mg,40);
+
+  doc.setTextColor(...gold); doc.setFont('helvetica','bold'); doc.setFontSize(8);
+  doc.text('No. COTIZACIÓN:',W/2,30); doc.text('FECHA:',W/2,35);
+  doc.setTextColor(...white); doc.setFont('helvetica','normal');
+  doc.text(String(c.num),W/2+28,30); doc.text(c.fecha||'',W/2+28,35);
+
+  // Datos cliente
+  doc.setFillColor(15,31,61); doc.roundedRect(mg,46,W-mg*2,28,2,2,'F');
+  doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(...gold);
+  doc.text('DATOS DEL CLIENTE',mg+4,53);
+  doc.setFont('helvetica','normal'); doc.setTextColor(...white);
+  const cd = c.clienteData||{};
+  doc.text('NOMBRE: '+( c.clienteNombre||''),mg+4,59);
+  doc.text('DIRECCIÓN: '+(cd.dir||''),mg+4,64);
+  doc.text('COLONIA: '+(cd.colonia||'')+'   CIUDAD: '+(cd.ciudad||''),mg+4,69);
+  doc.text('TEL: '+(cd.tel||''), W/2+10,59);
+
+  // Tabla de partidas
+  let y=84;
+  const cols=[mg,mg+36,mg+52,mg+120,mg+142,mg+166];
+  const hdrs=['TIPO','PRODUCTO','DESCRIPCIÓN','CANT.','P. UNIT.','PRECIO'];
+  doc.setFillColor(...gold); doc.rect(mg,y-5,W-mg*2,8,'F');
+  doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.setTextColor(...navy);
+  hdrs.forEach((h,i)=>doc.text(h,cols[i]+1,y));
+  y+=6;
+
+  doc.setFont('helvetica','normal'); doc.setTextColor(...white); doc.setFontSize(7);
+  (c.items||[]).forEach((item,idx)=>{
+    if (y>240){ doc.addPage(); doc.setFillColor(...navy); doc.rect(0,0,W,279,'F'); y=20; }
+    if(idx%2===0){doc.setFillColor(15,31,61); doc.rect(mg,y-4,W-mg*2,7,'F');}
+    const precio=(item.cantidad*item.precio);
+    doc.text((item.tipo||'').substring(0,14),cols[0]+1,y,{maxWidth:34});
+    doc.text((item.producto||'').substring(0,13),cols[1]+1,y,{maxWidth:15});
+    doc.text((item.desc||'').substring(0,48),cols[2]+1,y,{maxWidth:66});
+    doc.text(String(item.cantidad),cols[3]+1,y);
+    doc.text('$'+Number(item.precio).toLocaleString('es-MX'),cols[4]+1,y);
+    doc.text('$'+precio.toLocaleString('es-MX'),cols[5]+1,y);
+    y+=8;
+  });
+
+  // Totales
+  y+=4;
+  const sub   = c.subtotal||0;
+  const desc  = (c.descuento||0)*100;
+  const iva   = (c.iva||0)*100;
+  const total = c.total||0;
+
+  doc.setFillColor(15,31,61); doc.roundedRect(W/2,y,W/2-mg,36,2,2,'F');
+  doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(...gray);
+  doc.text('SUBTOTAL',W/2+4,y+8); doc.setTextColor(...white); doc.text('$'+sub.toLocaleString('es-MX',{minimumFractionDigits:2}),W-mg-2,y+8,{align:'right'});
+  doc.setTextColor(...gray); doc.text('DESCUENTO '+desc+'%',W/2+4,y+16); doc.setTextColor(200,80,80); doc.text('-$'+(sub*(c.descuento||0)).toLocaleString('es-MX',{minimumFractionDigits:2}),W-mg-2,y+16,{align:'right'});
+  doc.setTextColor(...gray); doc.text('IVA '+iva+'%',W/2+4,y+24); doc.setTextColor(...white); doc.text('$'+((sub*(1-(c.descuento||0)))*((c.iva||0))).toLocaleString('es-MX',{minimumFractionDigits:2}),W-mg-2,y+24,{align:'right'});
+  doc.setDrawColor(...gold); doc.line(W/2+2,y+27,W-mg,y+27);
+  doc.setFont('helvetica','bold'); doc.setTextColor(...gold); doc.setFontSize(10);
+  doc.text('TOTAL',W/2+4,y+34); doc.text('$'+total.toLocaleString('es-MX',{minimumFractionDigits:2}),W-mg-2,y+34,{align:'right'});
+
+  // Pago
+  y+=44;
+  doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(...gray);
+  doc.text('FORMA DE PAGO: TRANSFERENCIA BANCARIA',mg,y);
+  doc.text('BANCO: '+config.banco+'   CUENTA: '+config.cuenta,mg,y+5);
+  doc.text('COTIZACIÓN VÁLIDA POR 15 DÍAS. SE REQUIERE 50% DE ANTICIPO PARA INICIO DE OBRA.',mg,y+10);
+
+  // Guardar en dispositivo
+  doc.save('Cotizacion_'+c.num+'_'+( c.clienteNombre||'cliente').replace(/\s+/g,'_')+'.pdf');
+  toast('PDF generado');
+}
+
+// ───────────────────────────────────────
+// GENERACIÓN DE PDF — ORDEN DE SERVICIO
+// ───────────────────────────────────────
+
+// ═══════════════════════════════════════════════════════
+// MOTOR EXACTO — Formato 1 (fondo real + coordenadas de PDFescape)
+// ═══════════════════════════════════════════════════════
+const F1_FIELDS = {"lugar": [502.1, 741.4, 575.7, 754.0], "fecha": [503.5, 720.8, 575.7, 733.9], "orden": [503.2, 699.1, 575.8, 712.9], "nombre": [111.6, 629.8, 390.0, 643.9], "domicilio": [118.2, 613.5, 390.8, 627.9], "telefono": [121.4, 596.6, 390.8, 611.0], "tecnico": [423.9, 631.0, 575.8, 643.5], "tecnico_domicilio": [424.7, 614.2, 573.8, 627.8], "tecnico_telefono": [425.2, 597.4, 574.3, 611.4], "chk_revision": [41.3, 556.1, 48.8, 564.1], "chk_instalacion": [115.3, 556.1, 123.3, 564.1], "chk_mantenimiento": [192.7, 556.1, 200.7, 564.6], "chk_optimizacion": [271.9, 556.1, 279.4, 564.1], "chk_recarga": [350.7, 556.1, 358.2, 564.1], "chk_desinstalacion": [429.4, 556.6, 437.4, 564.1], "chk_otros": [508.6, 557.1, 516.1, 564.1], "marca": [90.5, 429.4, 295.8, 442.5], "capacidad": [118.2, 410.6, 295.8, 424.2], "refrigerante": [132.2, 392.3, 294.4, 405.0], "voltaje": [99.4, 374.5, 293.5, 386.2], "serie": [108.8, 353.4, 295.4, 368.0], "ubicacion": [112.5, 335.6, 294.9, 348.8], "observaciones": [322.5, 281.7, 570.0, 443.9], "desc_servicio": [44.6, 167.6, 296.3, 282.0], "valor_antes": [313.6, 207.0, 436.9, 237.0], "valor_despues": [453.8, 208.9, 574.3, 236.1], "gar_desde_d": [438.3, 131.7, 472.1, 146.7], "gar_desde_m": [483.3, 132.2, 515.2, 146.2], "gar_desde_a": [523.2, 131.2, 557.4, 145.3], "gar_hasta_d": [439.7, 91.9, 471.1, 105.0], "gar_hasta_m": [479.1, 92.3, 513.8, 104.5], "gar_hasta_a": [521.8, 91.9, 558.8, 104.5], "excepcion": [311.8, 34.2, 578.9, 76.9], "mat_desc_0_0": [38.0, 112.0, 119.6, 123.8], "mat_precio_0_0": [130.4, 112.5, 161.8, 123.3], "mat_desc_0_1": [174.4, 112.0, 257.4, 123.8], "mat_precio_0_1": [269.6, 113.0, 299.6, 122.3], "mat_desc_1_0": [38.0, 94.2, 119.6, 105.0], "mat_precio_1_0": [131.8, 94.7, 161.3, 105.0], "mat_desc_1_1": [175.4, 92.8, 257.4, 105.5], "mat_precio_1_1": [269.6, 94.7, 299.1, 104.5], "mat_desc_2_0": [38.0, 73.6, 118.2, 84.8], "mat_precio_2_0": [131.8, 75.0, 161.8, 85.8], "mat_desc_2_1": [175.4, 73.6, 256.9, 85.3], "mat_precio_2_1": [269.1, 75.0, 299.1, 84.8], "mat_desc_3_0": [38.5, 55.8, 117.7, 67.5], "mat_precio_3_0": [131.8, 57.2, 162.2, 67.5], "mat_desc_3_1": [176.3, 55.8, 256.9, 68.4], "mat_precio_3_1": [270.0, 57.2, 299.1, 67.0], "mat_desc_4_0": [38.9, 36.1, 118.2, 48.3], "mat_precio_4_0": [130.8, 37.0, 161.3, 46.9], "mat_desc_4_1": [176.8, 35.2, 257.4, 46.9], "mat_precio_4_1": [268.6, 37.0, 299.1, 46.9]};
+const F1_PAGE_W = 612, F1_PAGE_H = 792, F1_SCALE = 215.9/612;
+
+function f1FitFontSize(doc, text, maxW, maxH, maxSize, minSize){
+  maxSize = maxSize || 9; minSize = minSize || 5;
+  let size = Math.min(maxSize, maxH*0.62);
+  doc.setFont('helvetica','normal');
+  while(size > minSize){
+    doc.setFontSize(size);
+    if(doc.getTextWidth(text) <= maxW - 1.2) break;
+    size -= 0.3;
+  }
+  return Math.round(size*10)/10;
+}
+function f1Rect(key){
+  const r = F1_FIELDS[key];
+  return { x0:r[0]*F1_SCALE, y0:r[1]*F1_SCALE, x1:r[2]*F1_SCALE, y1:r[3]*F1_SCALE, w:(r[2]-r[0])*F1_SCALE, h:(r[3]-r[1])*F1_SCALE };
+}
+function f1DrawInBox(doc, key, text, opts){
+  if(!text) return;
+  opts = opts || {};
+  const b = f1Rect(key);
+  const size = f1FitFontSize(doc, String(text), b.w, b.h, 9, 5);
+  doc.setFont('helvetica','normal'); doc.setFontSize(size);
+  doc.setTextColor(10,22,40);
+  const ty = F1_PAGE_H*F1_SCALE - (b.y0 + b.h/2) + size*0.3527*0.32;
+  if(opts.align === 'center'){ doc.text(String(text), (b.x0+b.x1)/2, ty, {align:'center'}); }
+  else { doc.text(String(text), b.x0 + 0.7, ty); }
+}
+function f1DrawMultiline(doc, key, text, opts){
+  if(!text) return;
+  opts = opts || {};
+  const size = opts.size || 11;
+  const lineSpacing = opts.lineSpacing || 1.9;
+  const topGap = (opts.topGap || 0) * F1_SCALE;
+  const firstIndent = (opts.firstLineIndent || 0) * F1_SCALE;
+  const b = f1Rect(key);
+  doc.setFont('helvetica','normal'); doc.setFontSize(size);
+  doc.setTextColor(10,22,40);
+  const words = String(text).split(' ');
+  let lines = [], cur = '';
+  words.forEach(function(word){
+    const trial = (cur + ' ' + word).trim();
+    const limit = (lines.length===0) ? (b.w - 1.2 - firstIndent) : (b.w - 1.2);
+    if(doc.getTextWidth(trial) <= limit){ cur = trial; } else { lines.push(cur); cur = word; }
+  });
+  if(cur) lines.push(cur);
+  const sizeMm = size*0.3527;
+  const lineH = sizeMm*lineSpacing;
+  let ty = (F1_PAGE_H*F1_SCALE - b.y1) + topGap + sizeMm + 0.7;
+  lines.forEach(function(line, i){
+    if(ty > F1_PAGE_H*F1_SCALE - b.y0) return;
+    const indent = (i===0) ? firstIndent : 0;
+    doc.text(line, b.x0 + 0.7 + indent, ty);
+    ty += lineH;
+  });
+}
+function f1DrawCheckbox(doc, key){
+  const b = f1Rect(key);
+  const size = Math.min(b.w, b.h) * 0.85;
+  doc.setFont('helvetica','bold'); doc.setFontSize(size/0.3527*0.8);
+  doc.setTextColor(10,22,40);
+  const ty = (F1_PAGE_H*F1_SCALE - (b.y0 + b.h*0.28));
+  doc.text('X', (b.x0+b.x1)/2, ty, {align:'center'});
+}
+
+function generarPDFFormato1(doc, o){
+  const bgImg = document.getElementById('formato1-bg-img');
+  doc.addImage(bgImg, 'PNG', 0, 0, F1_PAGE_W*F1_SCALE, F1_PAGE_H*F1_SCALE);
+
+  const cd = o.clienteData || {};
+  const ex = o.extra || {};
+
+  f1DrawInBox(doc, 'lugar', o.lugar);
+  f1DrawInBox(doc, 'fecha', o.fecha);
+  f1DrawInBox(doc, 'orden', o.num);
+  f1DrawInBox(doc, 'nombre', o.clienteNombre);
+  f1DrawInBox(doc, 'domicilio', cd.dir);
+  f1DrawInBox(doc, 'telefono', cd.tel);
+  f1DrawInBox(doc, 'tecnico', o.tecnico);
+
+  (o.tipoServicio||[]).forEach(function(t){
+    const key = 'chk_' + t.toLowerCase();
+    if (F1_FIELDS[key]) f1DrawCheckbox(doc, key);
+  });
+
+  f1DrawInBox(doc, 'marca', ex['ord-marca']);
+  f1DrawInBox(doc, 'capacidad', ex['ord-cap']);
+  f1DrawInBox(doc, 'refrigerante', ex['ord-ref']);
+  f1DrawInBox(doc, 'voltaje', ex['ord-volt']);
+  f1DrawInBox(doc, 'serie', ex['ord-serie']);
+  f1DrawInBox(doc, 'ubicacion', ex['ord-ubic']);
+
+  f1DrawMultiline(doc, 'observaciones', o.observaciones, {size:11, lineSpacing:1.9});
+  f1DrawMultiline(doc, 'desc_servicio', ex['ord-desc-serv'], {size:11, lineSpacing:1.9});
+
+  const items = (o.items||[]).slice(0,10);
+  items.forEach(function(item, idx){
+    const row = Math.floor(idx/2), col = idx%2;
+    f1DrawInBox(doc, 'mat_desc_'+row+'_'+col, item.desc);
+    f1DrawInBox(doc, 'mat_precio_'+row+'_'+col, (item.cantidad*item.precio).toFixed(2));
+  });
+
+  function splitFecha(str){
+    if(!str) return ['','',''];
+    const p = str.split('-'); // YYYY-MM-DD
+    return p.length===3 ? [p[2],p[1],p[0]] : ['','',str];
+  }
+  const [dd1,mm1,aa1] = splitFecha(o.garDesde);
+  const [dd2,mm2,aa2] = splitFecha(o.garHasta);
+  f1DrawInBox(doc, 'gar_desde_d', dd1, {align:'center'});
+  f1DrawInBox(doc, 'gar_desde_m', mm1, {align:'center'});
+  f1DrawInBox(doc, 'gar_desde_a', aa1, {align:'center'});
+  f1DrawInBox(doc, 'gar_hasta_d', dd2, {align:'center'});
+  f1DrawInBox(doc, 'gar_hasta_m', mm2, {align:'center'});
+  f1DrawInBox(doc, 'gar_hasta_a', aa2, {align:'center'});
+  f1DrawMultiline(doc, 'excepcion', o.excepcion, {size:11, lineSpacing:1.9, firstLineIndent:86});
+}
+
+async function generarPDFOrden(id) {
+  const o = ordenes.find(x=>x.id===id); if(!o) return;
+  const fotosOrden = await cargarFotosLocal(id);
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'mm', format:'letter' });
+  const W=215.9, mg=14, gold=[200,168,75], navy=[10,22,40], navyMid=[15,31,61], white=[240,244,255], gray=[136,150,179];
+
+  if (o.formato === 1) {
+    generarPDFFormato1(doc, o);
+  } else {
+
+  // Fondo
+  doc.setFillColor(...navy); doc.rect(0,0,W,279,'F');
+
+  // Header
+  doc.setFillColor(...gold); doc.rect(0,0,W,22,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(18); doc.setTextColor(...navy);
+  doc.text('OBREX INGENIERÍA',mg,14);
+  doc.setFontSize(11); doc.text('ORDEN DE SERVICIO',W-mg,9,{align:'right'});
+
+  // Lugar / Fecha / No. Orden
+  doc.setFillColor(...navyMid); doc.roundedRect(W-70,0,70,22,0,0,'F');
+  doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(...gold);
+  doc.text('LUGAR:',W-68,7); doc.text('FECHA:',W-68,13); doc.text('ORDEN:',W-68,19);
+  doc.setTextColor(...white); doc.setFont('helvetica','normal');
+  doc.text(o.lugar||'—',W-50,7); doc.text(o.fecha||'—',W-50,13); doc.text(String(o.num),W-50,19);
+
+  // Datos cliente
+  doc.setFillColor(...navyMid); doc.roundedRect(mg,27,(W-mg*2)*0.55,26,2,2,'F');
+  doc.setFontSize(7.5); doc.setFont('helvetica','bold'); doc.setTextColor(...gold);
+  doc.text('DATOS DEL CLIENTE',mg+3,33);
+  doc.setFont('helvetica','normal'); doc.setTextColor(...white);
+  const cd = o.clienteData||{};
+  doc.text('NOMBRE: '+(o.clienteNombre||''),mg+3,39);
+  doc.text('DOMICILIO: '+(cd.dir||''),mg+3,44);
+  doc.text('TELÉFONO: '+(cd.tel||''),mg+3,49);
+
+  // Técnico
+  const tx=(W-mg*2)*0.55+mg+4;
+  doc.setFillColor(...navyMid); doc.roundedRect(tx,27,W-mg-tx,26,2,2,'F');
+  doc.setFont('helvetica','bold'); doc.setTextColor(...gold); doc.text('TÉCNICO RESPONSABLE',tx+3,33);
+  doc.setFont('helvetica','normal'); doc.setTextColor(...white); doc.text(o.tecnico||'—',tx+3,39);
+
+  // Tipo de servicio
+  let y=60;
+  doc.setFillColor(...navyMid); doc.roundedRect(mg,y,W-mg*2,14,2,2,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...gold); doc.text('TIPO DE SERVICIO',mg+3,y+5);
+  const tipos=['REVISION','INSTALACION','MANTENIMIENTO','OPTIMIZACION','RECARGA','DESINSTALACION','OTROS'];
+  const tipoLabels=['REVISIÓN','INSTALACIÓN','MANT.','OPTIM.','RECARGA','DESINSTAL.','OTROS'];
+  const ts = o.tipoServicio||[];
+  doc.setFont('helvetica','normal'); doc.setFontSize(7);
+  tipos.forEach((t,i)=>{
+    const x=mg+3+i*26.5;
+    const activo = ts.includes(t);
+    if(activo){doc.setFillColor(...gold); doc.roundedRect(x-1,y+6,24,6,1,1,'F'); doc.setTextColor(...navy);}
+    else {doc.setTextColor(...gray);}
+    doc.text(tipoLabels[i], x, y+10);
+  });
+
+  y+=20;
+
+  if (o.formato===1 || o.formato===2) {
+    // Equipo + Descripción
+    const ex = o.extra||{};
+    doc.setFillColor(...navyMid); doc.roundedRect(mg,y,(W-mg*2)*0.45,40,2,2,'F');
+    doc.setFont('helvetica','bold'); doc.setTextColor(...gold); doc.setFontSize(7.5); doc.text('EQUIPO',mg+3,y+6);
+    doc.setFont('helvetica','normal'); doc.setTextColor(...white); doc.setFontSize(7);
+    const eqFields=[['MARCA',ex['ord-marca']||''],['CAPACIDAD',ex['ord-cap']||''],['REFRIGERANTE',ex['ord-ref']||''],['VOLTAJE',ex['ord-volt']||''],['# SERIE',ex['ord-serie']||''],['UBICACIÓN',ex['ord-ubic']||'']];
+    eqFields.forEach(([l,v],i)=>{ doc.setTextColor(...gray); doc.text(l+':',mg+3,y+12+i*4.5); doc.setTextColor(...white); doc.text(v,mg+22,y+12+i*4.5); });
+
+    const ox=(W-mg*2)*0.45+mg+4;
+    doc.setFillColor(...navyMid); doc.roundedRect(ox,y,W-mg-ox,40,2,2,'F');
+    doc.setFont('helvetica','bold'); doc.setTextColor(...gold); doc.setFontSize(7.5); doc.text('OBSERVACIONES',ox+3,y+6);
+    doc.setFont('helvetica','normal'); doc.setTextColor(...white); doc.setFontSize(7);
+    doc.text(o.observaciones||'',ox+3,y+12,{maxWidth:W-mg-ox-6});
+
+    y+=46;
+    doc.setFillColor(...navyMid); doc.roundedRect(mg,y,W-mg*2,24,2,2,'F');
+    doc.setFont('helvetica','bold'); doc.setTextColor(...gold); doc.setFontSize(7.5); doc.text('DESCRIPCIÓN DEL SERVICIO',mg+3,y+6);
+    doc.setFont('helvetica','normal'); doc.setTextColor(...white); doc.setFontSize(7);
+    doc.text(ex['ord-desc-serv']||'',mg+3,y+12,{maxWidth:W-mg*2-6});
+    y+=30;
+
+  } else if (o.formato===3) {
+    const ex=o.extra||{};
+    doc.setFillColor(...navyMid); doc.roundedRect(mg,y,W-mg*2,20,2,2,'F');
+    doc.setFont('helvetica','bold'); doc.setTextColor(...gold); doc.setFontSize(7.5); doc.text('TRABAJO A REALIZAR',mg+3,y+6);
+    doc.setFont('helvetica','normal'); doc.setTextColor(...white); doc.setFontSize(7);
+    doc.text(ex['ord-trabajo']||'',mg+3,y+12,{maxWidth:W-mg*2-6});
+    y+=26;
+    doc.setFillColor(...navyMid); doc.roundedRect(mg,y,W-mg*2,20,2,2,'F');
+    doc.setFont('helvetica','bold'); doc.setTextColor(...gold); doc.setFontSize(7.5); doc.text('DESCRIPCIÓN DEL SERVICIO',mg+3,y+6);
+    doc.setFont('helvetica','normal'); doc.setTextColor(...white); doc.setFontSize(7);
+    doc.text(ex['ord-desc-serv']||'',mg+3,y+12,{maxWidth:W-mg*2-6});
+    y+=26;
+    doc.setFillColor(...navyMid); doc.roundedRect(mg,y,W-mg*2,16,2,2,'F');
+    doc.setFont('helvetica','bold'); doc.setTextColor(...gold); doc.setFontSize(7.5); doc.text('OBSERVACIONES',mg+3,y+6);
+    doc.setFont('helvetica','normal'); doc.setTextColor(...white); doc.setFontSize(7);
+    doc.text(o.observaciones||'',mg+3,y+12,{maxWidth:W-mg*2-6});
+    y+=22;
+
+  } else if (o.formato===4) {
+    const ex=o.extra||{};
+    // Equipo
+    doc.setFillColor(...navyMid); doc.roundedRect(mg,y,(W-mg*2)*0.44,36,2,2,'F');
+    doc.setFont('helvetica','bold'); doc.setTextColor(...gold); doc.setFontSize(7.5); doc.text('EQUIPO',mg+3,y+6);
+    doc.setFont('helvetica','normal'); doc.setTextColor(...white); doc.setFontSize(7);
+    [['MARCA',ex['ord-marca']||''],['CAPACIDAD',ex['ord-cap']||''],['REFRIGERANTE',ex['ord-ref']||''],['VOLTAJE',ex['ord-volt']||''],['# SERIE',ex['ord-serie']||''],['UBICACIÓN',ex['ord-ubic']||'']].forEach(([l,v],i)=>{
+      doc.setTextColor(...gray); doc.text(l+':',mg+3,y+12+i*4); doc.setTextColor(...white); doc.text(v,mg+22,y+12+i*4);
+    });
+    // Condiciones generales
+    const ox=(W-mg*2)*0.44+mg+4;
+    doc.setFillColor(...navyMid); doc.roundedRect(ox,y,W-mg-ox,36,2,2,'F');
+    doc.setFont('helvetica','bold'); doc.setTextColor(...gold); doc.setFontSize(7.5); doc.text('CONDICIONES GENERALES',ox+3,y+6);
+    doc.setFont('helvetica','normal'); doc.setFontSize(6.5);
+    ['Conexiones eléctricas','Aislamiento térmico','Vibraciones/Ruidos','Fijación soportes','Tubería desagüe'].forEach((l,i)=>{
+      doc.setTextColor(...gray); doc.text(l,ox+3,y+12+i*5); doc.setTextColor(...white);
+      doc.text('SÍ',ox+38,y+12+i*5); doc.text('NO',ox+46,y+12+i*5); doc.text('N/A',ox+54,y+12+i*5);
+      doc.setDrawColor(...gray); doc.rect(ox+36,y+9+i*5,4,3); doc.rect(ox+44,y+9+i*5,4,3); doc.rect(ox+52,y+9+i*5,4,3);
+    });
+    y+=42;
+    // Parámetros
+    doc.setFillColor(...navyMid); doc.roundedRect(mg,y,(W-mg*2)*0.55,44,2,2,'F');
+    doc.setFont('helvetica','bold'); doc.setTextColor(...gold); doc.setFontSize(7.5); doc.text('PARÁMETROS DE OPERACIÓN',mg+3,y+6);
+    const params=[['Vel. evap. (m/s)','ord-vel-evap'],['Evaporadora (°C)','ord-temp-evap'],['Vel. cond. (m/s)','ord-vel-cond'],['Condensadora (°C)','ord-temp-cond'],['Corriente (A)','ord-corr'],['Presión (PSI)','ord-pres']];
+    doc.setFontSize(6.5);
+    doc.setTextColor(...gold); doc.text('ANTES',mg+44,y+11); doc.text('DESPUÉS',mg+58,y+11);
+    params.forEach(([l,k],i)=>{
+      doc.setTextColor(...gray); doc.text(l,mg+3,y+17+i*4.5);
+      doc.setTextColor(...white); doc.text(ex[k+'-antes']||'',mg+44,y+17+i*4.5); doc.text(ex[k+'-desp']||'',mg+58,y+17+i*4.5);
+    });
+    // Descripción
+    const dx=(W-mg*2)*0.55+mg+4;
+    doc.setFillColor(...navyMid); doc.roundedRect(dx,y,W-mg-dx,44,2,2,'F');
+    doc.setFont('helvetica','bold'); doc.setTextColor(...gold); doc.setFontSize(7.5); doc.text('DESCRIPCIÓN',dx+3,y+6);
+    doc.setFont('helvetica','normal'); doc.setTextColor(...white); doc.setFontSize(7);
+    doc.text(ex['ord-desc-serv']||'',dx+3,y+12,{maxWidth:W-mg-dx-6});
+    y+=50;
+  }
+
+  // Materiales
+  if ((o.items||[]).length) {
+    doc.setFillColor(...navyMid); doc.roundedRect(mg,y,W-mg*2,8,2,2,'F');
+    doc.setFont('helvetica','bold'); doc.setTextColor(...gold); doc.setFontSize(7.5); doc.text('MATERIALES NECESARIOS',mg+3,y+5);
+    y+=10;
+    (o.items).forEach((item,i)=>{
+      if(i%2===0){doc.setFillColor(10,22,50); doc.rect(mg,y-3,W-mg*2,6,'F');}
+      doc.setFont('helvetica','normal'); doc.setTextColor(...white); doc.setFontSize(7);
+      doc.text((item.desc||'').substring(0,55),mg+3,y,{maxWidth:130});
+      doc.setTextColor(...gold);
+      doc.text('$'+(item.cantidad*item.precio).toLocaleString('es-MX'),W-mg-2,y,{align:'right'});
+      y+=6;
+    });
+    y+=4;
+  }
+
+  // Garantía
+  if (o.garDesde || o.garHasta) {
+    doc.setFillColor(...navyMid); doc.roundedRect(mg,y,W-mg*2,18,2,2,'F');
+    doc.setFont('helvetica','bold'); doc.setTextColor(...gold); doc.setFontSize(7.5); doc.text('GARANTÍA DE SERVICIO',mg+3,y+6);
+    doc.setFont('helvetica','normal'); doc.setTextColor(...white); doc.setFontSize(7);
+    doc.text('VÁLIDA DESDE: '+(o.garDesde||''), mg+3,y+12);
+    doc.text('VÁLIDA HASTA: '+(o.garHasta||''), W/2,y+12);
+    if(o.excepcion) doc.text('A EXCEPCIÓN DE: '+o.excepcion, mg+3,y+17,{maxWidth:W-mg*2-6});
+    y+=22;
+  }
+  } // fin else (formato 3 / 4)
+
+  // Página de fotos adjuntas (estilo informe de medición)
+  if (fotosOrden.length) {
+    doc.addPage();
+    doc.setFillColor(...navy); doc.rect(0,0,W,279,'F');
+    doc.setFillColor(...gold); doc.rect(0,0,W,16,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(...navy);
+    doc.text('IMÁGENES ADJUNTAS',mg,11);
+
+    let fy = 26;
+    const imgW = (W-mg*2-8)/2, imgH = 70;
+    fotosOrden.forEach((foto,i) => {
+      const col = i%2, row = Math.floor(i/2);
+      const fx = mg + col*(imgW+8);
+      const fyy = fy + row*(imgH+8);
+      try { doc.addImage(foto, 'JPEG', fx, fyy, imgW, imgH, undefined, 'FAST'); } catch(e){}
+      doc.setDrawColor(...gold); doc.setLineWidth(0.3); doc.rect(fx,fyy,imgW,imgH);
+    });
+
+    // Pie con técnico y fecha, igual al PDF de referencia
+    doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(...gray);
+    doc.text('Fecha: '+(o.fecha||''), mg, 268);
+    doc.text('Técnico: '+(o.tecnico||''), mg+60, 268);
+  }
+
+  doc.save('OrdenServicio_'+o.num+'_'+(o.clienteNombre||'').replace(/\s+/g,'_')+'.pdf');
+  toast('PDF generado');
+}
+
+// ───────────────────────────────────────
+// DASHBOARD
+// ───────────────────────────────────────
+function actualizarDashboard() {
+  document.getElementById('dash-clientes').textContent    = clientes.length;
+  document.getElementById('dash-cotizaciones').textContent= cotizaciones.length;
+  document.getElementById('dash-ordenes').textContent     = ordenes.length;
+  document.getElementById('dash-facturas').textContent     = facturas.length;
+  document.getElementById('dash-articulos').textContent   = articulos.length;
+}
+
+// ───────────────────────────────────────
+// UTILIDADES
+// ───────────────────────────────────────
+function openModal(id)  { document.getElementById(id).classList.add('active'); document.body.style.overflow='hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); document.body.style.overflow=''; }
+
+// Cerrar modal al tocar overlay
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click', e=>{ if(e.target===o) closeModal(o.id); });
+});
+
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove('show'), 2500);
+}
+
+// Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+</script>
 </body>
 </html>
