@@ -532,7 +532,7 @@
   </div>
   <img class="intro-wordmark" src="./logo-wordmark.png" alt="OBREX Ingeniería"/>
   <div class="intro-skip">Toca para continuar</div>
-  <p class="footer-tag">obrexv3.2.1-welcome-firebase-formatos</p>
+  <p class="footer-tag">obrex4.0.1</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -555,7 +555,7 @@
     <button class="btn btn-primary" onclick="doLogin()">Ingresar</button>
     <p id="login-error" style="color:var(--red);font-size:13px;margin-top:12px;text-align:center;display:none"></p>
   </div>
-  <p class="footer-tag">obrexv3.2.1-welcome-firebase-formatos</p>
+  <p class="footer-tag">obrex4.0.1</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -1050,15 +1050,13 @@
 // ───────────────────────────────────────
 // FIREBASE CONFIG — reemplaza con los datos de tu proyecto
 // ───────────────────────────────────────
-
-  const firebaseConfig = {
-  apiKey: "AIzaSyBhQtYymTnYOcqSKiQprl7z91O0d26-s8s",
-  authDomain: "obrex-ingenieria.firebaseapp.com",
-  projectId: "obrex-ingenieria",
-  storageBucket: "obrex-ingenieria.firebasestorage.app",
-  messagingSenderId: "658326612862",
-  appId: "1:658326612862:web:fe4807a9076bf0d449612f",
-  measurementId: "G-NVQGR4J5EH",
+const firebaseConfig = {
+  apiKey:            "TU_API_KEY",
+  authDomain:        "TU_PROJECT.firebaseapp.com",
+  projectId:         "TU_PROJECT_ID",
+  storageBucket:     "TU_PROJECT.appspot.com",
+  messagingSenderId: "TU_SENDER_ID",
+  appId:             "TU_APP_ID"
 };
 
 firebase.initializeApp(firebaseConfig);
