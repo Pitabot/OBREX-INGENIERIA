@@ -936,6 +936,11 @@
         </select>
       </div>
 
+      <button type="button" id="btn-vista-papel" class="btn btn-secondary" style="width:100%;margin-bottom:12px;display:none" onclick="toggleVistaPapel()">Vista papel (idéntica al formato)</button>
+      <div id="papel-overlay" style="display:none;position:relative;width:100%;aspect-ratio:612/792;background:#fff;border-radius:8px;overflow:hidden;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,.3)">
+        <img id="papel-bg-img" src="./formato1-bg.png" style="position:absolute;inset:0;width:100%;height:100%;display:block" alt="">
+      </div>
+
       <!-- Cliente con autocomplete -->
       <div class="field">
         <label>Cliente</label>
@@ -957,13 +962,13 @@
       <div class="field">
         <label>Tipo de servicio</label>
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px" id="orden-tipo-servicio">
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input type="checkbox" value="REVISION" style="accent-color:var(--gold)"> Revisión</label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input type="checkbox" value="INSTALACION" style="accent-color:var(--gold)"> Instalación</label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input type="checkbox" value="MANTENIMIENTO" style="accent-color:var(--gold)"> Mantenimiento</label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input type="checkbox" value="OPTIMIZACION" style="accent-color:var(--gold)"> Optimización</label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input type="checkbox" value="RECARGA" style="accent-color:var(--gold)"> Recarga</label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input type="checkbox" value="DESINSTALACION" style="accent-color:var(--gold)"> Desinstalación</label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input type="checkbox" value="OTROS" style="accent-color:var(--gold)"> Otros</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input id="chk_revision" type="checkbox" value="REVISION" style="accent-color:var(--gold)"> Revisión</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input id="chk_instalacion" type="checkbox" value="INSTALACION" style="accent-color:var(--gold)"> Instalación</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input id="chk_mantenimiento" type="checkbox" value="MANTENIMIENTO" style="accent-color:var(--gold)"> Mantenimiento</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input id="chk_optimizacion" type="checkbox" value="OPTIMIZACION" style="accent-color:var(--gold)"> Optimización</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input id="chk_recarga" type="checkbox" value="RECARGA" style="accent-color:var(--gold)"> Recarga</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input id="chk_desinstalacion" type="checkbox" value="DESINSTALACION" style="accent-color:var(--gold)"> Desinstalación</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input id="chk_otros" type="checkbox" value="OTROS" style="accent-color:var(--gold)"> Otros</label>
         </div>
       </div>
 
@@ -1028,119 +1033,7 @@ db.enablePersistence().catch(()=>{});
 // ───────────────────────────────────────
 // BASE DE DATOS LOCAL (del Excel)
 // ───────────────────────────────────────
-const CATALOGO_INICIAL = [
-  // MATERIAL ELÉCTRICO
-  {tipo:"MATERIAL ELÉCT.",producto:"CENTRO DE CARGA",um:"PIEZA",desc:"CENTRO DE CARGA SQUARE D DE 100A, 120/240 VCA, 2 FASES, 3 HILOS, 2+6 POLOS, NEMA",precio:1699},
-  {tipo:"MATERIAL ELÉCT.",producto:"CENTRO DE CARGA",um:"PIEZA",desc:"CENTRO DE CARGA SQUARE D DE 60A, 120/240 VCA, 2 FASES, 3 HILOS, 2+4 POLOS, NEMA 1",precio:1425},
-  {tipo:"MATERIAL ELÉCT.",producto:"CENTRO DE CARGA",um:"PIEZA",desc:"CENTRO DE CARGA DE 6 ESPACIOS EMPOTRABLE 100 AMP.",precio:600},
-  {tipo:"MATERIAL ELÉCT.",producto:"CENTRO DE CARGA",um:"PIEZA",desc:"CENTRO DE CARGA QO02 NEMA1 SQUARE D",precio:260},
-  {tipo:"MATERIAL ELÉCT.",producto:"INTERRUPTOR",um:"PIEZA",desc:"INTERRUPTOR TERMOMAGNETICO SQUARE D 1 POLO",precio:229},
-  {tipo:"MATERIAL ELÉCT.",producto:"INTERRUPTOR",um:"PIEZA",desc:"INTERRUPTOR TERMOMAGNETICO SQUARE D 2 POLOS",precio:750},
-  {tipo:"MATERIAL ELÉCT.",producto:"MEDIDOR",um:"PIEZA",desc:"MORDAZA DE BAQUELITA PARA MEDIDOR",precio:505},
-  {tipo:"MATERIAL ELÉCT.",producto:"CABLE",um:"METRO",desc:"CABLE UNIPOLAR CALIBRE #10 MCA. CONDUMEX",precio:20},
-  {tipo:"MATERIAL ELÉCT.",producto:"CABLE",um:"METRO",desc:"CABLE UNIPOLAR CALIBRE #12 MCA. CONDUMEX",precio:15},
-  {tipo:"MATERIAL ELÉCT.",producto:"CABLE",um:"METRO",desc:"CABLE UNIPOLAR CALIBRE #14 MCA. CONDUMEX",precio:12},
-  {tipo:"MATERIAL ELÉCT.",producto:"CABLE",um:"METRO",desc:"CABLE UNIPOLAR CALIBRE #8 MCA. CONDUMEX",precio:40},
-  {tipo:"MATERIAL ELÉCT.",producto:"CABLE",um:"METRO",desc:"CABLE USO RUDO 3x14 AWG",precio:48.5},
-  {tipo:"MATERIAL ELÉCT.",producto:"VARILLA DE TIERRA",um:"PIEZA",desc:"VARILLA DE 1.5M DE ACERO REVESTIDO DE COBRE 1/2",precio:200},
-  {tipo:"MATERIAL ELÉCT.",producto:"CONECTOR",um:"PIEZA",desc:"CONECTOR PARA VARILLA DE TIERRA",precio:20},
-  {tipo:"MATERIAL ELÉCT.",producto:"ABRAZADERA",um:"PIEZA",desc:"ABRAZADERA TIPO UÑA DE 3/4",precio:4.5},
-  {tipo:"MATERIAL ELÉCT.",producto:"CAJA",um:"PIEZA",desc:"CAJA DE PASO PVC 3 X 3",precio:10},
-  {tipo:"MATERIAL ELÉCT.",producto:"CAJA",um:"PIEZA",desc:"CAJA ESTANCA",precio:40},
-  {tipo:"MATERIAL ELÉCT.",producto:"TAPA",um:"PIEZA",desc:"PLACA PARA INTERPERIE DUPLEX",precio:129},
-  {tipo:"MATERIAL ELÉCT.",producto:"CONTACTO",um:"PIEZA",desc:"CONTACTO DUPLEX 15 AMP",precio:90},
-  {tipo:"MATERIAL ELÉCT.",producto:"CONTACTO",um:"PIEZA",desc:"CONTACTO DUPLEX 20 AMP",precio:55},
-  {tipo:"MATERIAL ELÉCT.",producto:"APAGADOR",um:"PIEZA",desc:"APAGADOR SENCILLO CON CONTACTOS",precio:145},
-  {tipo:"MATERIAL ELÉCT.",producto:"CHALUPA",um:"PIEZA",desc:"CHALUPA PARA CONTACTO",precio:15},
-  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"TUBO CONDUIT DE 3/4",precio:25},
-  {tipo:"MATERIAL ELÉCT.",producto:"CANALETA",um:"PIEZA",desc:"CANALETA 1 VÍA 12x12 MM",precio:21},
-  {tipo:"MATERIAL ELÉCT.",producto:"REFLECTOR",um:"PIEZA",desc:"REFLECTOR LED 100 WATTS",precio:350},
-  {tipo:"MATERIAL ELÉCT.",producto:"REFLECTOR",um:"PIEZA",desc:"REFLECTOR LED 50 WATTS",precio:250},
-  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"TUBO CONDUIT PVC DE 1/2",precio:30},
-  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"TUBO CONDUIT PVC DE 1 1/4",precio:57},
-  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"TUBO CONDUIT PVC DE 3/4",precio:25},
-  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"TUBO CONDUIT METÁLICO PARED DELGADA DE 3/4",precio:150},
-  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"COPLE PARED DELGADA 3/4",precio:20},
-  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"ABRAZADERA TIPO CLIP 3/4",precio:12},
-  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"CONECTOR PARA TUBO CONDUIT 3/4",precio:20},
-  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"CAJA OVAL CON TAPA TIPO OT DE 3/4",precio:80},
-  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"CAJA OVAL CON TAPA TIPO OLL DE 3/4",precio:70},
-  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"CAJA OVAL DE TAPA TIPO OLR DE 3/4",precio:75},
-  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"CONECTOR GLÁNDULA 3/4",precio:30},
-  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"CURVA CONDUIT 1 1/4",precio:22},
-  {tipo:"MATERIAL ELÉCT.",producto:"TUBERIA",um:"PIEZA",desc:"ABRAZADERA TIPO UÑA 1 1/4",precio:8},
-  // MATERIAL HVAC
-  {tipo:"MATERIAL HVAC",producto:"REFRIGERANTE",um:"PIEZA",desc:"GAS REFRIGERANTE R410A",precio:250},
-  {tipo:"MATERIAL HVAC",producto:"REFRIGERANTE",um:"PIEZA",desc:"GAS REFRIGERANTE R22",precio:350},
-  {tipo:"MATERIAL HVAC",producto:"CAPACITOR DE ARRANQUE",um:"PIEZA",desc:"CAPACITOR DE TRABAJO VARIAS CAPACIDADES",precio:300},
-  {tipo:"MATERIAL HVAC",producto:"CAPACITOR DE ARRANQUE",um:"PIEZA",desc:"CAPACITOR PARA VENTILADOR",precio:150},
-  {tipo:"MATERIAL HVAC",producto:"PROTECTOR TERMICO",um:"PIEZA",desc:"PROTECTOR TERMICO VARIAS CAPACIDADES",precio:250},
-  {tipo:"MATERIAL HVAC",producto:"CINTA",um:"PIEZA",desc:"CINTA MOMIA",precio:80},
-  {tipo:"MATERIAL HVAC",producto:"MINISPLIT",um:"PIEZA",desc:"MINISPLIT MARCA MIRAGE 220V 1 TONELADA",precio:4800},
-  {tipo:"MATERIAL HVAC",producto:"MINISPLIT",um:"PIEZA",desc:"MINISPLIT MARCA MIRAGE 110V 1 TONELADA",precio:4900},
-  {tipo:"MATERIAL HVAC",producto:"MINISPLIT",um:"PIEZA",desc:"MINISPLIT MARCA MIRAGE 220V 1.5 TONELADAS",precio:8400},
-  {tipo:"MATERIAL HVAC",producto:"MINISPLIT",um:"PIEZA",desc:"MINISPLIT MARCA UNITED APPLIANCE 220V 1 TONELADA",precio:4733},
-  {tipo:"MATERIAL HVAC",producto:"MINISPLIT",um:"PIEZA",desc:"MINISPLIT MARCA UNITED APPLIANCE 110V 1 TONELADA",precio:4800},
-  {tipo:"MATERIAL HVAC",producto:"MINISPLIT",um:"PIEZA",desc:"MINISPLIT MARCA UNITED APPLIANCE 220V 1.5 TONELADAS",precio:7466},
-  {tipo:"MATERIAL HVAC",producto:"MINISPLIT",um:"PIEZA",desc:"MINISPLIT MARCA UNITED APPLIANCE 220V 2 TONELADAS",precio:9333},
-  {tipo:"MATERIAL HVAC",producto:"ARMAFLEX",um:"PIEZA",desc:"AISLAMIENTO PARA TUBERIA ARMAFLEX 3/8 X 3/8",precio:55},
-  // SERVICIO ELÉCTRICO
-  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"ACOMEDITA MONOFASICA TIPO CFE",precio:1000},
-  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"ACOMEDITA BIFASICA TIPO CFE",precio:1800},
-  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"INSTALACION SWITCH 2X30",precio:700},
-  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"INSTALACION SWITCH 2X60 O 3X60",precio:1200},
-  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"INSTALACION DE CENTRO DE CARGA 2/4 BREAKS",precio:800},
-  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"INSTALACION DE CENTRO DE CARGA 6 BREAKS",precio:1000},
-  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"INSTALACION DE CENTRO DE CARGA 8 BREAKS",precio:1200},
-  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"INSTALACION 5TA TERMINAL",precio:800},
-  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"CABLEADO E INSTALACION DE LAMPARA",precio:300},
-  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"CABLEADO E INSTALACIÓN DE CONTACTOS",precio:300},
-  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"CABLEADO E INSTALACION DE PLACA DE APAGADOR",precio:300},
-  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"CABLEADO E INSTALACION DE APAGADOR DE 3 VIAS",precio:500},
-  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"CABLEADO E INSTALACIÓN DE REFLECTOR",precio:500},
-  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"CAMBIO DE REFLECTOR",precio:350},
-  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"CAMBIO DE SOCKET, APAGADORES Y CONTACTOS",precio:200},
-  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"REVISION, DETECCION DE CORTO CIRCUITO O FALLAS",precio:600},
-  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"BALANCEO DE CARGAS",precio:600},
-  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"SERVICIO",desc:"INSTALACIÓN DE SISTEMA DE TIERRA",precio:600},
-  {tipo:"SERV. ELECTRICO",producto:"INSTALACION ESPECIAL",um:"SERVICIO",desc:"INSTALACION DE FOTOCELDA 1 LAMPARA",precio:500},
-  {tipo:"SERV. ELECTRICO",producto:"INSTALACION ESPECIAL",um:"SERVICIO",desc:"INSTALACION DE VENTILADOR DE TECHO SENCILLO",precio:600},
-  {tipo:"SERV. ELECTRICO",producto:"INSTALACION ESPECIAL",um:"SERVICIO",desc:"INSTALACION DE VENTILADOR DE TECHO CON LAMPARA",precio:1000},
-  {tipo:"SERV. ELECTRICO",producto:"INSTALACION ESPECIAL",um:"SERVICIO",desc:"INSTALACION DE LAMPARA PESADA O DELICADA",precio:1000},
-  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"METRO",desc:"RANURADO EN MURO HASTA 1\" DE ANCHO",precio:150},
-  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"METRO",desc:"CANALIZADO EN LOZA CON POLIDUCTO",precio:120},
-  {tipo:"SERV. ELECTRICO",producto:"INSTALACION",um:"METRO",desc:"CANALIZADO SUPERFICIAL CON TUBO CONDUIT 1/2 O 3/4 O CANALETA",precio:70},
-  // SERVICIO HVAC
-  {tipo:"SERVICIO HVAC",producto:"MANTTO. COMPLETO",um:"1 TON.",desc:"1 TON. MANTENIMIENTO A MINISPLIT INCLUYE DESMONTADO DE EVAPORADORA Y CONDENSADORA",precio:1200},
-  {tipo:"SERVICIO HVAC",producto:"MANTTO. COMPLETO",um:"1.5 TON.",desc:"1.5 TON. MANTENIMIENTO A MINISPLIT INCLUYE DESMONTADO DE EVAPORADORA Y CONDENSADORA",precio:1600},
-  {tipo:"SERVICIO HVAC",producto:"MANTTO. COMPLETO",um:"2 TON.",desc:"2 TON. MANTENIMIENTO A MINISPLIT INCLUYE DESMONTADO DE EVAPORADORA Y CONDENSADORA",precio:2000},
-  {tipo:"SERVICIO HVAC",producto:"MANTTO. COMPLETO",um:"INV. 1 TON.",desc:"INV. 1 TON. MANTENIMIENTO A MINISPLIT INCLUYE DESMONTADO DE EVAPORADORA Y CONDENSADORA",precio:1600},
-  {tipo:"SERVICIO HVAC",producto:"MANTTO. COMPLETO",um:"INV. 1.5 TON.",desc:"INV. 1.5 TON. MANTENIMIENTO A MINISPLIT INCLUYE DESMONTADO DE EVAPORADORA Y CONDENSADORA",precio:1800},
-  {tipo:"SERVICIO HVAC",producto:"MANTTO. COMPLETO",um:"INV. 2 TON.",desc:"INV. 2 TON. MANTENIMIENTO A MINISPLIT INCLUYE DESMONTADO DE EVAPORADORA Y CONDENSADORA",precio:2200},
-  {tipo:"SERVICIO HVAC",producto:"INST. BASICA",um:"1 TON.",desc:"1 TON. INSTALACIÓN DE MINISPLIT SIN INSTALACION ELECTRICA, PLANTA BAJA, CONDENSADORA A NIVEL DE PISO",precio:1500},
-  {tipo:"SERVICIO HVAC",producto:"INST. BASICA",um:"1.5 TON.",desc:"1.5 TON. INSTALACIÓN DE MINISPLIT SIN INSTALACION ELECTRICA, PLANTA BAJA, CONDENSADORA A NIVEL DE PISO",precio:1800},
-  {tipo:"SERVICIO HVAC",producto:"INST. BASICA",um:"2 TON.",desc:"2 TON. INSTALACIÓN DE MINISPLIT SIN INSTALACION ELECTRICA, PLANTA BAJA, CONDENSADORA A NIVEL DE PISO",precio:2500},
-  {tipo:"SERVICIO HVAC",producto:"INST. COMP.",um:"1 TON.",desc:"1 TON. INSTALACION DE MINISPLIT CON INSTALACIÓN ELECTRICA A NO MAS DE 3 MTS DEL CENTRO DE CARGA GRAL; CONDENSADORA A NIVEL DE PISO, INST. TIERRA FISICA",precio:2000},
-  {tipo:"SERVICIO HVAC",producto:"INST. COMP.",um:"1.5 TON.",desc:"1.5 TON. INSTALACION DE MINISPLIT CON INSTALACIÓN ELECTRICA A NO MAS DE 3 MTS DEL CENTRO DE CARGA GRAL; CONDENSADORA A NIVEL DE PISO, INST. TIERRA FISICA",precio:2300},
-  {tipo:"SERVICIO HVAC",producto:"INST. COMP.",um:"2 TON.",desc:"2 TON. INSTALACION DE MINISPLIT CON INSTALACIÓN ELECTRICA A NO MAS DE 3 MTS DEL CENTRO DE CARGA GRAL; CONDENSADORA A NIVEL DE PISO, INST. TIERRA FISICA",precio:3000},
-  {tipo:"SERVICIO HVAC",producto:"INST. BASICA",um:"INV. 1 TON.",desc:"INSTALACIÓN DE MINISPLIT DE 1 TON. INV. SIN INSTALACION ELECTRICA, PLANTA BAJA, CONDENSADORA A NIVEL DE PISO",precio:1600},
-  {tipo:"SERVICIO HVAC",producto:"INST. BASICA",um:"INV. 1.5 TON.",desc:"INSTALACIÓN DE MINISPLIT DE 1.5 TON. INV. SIN INSTALACION ELECTRICA, PLANTA BAJA, CONDENSADORA A NIVEL DE PISO",precio:2000},
-  {tipo:"SERVICIO HVAC",producto:"INST. BASICA",um:"INV. 2 TON.",desc:"INSTALACIÓN DE MINISPLIT DE 2 TON. INV. SIN INSTALACION ELECTRICA, PLANTA BAJA, CONDENSADORA A NIVEL DE PISO",precio:2500},
-  {tipo:"SERVICIO HVAC",producto:"INST. COMP.",um:"INV. 1 TON.",desc:"INSTALACION DE MINISPLIT 1 TON. INV. CON INSTALACIÓN ELECTRICA A NO MAS DE 3 MTS DEL CENTRO DE CARGA GRAL; CONDENSADORA A NIVEL DE PISO, INST. TIERRA FISICA",precio:2100},
-  {tipo:"SERVICIO HVAC",producto:"INST. COMP.",um:"INV. 1.5 TON.",desc:"INSTALACION DE MINISPLIT 1.5 TON. INV. CON INSTALACIÓN ELECTRICA A NO MAS DE 3 MTS DEL CENTRO DE CARGA GRAL; CONDENSADORA A NIVEL DE PISO, INST. TIERRA FISICA",precio:2500},
-  {tipo:"SERVICIO HVAC",producto:"INST. COMP.",um:"INV. 2 TON.",desc:"INSTALACION DE MINISPLIT 2 TON. INV. CON INSTALACIÓN ELECTRICA A NO MAS DE 3 MTS DEL CENTRO DE CARGA GRAL; CONDENSADORA A NIVEL DE PISO, INST. TIERRA FISICA",precio:3100},
-  {tipo:"SERVICIO HVAC",producto:"REVISION",um:"EQUIPOS",desc:"REVISION Y DIAGNOSTICO DE FALLA DE EQUIPOS",precio:500},
-  {tipo:"SERVICIO HVAC",producto:"REPARACION",um:"TARJETA",desc:"REVISIÓN Y REPARACIÓN DE TARJETA CONVENCIONAL",precio:1600},
-  {tipo:"SERVICIO HVAC",producto:"REPARACION",um:"CARGA DE REFRIGERANTE",desc:"SOLO CARGA NO INCLUYE REFRIGERANTE NI DETECCION DE FUGA",precio:500},
-  {tipo:"SERVICIO HVAC",producto:"REPARACION",um:"REPARACION DE FUGA",desc:"REVISION Y REPARACION DE FUGA",precio:1000},
-  {tipo:"SERVICIO HVAC",producto:"TRABAJO EN ALTURA",um:"ALTURA",desc:"PARA TRABAJOS EN ALTURA, SE CONSIDERA RIESGOS A TOMAR, EL PRECIO VARIA",precio:500},
-  {tipo:"SERVICIO HVAC",producto:"DESINSTALACION",um:"SERVICIO",desc:"DESMONTAJE DE EQUIPO NO INCLUYE TRANSPORTE",precio:700},
-  {tipo:"SERVICIO HVAC",producto:"INSTALACION",um:"SERVICIO",desc:"INSTALACION DE SOPORTERIA PARA CONDENSADORA EN ALTURA",precio:500},
-  {tipo:"SERVICIO HVAC",producto:"REPARACION",um:"PIEZA",desc:"CAMBIO DE CAPACITOR (NO INCLUYE CAPACITOR)",precio:500},
-  // IMPERMEABILIZACIÓN
-  {tipo:"SERVICIO",producto:"IMPERMEABILIZACIÓN",um:"M2",desc:"LIMPIEZA, LAVADO Y RETIRO DE DESECHOS",precio:80},
-  {tipo:"SERVICIO",producto:"IMPERMEABILIZACIÓN",um:"M2",desc:"APLICACIÓN DE IMPERMEABILIZANTE A DOS CAPAS",precio:105},
-];
+const CATALOGO_INICIAL = JSON.parse("[{\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"CENTRO DE CARGA\", \"um\": \"PIEZA\", \"desc\": \"CENTRO DE CARGA SQUARE D DE 100A, 120/240 VCA, 2 FASES, 3 HILOS, 2+6 POLOS, NEMA\", \"precio\": 1699}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"CENTRO DE CARGA\", \"um\": \"PIEZA\", \"desc\": \"CENTRO DE CARGA SQUARE D DE 60A, 120/240 VCA, 2 FASES, 3 HILOS, 2+4 POLOS, NEMA 1\", \"precio\": 1425}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"CENTRO DE CARGA\", \"um\": \"PIEZA\", \"desc\": \"CENTRO DE CARGA DE 6 ESPACIOS EMPOTRABLE 100 AMP.\", \"precio\": 600}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"CENTRO DE CARGA\", \"um\": \"PIEZA\", \"desc\": \"CENTRO DE CARGA QO02 NEMA1 SQUARE D\", \"precio\": 260}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"INTERRUPTOR\", \"um\": \"PIEZA\", \"desc\": \"INTERRUPTOR TERMOMAGNETICO SQUARE D 1 POLO\", \"precio\": 229}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"INTERRUPTOR\", \"um\": \"PIEZA\", \"desc\": \"INTERRUPTOR TERMOMAGNETICO SQUARE D 2 POLOS\", \"precio\": 750}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"MEDIDOR\", \"um\": \"PIEZA\", \"desc\": \"MORDAZA DE BAQUELITA PARA MEDIDOR\", \"precio\": 505}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"CABLE\", \"um\": \"METRO\", \"desc\": \"CABLE UNIPOLAR CALIBRE #10 MCA. CONDUMEX\", \"precio\": 20}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"CABLE\", \"um\": \"METRO\", \"desc\": \"CABLE UNIPOLAR CALIBRE #12 MCA. CONDUMEX\", \"precio\": 15}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"CABLE\", \"um\": \"METRO\", \"desc\": \"CABLE UNIPOLAR CALIBRE #14 MCA. CONDUMEX\", \"precio\": 12}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"CABLE\", \"um\": \"METRO\", \"desc\": \"CABLE UNIPOLAR CALIBRE #8 MCA. CONDUMEX\", \"precio\": 40}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"VARILLA DE TIERRA\", \"um\": \"PIEZA\", \"desc\": \"VARILLA DE 1.5M DE ACERO REVESTIDO DE COBRE 1/2\", \"precio\": 200}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"CONECTOR\", \"um\": \"PIEZA\", \"desc\": \"CONECTOR PARA VARILLA DE TIERRA\", \"precio\": 20}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"CAJA\", \"um\": \"PIEZA\", \"desc\": \"CAJA DE PASO PVC 3 X 3\", \"precio\": 10}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"CAJA\", \"um\": \"PIEZA\", \"desc\": \"CAJA ESTANCA\", \"precio\": 40}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"TAPA\", \"um\": \"PIEZA\", \"desc\": \"PLACA PARA INTERPERIE DUPLEX\", \"precio\": 129}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"CONTACTO\", \"um\": \"PIEZA\", \"desc\": \"CONTACTO DUPLEX 15 AMP\", \"precio\": 90}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"CONTACTO\", \"um\": \"PIEZA\", \"desc\": \"CONTACTO DUPLEX 20 AMP\", \"precio\": 55}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"APAGADOR\", \"um\": \"PIEZA\", \"desc\": \"APAGADOR SENCILLO CON CONTACTOS\", \"precio\": 145}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"CHALUPA\", \"um\": \"PIEZA\", \"desc\": \"CHALUPA PARA CONTACTO\", \"precio\": 15}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"TUBERIA\", \"um\": \"PIEZA\", \"desc\": \"TUBO CONDUIT DE 3/4\", \"precio\": 25}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"CANALETA\", \"um\": \"PIEZA\", \"desc\": \"CANALETA 1 VÍA 12x12 MM\", \"precio\": 21}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"REFLECTOR\", \"um\": \"PIEZA\", \"desc\": \"REFLECTOR LED 100 WATTS\", \"precio\": 350}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"REFLECTOR\", \"um\": \"PIEZA\", \"desc\": \"REFLECTOR LED 50 WATTS\", \"precio\": 250}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"TUBERIA\", \"um\": \"PIEZA\", \"desc\": \"TUBO CONDUIT PVC DE 1/2\", \"precio\": 30}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"TUBERIA\", \"um\": \"PIEZA\", \"desc\": \"TUBO CONDUIT PVC DE 1 1/4\", \"precio\": 57}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"TUBERIA\", \"um\": \"PIEZA\", \"desc\": \"TUBO CONDUIT PVC DE 3/4\", \"precio\": 25}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"TUBERIA\", \"um\": \"PIEZA\", \"desc\": \"TUBO CONDUIT METÁLICO PARED DELGADA DE 3/4\", \"precio\": 150}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"TUBERIA\", \"um\": \"PIEZA\", \"desc\": \"COPLE PARED DELGADA 3/4\", \"precio\": 20}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"TUBERIA\", \"um\": \"PIEZA\", \"desc\": \"ABRAZADERA TIPO CLIP 3/4\", \"precio\": 12}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"TUBERIA\", \"um\": \"PIEZA\", \"desc\": \"CONECTOR PARA TUBO CONDUIT 3/4\", \"precio\": 20}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"TUBERIA\", \"um\": \"PIEZA\", \"desc\": \"CAJA OVAL CON TAPA TIPO OT DE 3/4\", \"precio\": 80}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"TUBERIA\", \"um\": \"PIEZA\", \"desc\": \"CAJA OVAL CON TAPA TIPO OLL DE 3/4\", \"precio\": 70}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"TUBERIA\", \"um\": \"PIEZA\", \"desc\": \"CAJA OVAL DE TAPA TIPO OLR DE 3/4\", \"precio\": 75}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"TUBERIA\", \"um\": \"PIEZA\", \"desc\": \"CONECTOR GLÁNDULA 3/4\", \"precio\": 30}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"TUBERIA\", \"um\": \"PIEZA\", \"desc\": \"CURVA CONDUIT 1 1/4\", \"precio\": 22}, {\"tipo\": \"MATERIAL ELÉCT.\", \"producto\": \"TUBERIA\", \"um\": \"PIEZA\", \"desc\": \"ABRAZADERA TIPO UÑA 1 1/4\", \"precio\": 8}, {\"tipo\": \"MATERIAL HVAC\", \"producto\": \"REFRIGERANTE\", \"um\": \"PIEZA\", \"desc\": \"GAS REFRIGERANTE R410A\", \"precio\": 250}, {\"tipo\": \"MATERIAL HVAC\", \"producto\": \"REFRIGERANTE\", \"um\": \"PIEZA\", \"desc\": \"GAS REFRIGERANTE R22\", \"precio\": 350}, {\"tipo\": \"MATERIAL HVAC\", \"producto\": \"CAPACITOR DE ARRANQUE\", \"um\": \"PIEZA\", \"desc\": \"CAPACITOR DE TRABAJO VARIAS CAPACIDADES\", \"precio\": 300}, {\"tipo\": \"MATERIAL HVAC\", \"producto\": \"CAPACITOR DE ARRANQUE\", \"um\": \"PIEZA\", \"desc\": \"CAPACITOR PARA VENTILADOR\", \"precio\": 150}, {\"tipo\": \"MATERIAL HVAC\", \"producto\": \"PROTECTOR TERMICO\", \"um\": \"PIEZA\", \"desc\": \"PROTECTOR TERMICO VARIAS CAPACIDADES\", \"precio\": 250}, {\"tipo\": \"MATERIAL HVAC\", \"producto\": \"CINTA\", \"um\": \"PIEZA\", \"desc\": \"CINTA MOMIA\", \"precio\": 80}, {\"tipo\": \"MATERIAL HVAC\", \"producto\": \"MINISPLIT\", \"um\": \"PIEZA\", \"desc\": \"MINISPLIT MARCA MIRAGE 220V 1 TONELADA\", \"precio\": 4800}, {\"tipo\": \"MATERIAL HVAC\", \"producto\": \"MINISPLIT\", \"um\": \"PIEZA\", \"desc\": \"MINISPLIT MARCA MIRAGE 110V 1 TONELADA\", \"precio\": 4900}, {\"tipo\": \"MATERIAL HVAC\", \"producto\": \"MINISPLIT\", \"um\": \"PIEZA\", \"desc\": \"MINISPLIT MARCA MIRAGE 220V 1.5 TONELADAS\", \"precio\": 8400}, {\"tipo\": \"MATERIAL HVAC\", \"producto\": \"MINISPLIT\", \"um\": \"PIEZA\", \"desc\": \"MINISPLIT MARCA UNITED APPLIANCE 220V 1 TONELADA\", \"precio\": 4733}, {\"tipo\": \"MATERIAL HVAC\", \"producto\": \"MINISPLIT\", \"um\": \"PIEZA\", \"desc\": \"MINISPLIT MARCA UNITED APPLIANCE 110V 1 TONELADA\", \"precio\": 4800}, {\"tipo\": \"MATERIAL HVAC\", \"producto\": \"MINISPLIT\", \"um\": \"PIEZA\", \"desc\": \"MINISPLIT MARCA UNITED APPLIANCE 220V 1.5 TONELADAS\", \"precio\": 7466}, {\"tipo\": \"MATERIAL HVAC\", \"producto\": \"MINISPLIT\", \"um\": \"PIEZA\", \"desc\": \"MINISPLIT MARCA UNITED APPLIANCE 220V 2 TONELADAS\", \"precio\": 9333}, {\"tipo\": \"MATERIAL HVAC\", \"producto\": \"ARMAFLEX\", \"um\": \"PIEZA\", \"desc\": \"AISLAMIENTO PARA TUBERIA ARMAFLEX 3/8 X 3/8\", \"precio\": 55}, {\"tipo\": \"SERV. ELECTRICO\", \"producto\": \"INSTALACION\", \"um\": \"SERVICIO\", \"desc\": \"ACOMEDITA MONOFASICA TIPO CFE\", \"precio\": 1000}, {\"tipo\": \"SERV. ELECTRICO\", \"producto\": \"INSTALACION\", \"um\": \"SERVICIO\", \"desc\": \"ACOMEDITA BIFASICA TIPO CFE\", \"precio\": 1800}, {\"tipo\": \"SERV. ELECTRICO\", \"producto\": \"INSTALACION\", \"um\": \"SERVICIO\", \"desc\": \"INSTALACION SWITCH 2X30\", \"precio\": 700}, {\"tipo\": \"SERV. ELECTRICO\", \"producto\": \"INSTALACION\", \"um\": \"SERVICIO\", \"desc\": \"INSTALACION SWITCH 2X60 O 3X60\", \"precio\": 1200}, {\"tipo\": \"SERV. ELECTRICO\", \"producto\": \"INSTALACION\", \"um\": \"SERVICIO\", \"desc\": \"INSTALACION DE CENTRO DE CARGA 2/4 BREAKS\", \"precio\": 800}, {\"tipo\": \"SERV. ELECTRICO\", \"producto\": \"INSTALACION\", \"um\": \"SERVICIO\", \"desc\": \"INSTALACION DE CENTRO DE CARGA 6 BREAKS\", \"precio\": 1000}, {\"tipo\": \"SERV. ELECTRICO\", \"producto\": \"INSTALACION\", \"um\": \"SERVICIO\", \"desc\": \"INSTALACION DE CENTRO DE CARGA 8 BREAKS\", \"precio\": 1200}, {\"tipo\": \"SERV. ELECTRICO\", \"producto\": \"INSTALACION\", \"um\": \"SERVICIO\", \"desc\": \"INSTALACION 5TA TERMINAL\", \"precio\": 800}, {\"tipo\": \"SERV. ELECTRICO\", \"producto\": \"INSTALACION\", \"um\": \"SERVICIO\", \"desc\": \"CABLEADO E INSTALACION DE LAMPARA\", \"precio\": 300}, {\"tipo\": \"SERV. ELECTRICO\", \"producto\": \"INSTALACION\", \"um\": \"SERVICIO\", \"desc\": \"CABLEADO E INSTALACIÓN DE CONTACTOS\", \"precio\": 300}, {\"tipo\": \"SERV. ELECTRICO\", \"producto\": \"INSTALACION\", \"um\": \"SERVICIO\", \"desc\": \"CABLEADO E INSTALACION DE PLACA DE APAGADOR\", \"precio\": 300}, {\"tipo\": \"SERV. ELECTRICO\", \"producto\": \"INSTALACION\", \"um\": \"SERVICIO\", \"desc\": \"CABLEADO E INSTALACION DE APAGADOR DE 3 VIAS\", \"precio\": 500}, {\"tipo\": \"SERV. ELECTRICO\", \"producto\": \"INSTALACION\", \"um\": \"SERVICIO\", \"desc\": \"CABLEADO E INSTALACIÓN DE REFLECTOR\", \"precio\": 500}, {\"tipo\": \"SERV. ELECTRICO\", \"producto\": \"INSTALACION\", \"um\": \"SERVICIO\", \"desc\": \"CAMBIO DE REFLECTOR\", \"precio\": 350}, {\"tipo\": \"SERV. ELECTRICO\", \"producto\": \"INSTALACION\", \"um\": \"SERVICIO\", \"desc\": \"CAMBIO DE SOCKET, APAGADORES Y CONTACTOS\", \"precio\": 200}, {\"tipo\": \"SERV. ELECTRICO\", \"producto\": \"INSTALACION\", \"um\": \"SERVICIO\", \"desc\": \"REVISION, DETECCION DE CORTO CIRCUITO O FALLAS\", \"precio\": 600}, {\"tipo\": \"SERV. ELECTRICO\", \"producto\": \"INSTALACION\", \"um\": \"SERVICIO\", \"desc\": \"BALANCEO DE CARGAS\", \"precio\": 600}, {\"tipo\": \"SERV. ELECTRICO\", \"producto\": \"INSTALACION\", \"um\": \"SERVICIO\", \"desc\": \"INSTALACIÓN DE SISTEMA DE TIERRA\", \"precio\": 600}, {\"tipo\": \"SERV. ELECTRICO\", \"producto\": \"INSTALACION ESPECIAL\", \"um\": \"SERVICIO\", \"desc\": \"INSTALACION DE FOTOCELDA 1 LAMPARA\", \"precio\": 500}, {\"tipo\": \"SERV. ELECTRICO\", \"producto\": \"INSTALACION ESPECIAL\", \"um\": \"SERVICIO\", \"desc\": \"INSTALACION DE VENTILADOR DE TECHO SENCILLO\", \"precio\": 600}, {\"tipo\": \"SERV. ELECTRICO\", \"producto\": \"INSTALACION ESPECIAL\", \"um\": \"SERVICIO\", \"desc\": \"INSTALACION DE VENTILADOR DE TECHO CON LAMPARA\", \"precio\": 1000}, {\"tipo\": \"SERV. ELECTRICO\", \"producto\": \"INSTALACION ESPECIAL\", \"um\": \"SERVICIO\", \"desc\": \"INSTALACION DE LAMPARA PESADA O DELICADA\", \"precio\": 1000}, {\"tipo\": \"SERV. ELECTRICO\", \"producto\": \"INSTALACION\", \"um\": \"METRO\", \"desc\": \"CANALIZADO EN LOZA CON POLIDUCTO\", \"precio\": 120}, {\"tipo\": \"SERV. ELECTRICO\", \"producto\": \"INSTALACION\", \"um\": \"METRO\", \"desc\": \"CANALIZADO SUPERFICIAL CON TUBO CONDUIT 1/2 O 3/4 O CANALETA\", \"precio\": 70}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"MANTTO. COMPLETO\", \"um\": \"1 TON.\", \"desc\": \"1 TON. MANTENIMIENTO A MINISPLIT INCLUYE DESMONTADO DE EVAPORADORA Y CONDENSADORA\", \"precio\": 1200}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"MANTTO. COMPLETO\", \"um\": \"1.5 TON.\", \"desc\": \"1.5 TON. MANTENIMIENTO A MINISPLIT INCLUYE DESMONTADO DE EVAPORADORA Y CONDENSADORA\", \"precio\": 1600}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"MANTTO. COMPLETO\", \"um\": \"2 TON.\", \"desc\": \"2 TON. MANTENIMIENTO A MINISPLIT INCLUYE DESMONTADO DE EVAPORADORA Y CONDENSADORA\", \"precio\": 2000}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"MANTTO. COMPLETO\", \"um\": \"INV. 1 TON.\", \"desc\": \"INV. 1 TON. MANTENIMIENTO A MINISPLIT INCLUYE DESMONTADO DE EVAPORADORA Y CONDENSADORA\", \"precio\": 1600}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"MANTTO. COMPLETO\", \"um\": \"INV. 1.5 TON.\", \"desc\": \"INV. 1.5 TON. MANTENIMIENTO A MINISPLIT INCLUYE DESMONTADO DE EVAPORADORA Y CONDENSADORA\", \"precio\": 1800}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"MANTTO. COMPLETO\", \"um\": \"INV. 2 TON.\", \"desc\": \"INV. 2 TON. MANTENIMIENTO A MINISPLIT INCLUYE DESMONTADO DE EVAPORADORA Y CONDENSADORA\", \"precio\": 2200}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"INST. BASICA\", \"um\": \"1 TON.\", \"desc\": \"1 TON. INSTALACIÓN DE MINISPLIT SIN INSTALACION ELECTRICA, PLANTA BAJA, CONDENSADORA A NIVEL DE PISO\", \"precio\": 1500}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"INST. BASICA\", \"um\": \"1.5 TON.\", \"desc\": \"1.5 TON. INSTALACIÓN DE MINISPLIT SIN INSTALACION ELECTRICA, PLANTA BAJA, CONDENSADORA A NIVEL DE PISO\", \"precio\": 1800}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"INST. BASICA\", \"um\": \"2 TON.\", \"desc\": \"2 TON. INSTALACIÓN DE MINISPLIT SIN INSTALACION ELECTRICA, PLANTA BAJA, CONDENSADORA A NIVEL DE PISO\", \"precio\": 2500}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"INST. COMP.\", \"um\": \"1 TON.\", \"desc\": \"1 TON. INSTALACION DE MINISPLIT CON INSTALACIÓN ELECTRICA A NO MAS DE 3 MTS DEL CENTRO DE CARGA GRAL; CONDENSADORA A NIVEL DE PISO, INST. TIERRA FISICA\", \"precio\": 2000}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"INST. COMP.\", \"um\": \"1.5 TON.\", \"desc\": \"1.5 TON. INSTALACION DE MINISPLIT CON INSTALACIÓN ELECTRICA A NO MAS DE 3 MTS DEL CENTRO DE CARGA GRAL; CONDENSADORA A NIVEL DE PISO, INST. TIERRA FISICA\", \"precio\": 2300}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"INST. COMP.\", \"um\": \"2 TON.\", \"desc\": \"2 TON. INSTALACION DE MINISPLIT CON INSTALACIÓN ELECTRICA A NO MAS DE 3 MTS DEL CENTRO DE CARGA GRAL; CONDENSADORA A NIVEL DE PISO, INST. TIERRA FISICA\", \"precio\": 3000}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"INST. BASICA\", \"um\": \"INV. 1 TON.\", \"desc\": \"INSTALACIÓN DE MINISPLIT DE 1 TON. INV. SIN INSTALACION ELECTRICA, PLANTA BAJA, CONDENSADORA A NIVEL DE PISO\", \"precio\": 1600}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"INST. BASICA\", \"um\": \"INV. 1.5 TON.\", \"desc\": \"INSTALACIÓN DE MINISPLIT DE 1.5 TON. INV. SIN INSTALACION ELECTRICA, PLANTA BAJA, CONDENSADORA A NIVEL DE PISO\", \"precio\": 2000}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"INST. BASICA\", \"um\": \"INV. 2 TON.\", \"desc\": \"INSTALACIÓN DE MINISPLIT DE 2 TON. INV. SIN INSTALACION ELECTRICA, PLANTA BAJA, CONDENSADORA A NIVEL DE PISO\", \"precio\": 2500}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"INST. COMP.\", \"um\": \"INV. 1 TON.\", \"desc\": \"INSTALACION DE MINISPLIT 1 TON. INV. CON INSTALACIÓN ELECTRICA A NO MAS DE 3 MTS DEL CENTRO DE CARGA GRAL; CONDENSADORA A NIVEL DE PISO, INST. TIERRA FISICA\", \"precio\": 2100}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"INST. COMP.\", \"um\": \"INV. 1.5 TON.\", \"desc\": \"INSTALACION DE MINISPLIT 1.5 TON. INV. CON INSTALACIÓN ELECTRICA A NO MAS DE 3 MTS DEL CENTRO DE CARGA GRAL; CONDENSADORA A NIVEL DE PISO, INST. TIERRA FISICA\", \"precio\": 2500}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"INST. COMP.\", \"um\": \"INV. 2 TON.\", \"desc\": \"INSTALACION DE MINISPLIT 2 TON. INV. CON INSTALACIÓN ELECTRICA A NO MAS DE 3 MTS DEL CENTRO DE CARGA GRAL; CONDENSADORA A NIVEL DE PISO, INST. TIERRA FISICA\", \"precio\": 3100}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"REVISION\", \"um\": \"EQUIPOS\", \"desc\": \"REVISION Y DIAGNOSTICO DE FALLA DE EQUIPOS\", \"precio\": 500}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"REPARACION\", \"um\": \"TARJETA\", \"desc\": \"REVISIÓN Y REPARACIÓN DE TARJETA CONVENCIONAL\", \"precio\": 1600}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"REPARACION\", \"um\": \"CARGA DE REFRIGERANTE\", \"desc\": \"SOLO CARGA NO INCLUYE REFRIGERANTE NI DETECCION DE FUGA\", \"precio\": 500}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"REPARACION\", \"um\": \"REPARACION DE FUGA\", \"desc\": \"REVISION Y REPARACION DE FUGA\", \"precio\": 1000}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"TRABAJO EN ALTURA\", \"um\": \"ALTURA\", \"desc\": \"PARA TRABAJOS EN ALTURA, SE CONSIDERA RIESGOS A TOMAR, EL PRECIO VARIA\", \"precio\": 500}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"DESINSTALACION\", \"um\": \"SERVICIO\", \"desc\": \"DESMONTAJE DE EQUIPO NO INCLUYE TRANSPORTE\", \"precio\": 700}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"INSTALACION\", \"um\": \"SERVICIO\", \"desc\": \"INSTALACION DE SOPORTERIA PARA CONDENSADORA EN ALTURA\", \"precio\": 500}, {\"tipo\": \"SERVICIO HVAC\", \"producto\": \"REPARACION\", \"um\": \"PIEZA\", \"desc\": \"CAMBIO DE CAPACITOR (NO INCLUYE CAPACITOR)\", \"precio\": 500}, {\"tipo\": \"SERVICIO\", \"producto\": \"IMPERMEABILIZACIÓN\", \"um\": \"M2\", \"desc\": \"LIMPIEZA, LAVADO Y RETIRO DE DESECHOS\", \"precio\": 80}, {\"tipo\": \"SERVICIO\", \"producto\": \"IMPERMEABILIZACIÓN\", \"um\": \"M2\", \"desc\": \"APLICACIÓN DE IMPERMEABILIZANTE A DOS CAPAS\", \"precio\": 105}]");
 
 const CLIENTES_INICIAL = [
   {nombre:"BULMARO CASTILLEJOS",dir:"MAR MEDITERRANEO S/N",colonia:"PUERTO ESMERALDA",ciudad:"COATZACOALCOS",tel:"9211320378"},
@@ -1992,6 +1885,13 @@ function renderOrdenes() {
 function renderOrdenFormato() {
   const fmt = document.getElementById('orden-formato').value;
   const el  = document.getElementById('orden-campos-dinamicos');
+  const btnPapel = document.getElementById('btn-vista-papel');
+  if (fmt === '1') {
+    btnPapel.style.display = 'block';
+  } else {
+    btnPapel.style.display = 'none';
+    if (papelActivo) toggleVistaPapel();
+  }
   if (fmt==='1' || fmt==='2') {
     el.innerHTML = `
       <div class="section-title">Equipo</div>
@@ -2379,6 +2279,83 @@ function generarPDFCotizacion(id) {
 // ═══════════════════════════════════════════════════════
 const F1_FIELDS = {"lugar": [502.1, 741.4, 575.7, 754.0], "fecha": [503.5, 720.8, 575.7, 733.9], "orden": [503.2, 699.1, 575.8, 712.9], "nombre": [111.6, 629.8, 390.0, 643.9], "domicilio": [118.2, 613.5, 390.8, 627.9], "telefono": [121.4, 596.6, 390.8, 611.0], "tecnico": [423.9, 631.0, 575.8, 643.5], "tecnico_domicilio": [424.7, 614.2, 573.8, 627.8], "tecnico_telefono": [425.2, 597.4, 574.3, 611.4], "chk_revision": [41.3, 556.1, 48.8, 564.1], "chk_instalacion": [115.3, 556.1, 123.3, 564.1], "chk_mantenimiento": [192.7, 556.1, 200.7, 564.6], "chk_optimizacion": [271.9, 556.1, 279.4, 564.1], "chk_recarga": [350.7, 556.1, 358.2, 564.1], "chk_desinstalacion": [429.4, 556.6, 437.4, 564.1], "chk_otros": [508.6, 557.1, 516.1, 564.1], "marca": [90.5, 429.4, 295.8, 442.5], "capacidad": [118.2, 410.6, 295.8, 424.2], "refrigerante": [132.2, 392.3, 294.4, 405.0], "voltaje": [99.4, 374.5, 293.5, 386.2], "serie": [108.8, 353.4, 295.4, 368.0], "ubicacion": [112.5, 335.6, 294.9, 348.8], "observaciones": [322.5, 281.7, 570.0, 443.9], "desc_servicio": [44.6, 167.6, 296.3, 282.0], "valor_antes": [313.6, 207.0, 436.9, 237.0], "valor_despues": [453.8, 208.9, 574.3, 236.1], "gar_desde_d": [438.3, 131.7, 472.1, 146.7], "gar_desde_m": [483.3, 132.2, 515.2, 146.2], "gar_desde_a": [523.2, 131.2, 557.4, 145.3], "gar_hasta_d": [439.7, 91.9, 471.1, 105.0], "gar_hasta_m": [479.1, 92.3, 513.8, 104.5], "gar_hasta_a": [521.8, 91.9, 558.8, 104.5], "excepcion": [311.8, 34.2, 578.9, 76.9], "mat_desc_0_0": [38.0, 112.0, 119.6, 123.8], "mat_precio_0_0": [130.4, 112.5, 161.8, 123.3], "mat_desc_0_1": [174.4, 112.0, 257.4, 123.8], "mat_precio_0_1": [269.6, 113.0, 299.6, 122.3], "mat_desc_1_0": [38.0, 94.2, 119.6, 105.0], "mat_precio_1_0": [131.8, 94.7, 161.3, 105.0], "mat_desc_1_1": [175.4, 92.8, 257.4, 105.5], "mat_precio_1_1": [269.6, 94.7, 299.1, 104.5], "mat_desc_2_0": [38.0, 73.6, 118.2, 84.8], "mat_precio_2_0": [131.8, 75.0, 161.8, 85.8], "mat_desc_2_1": [175.4, 73.6, 256.9, 85.3], "mat_precio_2_1": [269.1, 75.0, 299.1, 84.8], "mat_desc_3_0": [38.5, 55.8, 117.7, 67.5], "mat_precio_3_0": [131.8, 57.2, 162.2, 67.5], "mat_desc_3_1": [176.3, 55.8, 256.9, 68.4], "mat_precio_3_1": [270.0, 57.2, 299.1, 67.0], "mat_desc_4_0": [38.9, 36.1, 118.2, 48.3], "mat_precio_4_0": [130.8, 37.0, 161.3, 46.9], "mat_desc_4_1": [176.8, 35.2, 257.4, 46.9], "mat_precio_4_1": [268.6, 37.0, 299.1, 46.9]};
 const F1_PAGE_W = 612, F1_PAGE_H = 792, F1_SCALE = 215.9/612;
+const F1_PAGE_W_CSS = 612, F1_PAGE_H_CSS = 792;
+let papelActivo = false;
+const PAPEL_MAP = [
+  ['orden-lugar','lugar'], ['orden-fecha','fecha'], ['orden-num','orden'],
+  ['orden-tecnico','tecnico'],
+  ['chk_revision','chk_revision'], ['chk_instalacion','chk_instalacion'], ['chk_mantenimiento','chk_mantenimiento'],
+  ['chk_optimizacion','chk_optimizacion'], ['chk_recarga','chk_recarga'], ['chk_desinstalacion','chk_desinstalacion'], ['chk_otros','chk_otros'],
+  ['ord-marca','marca'], ['ord-cap','capacidad'], ['ord-ref','refrigerante'], ['ord-volt','voltaje'], ['ord-serie','serie'], ['ord-ubic','ubicacion'],
+  ['ord-desc-serv','desc_servicio'], ['orden-obs','observaciones'],
+  ['ord-val-antes','valor_antes'], ['ord-val-despues','valor_despues'],
+  ['orden-excepcion','excepcion'],
+];
+const papelOriginales = {};
+
+function f1BoxStyle(key){
+  const r = F1_FIELDS[key];
+  const left = r[0]/F1_PAGE_W_CSS*100;
+  const top = (F1_PAGE_H_CSS-r[3])/F1_PAGE_H_CSS*100;
+  const width = (r[2]-r[0])/F1_PAGE_W_CSS*100;
+  const height = (r[3]-r[1])/F1_PAGE_H_CSS*100;
+  return `position:absolute;left:${left}%;top:${top}%;width:${width}%;height:${height}%;`;
+}
+
+function toggleVistaPapel(){
+  const overlay = document.getElementById('papel-overlay');
+  papelActivo = !papelActivo;
+  overlay.style.display = papelActivo ? 'block' : 'none';
+  document.getElementById('btn-vista-papel').textContent = papelActivo ? 'Ocultar vista papel' : 'Vista papel (idéntica al formato)';
+
+  if (papelActivo) {
+    PAPEL_MAP.forEach(([id, key]) => {
+      const el = document.getElementById(id);
+      if (!el || !F1_FIELDS[key]) return;
+      papelOriginales[id] = { parent: el.parentNode, next: el.nextSibling };
+      overlay.appendChild(el);
+      el.style.cssText += f1BoxStyle(key) + 'font-size:1.3vw;margin:0;border:1px dashed rgba(10,22,40,.3);background:rgba(255,255,255,.02);';
+    });
+    // Cliente: input de búsqueda sobre "nombre", domicilio/telefono sobre sus cajas
+    const wrap = document.querySelector('#modal-orden .autocomplete-wrap');
+    if (wrap) {
+      papelOriginales['__clienteWrap'] = { parent: wrap.parentNode, next: wrap.nextSibling };
+      overlay.appendChild(wrap);
+      wrap.style.cssText += f1BoxStyle('nombre') + 'margin:0;';
+    }
+    const dir = document.getElementById('orden-cliente-dir');
+    const tel = document.getElementById('orden-cliente-tel');
+    if (dir) { papelOriginales['orden-cliente-dir'] = {parent:dir.parentNode, next:dir.nextSibling}; overlay.appendChild(dir); dir.style.cssText += f1BoxStyle('domicilio') + 'font-size:1.1vw;'; }
+    if (tel) { papelOriginales['orden-cliente-tel'] = {parent:tel.parentNode, next:tel.nextSibling}; overlay.appendChild(tel); tel.style.cssText += f1BoxStyle('telefono') + 'font-size:1.1vw;'; }
+    // Garantía: un solo input de fecha cubriendo el bloque día+mes+año
+    const gd = document.getElementById('orden-gar-desde'), gh = document.getElementById('orden-gar-hasta');
+    if (gd) {
+      papelOriginales['orden-gar-desde'] = {parent:gd.parentNode, next:gd.nextSibling};
+      overlay.appendChild(gd);
+      const r1=F1_FIELDS['gar_desde_d'], r2=F1_FIELDS['gar_desde_a'];
+      const left=r1[0]/F1_PAGE_W_CSS*100, top=(F1_PAGE_H_CSS-r1[3])/F1_PAGE_H_CSS*100, width=(r2[2]-r1[0])/F1_PAGE_W_CSS*100, height=(r1[3]-r1[1])/F1_PAGE_H_CSS*100;
+      gd.style.cssText += `position:absolute;left:${left}%;top:${top}%;width:${width}%;height:${height}%;margin:0;font-size:1.2vw;`;
+    }
+    if (gh) {
+      papelOriginales['orden-gar-hasta'] = {parent:gh.parentNode, next:gh.nextSibling};
+      overlay.appendChild(gh);
+      const r1=F1_FIELDS['gar_hasta_d'], r2=F1_FIELDS['gar_hasta_a'];
+      const left=r1[0]/F1_PAGE_W_CSS*100, top=(F1_PAGE_H_CSS-r1[3])/F1_PAGE_H_CSS*100, width=(r2[2]-r1[0])/F1_PAGE_W_CSS*100, height=(r1[3]-r1[1])/F1_PAGE_H_CSS*100;
+      gh.style.cssText += `position:absolute;left:${left}%;top:${top}%;width:${width}%;height:${height}%;margin:0;font-size:1.2vw;`;
+    }
+  } else {
+    Object.keys(papelOriginales).forEach(id => {
+      const el = id==='__clienteWrap' ? document.querySelector('#papel-overlay .autocomplete-wrap') : document.getElementById(id);
+      if (!el) return;
+      const { parent, next } = papelOriginales[id];
+      if (next) parent.insertBefore(el, next); else parent.appendChild(el);
+      el.style.position=''; el.style.left=''; el.style.top=''; el.style.width=''; el.style.height='';
+      el.style.fontSize=''; el.style.margin=''; el.style.border=''; el.style.background='';
+    });
+    for (const k in papelOriginales) delete papelOriginales[k];
+  }
+}
+
 
 function f1FitFontSize(doc, text, maxW, maxH, maxSize, minSize){
   maxSize = maxSize || 9; minSize = minSize || 5;
