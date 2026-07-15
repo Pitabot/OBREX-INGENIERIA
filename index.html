@@ -1050,16 +1050,15 @@
 // ───────────────────────────────────────
 // FIREBASE CONFIG — reemplaza con los datos de tu proyecto
 // ───────────────────────────────────────
-
 const firebaseConfig = {
-  apiKey: "AIzaSyBhQtYymTnYOcqSKiQprl7z91O0d26-s8s",
-  authDomain: "obrex-ingenieria.firebaseapp.com",
-  projectId: "obrex-ingenieria",
-  storageBucket: "obrex-ingenieria.firebasestorage.app",
-  messagingSenderId: "658326612862",
-  appId: "1:658326612862:web:fe4807a9076bf0d449612f",
-  measurementId: "G-NVQGR4J5EH",
+  apiKey:            "TU_API_KEY",
+  authDomain:        "TU_PROJECT.firebaseapp.com",
+  projectId:         "TU_PROJECT_ID",
+  storageBucket:     "TU_PROJECT.appspot.com",
+  messagingSenderId: "TU_SENDER_ID",
+  appId:             "TU_APP_ID"
 };
+
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.firestore();
@@ -1920,13 +1919,6 @@ function renderOrdenes() {
 function renderOrdenFormato() {
   const fmt = document.getElementById('orden-formato').value;
   const el  = document.getElementById('orden-campos-dinamicos');
-  const btnPapel = document.getElementById('btn-vista-papel');
-  if (fmt === '1') {
-    btnPapel.style.display = 'block';
-  } else {
-    btnPapel.style.display = 'none';
-    if (papelActivo) toggleVistaPapel();
-  }
   if (fmt==='1' || fmt==='2') {
     el.innerHTML = `
       <div class="section-title">Equipo</div>
