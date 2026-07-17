@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -550,7 +551,7 @@
   </div>
   <img class="intro-wordmark" src="./logo-wordmark.png" alt="OBREX Ingeniería"/>
   <div class="intro-skip">Toca para continuar</div>
-  <p class="footer-tag">obrexv4.0.7</p>
+  <p class="footer-tag">Obrexv4.0.8</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -573,7 +574,7 @@
     <button class="btn btn-primary" onclick="doLogin()">Ingresar</button>
     <p id="login-error" style="color:var(--red);font-size:13px;margin-top:12px;text-align:center;display:none"></p>
   </div>
-  <p class="footer-tag">obrexv4.0.7</p>
+  <p class="footer-tag">Obrexv4.0.8</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -1072,7 +1073,6 @@
 // ───────────────────────────────────────
 // FIREBASE CONFIG — reemplaza con los datos de tu proyecto
 // ───────────────────────────────────────
-
 const firebaseConfig = {
   apiKey: "AIzaSyBhQtYymTnYOcqSKiQprl7z91O0d26-s8s",
   authDomain: "obrex-ingenieria.firebaseapp.com",
@@ -1082,6 +1082,7 @@ const firebaseConfig = {
   appId: "1:658326612862:web:fe4807a9076bf0d449612f",
   measurementId: "G-NVQGR4J5EH",
 };
+
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.firestore();
@@ -2173,12 +2174,12 @@ function renderMaterialesPapel(){
       if (!F1_FIELDS[descKey]) continue;
       const dBox = f1BoxStyle(descKey), pBox = f1BoxStyle(precioKey);
       const dEl = document.createElement('div');
-      dEl.style.cssText = dBox + 'font-size:1vw;color:#0a1628;overflow:hidden;white-space:nowrap;display:flex;align-items:center;padding:0 3px;cursor:pointer;border:1px dashed rgba(10,22,40,.2);';
+      dEl.style.cssText = dBox + 'font-size:0.85vw;letter-spacing:-0.2px;color:#0a1628;box-sizing:border-box;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;display:flex;align-items:center;padding:0 3px;cursor:pointer;border:1px dashed rgba(10,22,40,.2);';
       dEl.textContent = item ? item.desc : '';
       if (item) dEl.title = 'Toca para quitar';
       if (item) dEl.onclick = () => removeOrdenItem(idx);
       const pEl = document.createElement('div');
-      pEl.style.cssText = pBox + 'font-size:1vw;color:#0a1628;display:flex;align-items:center;justify-content:center;';
+      pEl.style.cssText = pBox + 'font-size:1vw;color:#0a1628;box-sizing:border-box;overflow:hidden;white-space:nowrap;display:flex;align-items:center;justify-content:center;';
       pEl.textContent = item ? (item.cantidad*item.precio).toFixed(2) : '';
       cont.appendChild(dEl); cont.appendChild(pEl);
     }
