@@ -532,7 +532,7 @@
   </div>
   <img class="intro-wordmark" src="./logo-wordmark.png" alt="OBREX Ingeniería"/>
   <div class="intro-skip">Toca para continuar</div>
-  <p class="footer-tag">obrexv4.0.5-letras</p>
+  <p class="footer-tag">obrexv4.0.6-autollenado</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -555,7 +555,7 @@
     <button class="btn btn-primary" onclick="doLogin()">Ingresar</button>
     <p id="login-error" style="color:var(--red);font-size:13px;margin-top:12px;text-align:center;display:none"></p>
   </div>
-  <p class="footer-tag">obrexv4.0.5-letras</p>
+  <p class="footer-tag">obrexv4.0.6-autollenado</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -990,6 +990,8 @@
       </div>
 
       <div class="field"><label>Técnico responsable</label><input id="orden-tecnico" type="text" placeholder="Nombre del técnico"/></div>
+      <div class="field"><label>Domicilio del técnico</label><input id="orden-tecnico-dir" type="text" placeholder="Domicilio del técnico"/></div>
+      <div class="field"><label>Teléfono del técnico</label><input id="orden-tecnico-tel" type="text" placeholder="Teléfono del técnico"/></div>
 
       <!-- Tipo de servicio (checkboxes) -->
       <div class="field">
@@ -1054,14 +1056,14 @@
 // ───────────────────────────────────────
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBhQtYymTnYOcqSKiQprl7z91O0d26-s8s",
-    authDomain: "obrex-ingenieria.firebaseapp.com",
-    projectId: "obrex-ingenieria",
-    storageBucket: "obrex-ingenieria.firebasestorage.app",
-    messagingSenderId: "658326612862",
-    appId: "1:658326612862:web:fe4807a9076bf0d449612f",
-    measurementId: "G-NVQGR4J5EH",
-  };
+  apiKey: "AIzaSyBhQtYymTnYOcqSKiQprl7z91O0d26-s8s",
+  authDomain: "obrex-ingenieria.firebaseapp.com",
+  projectId: "obrex-ingenieria",
+  storageBucket: "obrex-ingenieria.firebasestorage.app",
+  messagingSenderId: "658326612862",
+  appId: "1:658326612862:web:fe4807a9076bf0d449612f",
+  measurementId: "G-NVQGR4J5EH",
+};
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.firestore();
@@ -2013,6 +2015,8 @@ function openNuevaOrden() {
   document.getElementById('orden-cliente-id').value    = '';
   document.getElementById('orden-cliente-info').style.display = 'none';
   document.getElementById('orden-tecnico').value       = '';
+  document.getElementById('orden-tecnico-dir').value    = '';
+  document.getElementById('orden-tecnico-tel').value    = '';
   document.getElementById('orden-obs').value           = '';
   document.getElementById('orden-gar-desde').value     = '';
   document.getElementById('orden-gar-hasta').value     = '';
@@ -2061,6 +2065,8 @@ function editarOrden(id) {
   document.getElementById('orden-cliente-input').value = o.clienteNombre||'';
   document.getElementById('orden-cliente-id').value    = o.clienteId||'';
   document.getElementById('orden-tecnico').value       = o.tecnico||'';
+  document.getElementById('orden-tecnico-dir').value    = o.tecnicoDir||'';
+  document.getElementById('orden-tecnico-tel').value    = o.tecnicoTel||'';
   document.getElementById('orden-obs').value           = o.observaciones||'';
   document.getElementById('orden-gar-desde').value     = o.garDesde||'';
   document.getElementById('orden-gar-hasta').value     = o.garHasta||'';
@@ -2249,6 +2255,8 @@ async function guardarOrden() {
     clienteNombre: cliente?cliente.nombre:'',
     clienteData:   cliente||{},
     tecnico:       document.getElementById('orden-tecnico').value,
+    tecnicoDir:    document.getElementById('orden-tecnico-dir').value,
+    tecnicoTel:    document.getElementById('orden-tecnico-tel').value,
     tipoServicio,
     items:         ordenItems,
     observaciones: document.getElementById('orden-obs').value,
@@ -2388,7 +2396,7 @@ const F1_PAGE_W_CSS = 612, F1_PAGE_H_CSS = 792;
 let papelPantallaActiva = false;
 const PAPEL_MAP = [
   ['orden-lugar','lugar'], ['orden-fecha','fecha'], ['orden-num','orden'],
-  ['orden-tecnico','tecnico'],
+  ['orden-tecnico','tecnico'], ['orden-tecnico-dir','tecnico_domicilio'], ['orden-tecnico-tel','tecnico_telefono'],
   ['chk_revision','chk_revision'], ['chk_instalacion','chk_instalacion'], ['chk_mantenimiento','chk_mantenimiento'],
   ['chk_optimizacion','chk_optimizacion'], ['chk_recarga','chk_recarga'], ['chk_desinstalacion','chk_desinstalacion'], ['chk_otros','chk_otros'],
   ['ord-marca','marca'], ['ord-cap','capacidad'], ['ord-ref','refrigerante'], ['ord-volt','voltaje'], ['ord-serie','serie'], ['ord-ubic','ubicacion'],
@@ -2547,11 +2555,10 @@ function f1DrawMultiline(doc, key, text, opts){
 }
 function f1DrawCheckbox(doc, key){
   const b = f1Rect(key);
-  const size = Math.min(b.w, b.h) * 0.85;
-  doc.setFont('helvetica','bold'); doc.setFontSize(size/0.3527*0.8);
-  doc.setTextColor(10,22,40);
-  const ty = (F1_PAGE_H*F1_SCALE - (b.y0 + b.h*0.28));
-  doc.text('X', (b.x0+b.x1)/2, ty, {align:'center'});
+  const pad = Math.min(b.w, b.h) * 0.18;
+  const topY = F1_PAGE_H*F1_SCALE - b.y1; // voltear a coordenadas jsPDF (origen arriba)
+  doc.setFillColor(10,22,40);
+  doc.rect(b.x0+pad, topY+pad, b.w-pad*2, b.h-pad*2, 'F');
 }
 
 function generarPDFFormato1(doc, o){
@@ -2568,6 +2575,8 @@ function generarPDFFormato1(doc, o){
   f1DrawInBox(doc, 'domicilio', cd.dir);
   f1DrawInBox(doc, 'telefono', cd.tel);
   f1DrawInBox(doc, 'tecnico', o.tecnico);
+  f1DrawInBox(doc, 'tecnico_domicilio', o.tecnicoDir);
+  f1DrawInBox(doc, 'tecnico_telefono', o.tecnicoTel);
 
   (o.tipoServicio||[]).forEach(function(t){
     const key = 'chk_' + t.toLowerCase();
