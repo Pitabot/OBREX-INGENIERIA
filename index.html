@@ -532,7 +532,7 @@
   </div>
   <img class="intro-wordmark" src="./logo-wordmark.png" alt="OBREX Ingeniería"/>
   <div class="intro-skip">Toca para continuar</div>
-  <p class="footer-tag">obrexv4.0.3-pantalla-completa</p>
+  <p class="footer-tag">obrexv4.0.5-letras</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -555,7 +555,7 @@
     <button class="btn btn-primary" onclick="doLogin()">Ingresar</button>
     <p id="login-error" style="color:var(--red);font-size:13px;margin-top:12px;text-align:center;display:none"></p>
   </div>
-  <p class="footer-tag">obrexv4.0.3-pantalla-completa</p>
+  <p class="footer-tag">obrexv4.0.5-letras</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -794,7 +794,7 @@
       <div class="field">
         <label>Cliente</label>
         <div class="autocomplete-wrap">
-          <input id="cotiz-cliente-input" type="text" placeholder="Buscar cliente…" oninput="autocompleteCliente(this.value,'cotiz')" autocomplete="off"/>
+          <input id="cotiz-cliente-input" type="text" placeholder="Buscar cliente…" oninput="autocompleteCliente(this.value,'cotiz')" onfocus="autocompleteCliente(this.value,'cotiz')" autocomplete="off"/>
           <div class="autocomplete-list" id="cotiz-cliente-list"></div>
         </div>
         <input type="hidden" id="cotiz-cliente-id"/>
@@ -874,7 +874,7 @@
       <div class="field">
         <label>Cliente</label>
         <div class="autocomplete-wrap">
-          <input id="fact-cliente-input" type="text" placeholder="Buscar cliente…" oninput="autocompleteCliente(this.value,'fact')" autocomplete="off"/>
+          <input id="fact-cliente-input" type="text" placeholder="Buscar cliente…" oninput="autocompleteCliente(this.value,'fact')" onfocus="autocompleteCliente(this.value,'fact')" autocomplete="off"/>
           <div class="autocomplete-list" id="fact-cliente-list"></div>
         </div>
         <input type="hidden" id="fact-cliente-id"/>
@@ -930,16 +930,16 @@
      PANTALLA COMPLETA — FORMATO 1 (idéntica al papel)
 ═══════════════════════════════════════ -->
 <div id="screen-orden-f1" class="screen" style="background:#555;overflow-y:auto;flex-direction:column">
-  <div style="position:sticky;top:0;z-index:20;background:var(--navy2,#0a1628);padding:12px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-    <button class="btn btn-secondary" style="width:auto;padding:8px 14px" onclick="cerrarPantallaPapel()">← Volver</button>
-    <h3 id="papel-f1-titulo" style="flex:1;color:#fff;margin:0;font-size:15px">Orden de Servicio — Formato 1</h3>
-    <button class="btn btn-primary" style="width:auto;padding:8px 16px;margin-top:0" onclick="guardarOrden()">Guardar</button>
-    <button class="btn btn-secondary" style="width:100%;order:99;font-size:12px;padding:6px" onclick="usarFormularioClasico()">¿Es formato eléctrico o de parámetros (3/4)? Cambiar a formulario clásico</button>
+  <div style="position:sticky;top:0;z-index:20;background:var(--navy2,#0a1628);padding:6px 10px;display:flex;gap:8px;align-items:center">
+    <button style="background:none;border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:6px;width:34px;height:34px;font-size:16px;line-height:1;cursor:pointer" onclick="cerrarPantallaPapel()" title="Volver">←</button>
+    <h3 id="papel-f1-titulo" style="flex:1;color:#cfd6de;margin:0;font-size:12px;font-weight:500">Orden de Servicio — Formato 1</h3>
+    <button style="background:var(--gold,#C8A84B);border:none;color:#0a1628;border-radius:6px;width:34px;height:34px;font-size:16px;line-height:1;font-weight:800;cursor:pointer" onclick="guardarOrden()" title="Guardar">✓</button>
   </div>
   <div style="max-width:900px;margin:14px auto;padding:0 10px;width:100%;box-sizing:border-box">
     <div style="position:relative;width:100%;padding-top:129.4118%;background:#fff;box-shadow:0 4px 24px rgba(0,0,0,.4)">
       <div id="papel-f1-overlay" style="position:absolute;top:0;left:0;right:0;bottom:0;">
         <img src="./formato1-bg.png" style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:block" alt="Formato 1">
+        <div id="papel-mat-slots"></div>
       </div>
     </div>
     <div id="papel-f1-extra" style="margin-top:16px"></div>
@@ -978,7 +978,7 @@
       <div class="field">
         <label>Cliente</label>
         <div class="autocomplete-wrap" data-ctx="cliente">
-          <input id="orden-cliente-input" type="text" placeholder="Buscar cliente…" oninput="autocompleteCliente(this.value,'orden')" autocomplete="off"/>
+          <input id="orden-cliente-input" type="text" placeholder="Buscar cliente…" oninput="autocompleteCliente(this.value,'orden')" onfocus="autocompleteCliente(this.value,'orden')" autocomplete="off"/>
           <div class="autocomplete-list" id="orden-cliente-list"></div>
         </div>
         <input type="hidden" id="orden-cliente-id"/>
@@ -1052,16 +1052,16 @@
 // ───────────────────────────────────────
 // FIREBASE CONFIG — reemplaza con los datos de tu proyecto
 // ───────────────────────────────────────
-const firebaseConfig = {
-  apiKey: "AIzaSyBhQtYymTnYOcqSKiQprl7z91O0d26-s8s",
-  authDomain: "obrex-ingenieria.firebaseapp.com",
-  projectId: "obrex-ingenieria",
-  storageBucket: "obrex-ingenieria.firebasestorage.app",
-  messagingSenderId: "658326612862",
-  appId: "1:658326612862:web:fe4807a9076bf0d449612f",
-  measurementId: "G-NVQGR4J5EH"
-};
 
+const firebaseConfig = {
+    apiKey: "AIzaSyBhQtYymTnYOcqSKiQprl7z91O0d26-s8s",
+    authDomain: "obrex-ingenieria.firebaseapp.com",
+    projectId: "obrex-ingenieria",
+    storageBucket: "obrex-ingenieria.firebasestorage.app",
+    messagingSenderId: "658326612862",
+    appId: "1:658326612862:web:fe4807a9076bf0d449612f",
+    measurementId: "G-NVQGR4J5EH",
+  };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.firestore();
@@ -1438,8 +1438,17 @@ async function eliminarArticulo(id) {
 // ───────────────────────────────────────
 function autocompleteCliente(q, ctx) {
   const list = document.getElementById(ctx+'-cliente-list');
-  if (!q || q.length < 1) { list.classList.remove('open'); return; }
-  const matches = clientes.filter(c => c.nombre.toLowerCase().includes(q.toLowerCase())).slice(0,6);
+  // Cualquier cambio en el texto invalida la selección anterior (evita que Domicilio/Teléfono queden con datos viejos)
+  const idField = document.getElementById(ctx+'-cliente-id');
+  if (idField) idField.value = '';
+  const info = document.getElementById(ctx+'-cliente-info');
+  if (info) info.style.display = 'none';
+
+  const term = (q||'').toLowerCase();
+  const matches = (term
+    ? clientes.filter(c => c.nombre.toLowerCase().includes(term))
+    : clientes.slice().sort((a,b)=>a.nombre.localeCompare(b.nombre))
+  ).slice(0,8);
   if (!matches.length) { list.classList.remove('open'); return; }
   list.innerHTML = matches.map(c =>
     `<div class="autocomplete-opt" onclick="selectCliente('${c.id}','${ctx}')">
@@ -2017,14 +2026,21 @@ function openNuevaOrden() {
 
 function usarFormularioClasico() {
   Object.keys(papelOriginales).forEach(id => {
-    const el = id==='__clienteWrap' ? document.querySelector('#papel-f1-overlay .autocomplete-wrap') : document.getElementById(id);
+    let el;
+    if (id==='__clienteWrap') el = document.querySelector('#papel-f1-overlay .autocomplete-wrap[data-ctx="cliente"]');
+    else if (id==='__artWrap') el = document.querySelector('#papel-f1-overlay .autocomplete-wrap[data-ctx="articulo"]');
+    else el = document.getElementById(id);
     if (!el) return;
     const { parent, next } = papelOriginales[id];
     if (next) parent.insertBefore(el, next); else parent.appendChild(el);
     el.style.position=''; el.style.left=''; el.style.top=''; el.style.width=''; el.style.height='';
-    el.style.fontSize=''; el.style.margin=''; el.style.border=''; el.style.background='';
+    el.style.fontSize=''; el.style.margin=''; el.style.border=''; el.style.background=''; el.style.zIndex='';
   });
   for (const k in papelOriginales) delete papelOriginales[k];
+  const materialesBlock = document.getElementById('bloque-materiales-orden');
+  if (materialesBlock) materialesBlock.style.display = '';
+  const slots = document.getElementById('papel-mat-slots');
+  if (slots) slots.innerHTML = '';
   papelPantallaActiva = false;
   document.getElementById('orden-formato').value = '3';
   renderOrdenFormato();
@@ -2077,7 +2093,7 @@ function editarOrden(id) {
 
 function renderOrdenItems() {
   const el = document.getElementById('orden-items-list');
-  if (!ordenItems.length) { el.innerHTML=''; return; }
+  if (!ordenItems.length) { el.innerHTML=''; } else {
   el.innerHTML = ordenItems.map((item,i)=>`
     <div class="cotiz-item">
       <div class="cotiz-item-header">
@@ -2090,6 +2106,32 @@ function renderOrdenItems() {
         <div class="cotiz-item-field"><label>Importe</label><input type="number" value="${(item.cantidad*item.precio).toFixed(2)}" readonly style="opacity:0.6"/></div>
       </div>
     </div>`).join('');
+  }
+  if (papelPantallaActiva) renderMaterialesPapel();
+}
+
+function renderMaterialesPapel(){
+  const cont = document.getElementById('papel-mat-slots');
+  if (!cont) return;
+  cont.innerHTML = '';
+  for (let i=0; i<5; i++){
+    for (let c=0; c<2; c++){
+      const idx = i*2+c;
+      const item = ordenItems[idx];
+      const descKey = 'mat_desc_'+i+'_'+c, precioKey = 'mat_precio_'+i+'_'+c;
+      if (!F1_FIELDS[descKey]) continue;
+      const dBox = f1BoxStyle(descKey), pBox = f1BoxStyle(precioKey);
+      const dEl = document.createElement('div');
+      dEl.style.cssText = dBox + 'font-size:1vw;color:#0a1628;overflow:hidden;white-space:nowrap;display:flex;align-items:center;padding:0 3px;cursor:pointer;border:1px dashed rgba(10,22,40,.2);';
+      dEl.textContent = item ? item.desc : '';
+      if (item) dEl.title = 'Toca para quitar';
+      if (item) dEl.onclick = () => removeOrdenItem(idx);
+      const pEl = document.createElement('div');
+      pEl.style.cssText = pBox + 'font-size:1vw;color:#0a1628;display:flex;align-items:center;justify-content:center;';
+      pEl.textContent = item ? (item.cantidad*item.precio).toFixed(2) : '';
+      cont.appendChild(dEl); cont.appendChild(pEl);
+    }
+  }
 }
 
 function updateOrdenItem(i,field,val){ ordenItems[i][field]=parseFloat(val)||0; renderOrdenItems(); }
@@ -2387,8 +2429,8 @@ function abrirPantallaPapel(modoNuevo){
   }
   const dir = document.getElementById('orden-cliente-dir');
   const tel = document.getElementById('orden-cliente-tel');
-  if (dir) { papelOriginales['orden-cliente-dir'] = {parent:dir.parentNode, next:dir.nextSibling}; overlay.appendChild(dir); dir.style.cssText += f1BoxStyle('domicilio') + 'font-size:1.1vw;'; }
-  if (tel) { papelOriginales['orden-cliente-tel'] = {parent:tel.parentNode, next:tel.nextSibling}; overlay.appendChild(tel); tel.style.cssText += f1BoxStyle('telefono') + 'font-size:1.1vw;'; }
+  if (dir) { papelOriginales['orden-cliente-dir'] = {parent:dir.parentNode, next:dir.nextSibling}; overlay.appendChild(dir); dir.style.cssText += f1BoxStyle('domicilio') + 'font-size:1.1vw;color:#0a1628;'; }
+  if (tel) { papelOriginales['orden-cliente-tel'] = {parent:tel.parentNode, next:tel.nextSibling}; overlay.appendChild(tel); tel.style.cssText += f1BoxStyle('telefono') + 'font-size:1.1vw;color:#0a1628;'; }
 
   const gd = document.getElementById('orden-gar-desde'), gh = document.getElementById('orden-gar-hasta');
   if (gd) {
@@ -2408,23 +2450,41 @@ function abrirPantallaPapel(modoNuevo){
 
   const materialesBlock = document.getElementById('bloque-materiales-orden');
   const fotosBlock = document.getElementById('bloque-fotos-orden');
-  if (materialesBlock) { papelOriginales['bloque-materiales-orden'] = {parent:materialesBlock.parentNode, next:materialesBlock.nextSibling}; document.getElementById('papel-f1-extra').appendChild(materialesBlock); }
+  const artWrap = document.querySelector('.autocomplete-wrap[data-ctx="articulo"]');
+  if (artWrap) {
+    papelOriginales['__artWrap'] = { parent: artWrap.parentNode, next: artWrap.nextSibling };
+    overlay.appendChild(artWrap);
+    // barra angosta justo arriba de la cuadrícula de materiales (fila 0)
+    const r = F1_FIELDS['mat_desc_0_0'];
+    const left = r[0]/F1_PAGE_W_CSS*100, width = (299.6-r[0])/F1_PAGE_W_CSS*100;
+    const top = (F1_PAGE_H_CSS-(r[3]+17))/F1_PAGE_H_CSS*100, height = 15/F1_PAGE_H_CSS*100;
+    artWrap.style.cssText += `position:absolute;left:${left}%;top:${top}%;width:${width}%;height:${height}%;margin:0;z-index:6;`;
+  }
+  if (materialesBlock) { papelOriginales['bloque-materiales-orden'] = {parent:materialesBlock.parentNode, next:materialesBlock.nextSibling}; document.getElementById('papel-f1-extra').appendChild(materialesBlock); materialesBlock.style.display = 'none'; }
   if (fotosBlock) { papelOriginales['bloque-fotos-orden'] = {parent:fotosBlock.parentNode, next:fotosBlock.nextSibling}; document.getElementById('papel-f1-extra').appendChild(fotosBlock); }
 
+  renderMaterialesPapel();
   document.getElementById('papel-f1-titulo').textContent = modoNuevo ? 'Nueva Orden — Formato 1' : 'Editar Orden — Formato 1';
   showScreen('screen-orden-f1');
 }
 
 function cerrarPantallaPapel(){
   Object.keys(papelOriginales).forEach(id => {
-    const el = id==='__clienteWrap' ? document.querySelector('#papel-f1-overlay .autocomplete-wrap') : document.getElementById(id);
+    let el;
+    if (id==='__clienteWrap') el = document.querySelector('#papel-f1-overlay .autocomplete-wrap[data-ctx="cliente"]');
+    else if (id==='__artWrap') el = document.querySelector('#papel-f1-overlay .autocomplete-wrap[data-ctx="articulo"]');
+    else el = document.getElementById(id);
     if (!el) return;
     const { parent, next } = papelOriginales[id];
     if (next) parent.insertBefore(el, next); else parent.appendChild(el);
     el.style.position=''; el.style.left=''; el.style.top=''; el.style.width=''; el.style.height='';
-    el.style.fontSize=''; el.style.margin=''; el.style.border=''; el.style.background='';
+    el.style.fontSize=''; el.style.margin=''; el.style.border=''; el.style.background=''; el.style.zIndex='';
   });
   for (const k in papelOriginales) delete papelOriginales[k];
+  const materialesBlock = document.getElementById('bloque-materiales-orden');
+  if (materialesBlock) materialesBlock.style.display = '';
+  const slots = document.getElementById('papel-mat-slots');
+  if (slots) slots.innerHTML = '';
   papelPantallaActiva = false;
   showScreen('screen-app');
 }
@@ -2449,7 +2509,8 @@ function f1DrawInBox(doc, key, text, opts){
   if(!text) return;
   opts = opts || {};
   const b = f1Rect(key);
-  const size = f1FitFontSize(doc, String(text), b.w, b.h, 9, 5);
+  const maxH_pt = F1_FIELDS[key][3] - F1_FIELDS[key][1]; // altura real en puntos, no en mm
+  const size = f1FitFontSize(doc, String(text), b.w, maxH_pt, 9, 5);
   doc.setFont('helvetica','normal'); doc.setFontSize(size);
   doc.setTextColor(10,22,40);
   const ty = F1_PAGE_H*F1_SCALE - (b.y0 + b.h/2) + size*0.3527*0.32;
@@ -2547,6 +2608,7 @@ function generarPDFFormato1(doc, o){
 }
 
 async function generarPDFOrden(id) {
+ try {
   const o = ordenes.find(x=>x.id===id); if(!o) return;
   const fotosOrden = await cargarFotosLocal(id);
   const { jsPDF } = window.jspdf;
@@ -2738,8 +2800,13 @@ async function generarPDFOrden(id) {
     doc.text('Técnico: '+(o.tecnico||''), mg+60, 268);
   }
 
-  doc.save('OrdenServicio_'+o.num+'_'+(o.clienteNombre||'').replace(/\s+/g,'_')+'.pdf');
+  const nombreArchivo = 'OrdenServicio_'+o.num+'_'+(o.clienteNombre||'').replace(/\s+/g,'_')+'.pdf';
+  doc.save(nombreArchivo);
   toast('PDF generado');
+ } catch(e) {
+   console.error("Error generando PDF de orden:", e);
+   alert("No se pudo generar el PDF: " + e.message);
+ }
 }
 
 // ───────────────────────────────────────
@@ -2774,7 +2841,11 @@ function toast(msg) {
 
 // Service Worker
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(r => r.unregister());
+    if ('caches' in window) { caches.keys().then(names => names.forEach(n => caches.delete(n))); }
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
 }
 </script>
 </body>
