@@ -519,6 +519,24 @@
   </style>
 </head>
 <body>
+<datalist id="lista-marcas">
+  <option value="Mirage"></option><option value="Carrier"></option><option value="LG"></option>
+  <option value="Trane"></option><option value="York"></option><option value="Samsung"></option>
+  <option value="Daikin"></option><option value="Century"></option><option value="Coolix"></option>
+</datalist>
+<datalist id="lista-capacidades">
+  <option value="3/4 TON"></option><option value="1 TON"></option><option value="1.5 TON"></option>
+  <option value="2 TON"></option><option value="2.5 TON"></option><option value="3 TON"></option>
+  <option value="5 TON"></option>
+</datalist>
+<datalist id="lista-refrigerantes">
+  <option value="R-410A"></option><option value="R-22"></option><option value="R-134A"></option>
+  <option value="R-404A"></option><option value="R-32"></option>
+</datalist>
+<datalist id="lista-voltajes">
+  <option value="110V"></option><option value="127V"></option><option value="220V"></option>
+  <option value="440V"></option>
+</datalist>
 <img id="formato1-bg-img" src="./formato1-bg.png" style="display:none" alt="">
 
 
@@ -532,7 +550,7 @@
   </div>
   <img class="intro-wordmark" src="./logo-wordmark.png" alt="OBREX Ingeniería"/>
   <div class="intro-skip">Toca para continuar</div>
-  <p class="footer-tag">obrexv4.0.6-autollenado</p>
+  <p class="footer-tag">obrexv4.0.7</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -555,7 +573,7 @@
     <button class="btn btn-primary" onclick="doLogin()">Ingresar</button>
     <p id="login-error" style="color:var(--red);font-size:13px;margin-top:12px;text-align:center;display:none"></p>
   </div>
-  <p class="footer-tag">obrexv4.0.6-autollenado</p>
+  <p class="footer-tag">obrexv4.0.7</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -1474,6 +1492,24 @@ function selectCliente(id, ctx) {
   }
 }
 
+// Listas de arranque para Equipo (el usuario puede escribir cualquier valor libremente, esto solo sugiere)
+const MARCAS_COMUNES = ['Mirage','Carrier','LG','Trane','York','Samsung','Daikin','Century','Coolix'];
+const CAPACIDADES_COMUNES = ['3/4 TON','1 TON','1.5 TON','2 TON','2.5 TON','3 TON','5 TON'];
+const REFRIGERANTES_COMUNES = ['R-410A','R-22','R-134A','R-404A','R-32'];
+const VOLTAJES_COMUNES = ['110V','127V','220V','440V'];
+
+function autocompleteEstatico(q, inputId, opciones){
+  const list = document.getElementById(inputId+'-list');
+  if (!list) return;
+  const term = (q||'').toLowerCase();
+  const matches = (term ? opciones.filter(o=>o.toLowerCase().includes(term)) : opciones).slice(0,8);
+  if (!matches.length) { list.classList.remove('open'); return; }
+  list.innerHTML = matches.map(v =>
+    `<div class="autocomplete-opt" onclick="document.getElementById('${inputId}').value='${v}';document.getElementById('${inputId}-list').classList.remove('open');">${v}</div>`
+  ).join('');
+  list.classList.add('open');
+}
+
 function autocompleteArticulo(q, ctx) {
   const list = document.getElementById(ctx+'-art-list');
   if (!q || q.length < 1) { list.classList.remove('open'); return; }
@@ -1937,10 +1973,18 @@ function renderOrdenFormato() {
     el.innerHTML = `
       <div class="section-title">Equipo</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div class="field"><label>Marca</label><input id="ord-marca" type="text" placeholder=""/></div>
-        <div class="field"><label>Capacidad</label><input id="ord-cap" type="text" placeholder="1 TON."/></div>
-        <div class="field"><label>Refrigerante</label><input id="ord-ref" type="text" placeholder="R410A"/></div>
-        <div class="field"><label>Voltaje</label><input id="ord-volt" type="text" placeholder="220V"/></div>
+        <div class="field"><label>Marca</label>
+          <div class="autocomplete-wrap" id="ord-marca-wrap"><input id="ord-marca" type="text" autocomplete="off" oninput="autocompleteEstatico(this.value,'ord-marca',MARCAS_COMUNES)" onfocus="autocompleteEstatico(this.value,'ord-marca',MARCAS_COMUNES)"/><div class="autocomplete-list" id="ord-marca-list"></div></div>
+        </div>
+        <div class="field"><label>Capacidad</label>
+          <div class="autocomplete-wrap" id="ord-cap-wrap"><input id="ord-cap" type="text" autocomplete="off" oninput="autocompleteEstatico(this.value,'ord-cap',CAPACIDADES_COMUNES)" onfocus="autocompleteEstatico(this.value,'ord-cap',CAPACIDADES_COMUNES)"/><div class="autocomplete-list" id="ord-cap-list"></div></div>
+        </div>
+        <div class="field"><label>Refrigerante</label>
+          <div class="autocomplete-wrap" id="ord-ref-wrap"><input id="ord-ref" type="text" autocomplete="off" oninput="autocompleteEstatico(this.value,'ord-ref',REFRIGERANTES_COMUNES)" onfocus="autocompleteEstatico(this.value,'ord-ref',REFRIGERANTES_COMUNES)"/><div class="autocomplete-list" id="ord-ref-list"></div></div>
+        </div>
+        <div class="field"><label>Voltaje</label>
+          <div class="autocomplete-wrap" id="ord-volt-wrap"><input id="ord-volt" type="text" autocomplete="off" oninput="autocompleteEstatico(this.value,'ord-volt',VOLTAJES_COMUNES)" onfocus="autocompleteEstatico(this.value,'ord-volt',VOLTAJES_COMUNES)"/><div class="autocomplete-list" id="ord-volt-list"></div></div>
+        </div>
         <div class="field"><label># de Serie</label><input id="ord-serie" type="text" placeholder=""/></div>
         <div class="field"><label>Ubicación</label><input id="ord-ubic" type="text" placeholder=""/></div>
       </div>
@@ -1957,10 +2001,10 @@ function renderOrdenFormato() {
     el.innerHTML = `
       <div class="section-title">Equipo</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div class="field"><label>Marca</label><input id="ord-marca" type="text"/></div>
-        <div class="field"><label>Capacidad</label><input id="ord-cap" type="text"/></div>
-        <div class="field"><label>Refrigerante</label><input id="ord-ref" type="text"/></div>
-        <div class="field"><label>Voltaje</label><input id="ord-volt" type="text"/></div>
+        <div class="field"><label>Marca</label><input id="ord-marca" type="text" list="lista-marcas" autocomplete="off"/></div>
+        <div class="field"><label>Capacidad</label><input id="ord-cap" type="text" list="lista-capacidades" autocomplete="off"/></div>
+        <div class="field"><label>Refrigerante</label><input id="ord-ref" type="text" list="lista-refrigerantes" autocomplete="off"/></div>
+        <div class="field"><label>Voltaje</label><input id="ord-volt" type="text" list="lista-voltajes" autocomplete="off"/></div>
         <div class="field"><label># de Serie</label><input id="ord-serie" type="text"/></div>
         <div class="field"><label>Ubicación</label><input id="ord-ubic" type="text"/></div>
       </div>
@@ -2021,7 +2065,7 @@ function openNuevaOrden() {
   document.getElementById('orden-gar-desde').value     = '';
   document.getElementById('orden-gar-hasta').value     = '';
   document.getElementById('orden-excepcion').value     = '';
-  document.querySelectorAll('#orden-tipo-servicio input[type=checkbox]').forEach(cb=>cb.checked=false);
+  CHK_IDS.forEach(id => { const cb = document.getElementById(id); if (cb) cb.checked = false; });
   renderOrdenFormato();
   renderOrdenItems();
   renderOrdenFotos();
@@ -2072,8 +2116,9 @@ function editarOrden(id) {
   document.getElementById('orden-gar-hasta').value     = o.garHasta||'';
   document.getElementById('orden-excepcion').value     = o.excepcion||'';
   if (o.clienteId) selectCliente(o.clienteId,'orden');
-  document.querySelectorAll('#orden-tipo-servicio input[type=checkbox]').forEach(cb=>{
-    cb.checked = (o.tipoServicio||[]).includes(cb.value);
+  CHK_IDS.forEach(id => {
+    const cb = document.getElementById(id);
+    if (cb) cb.checked = (o.tipoServicio||[]).includes(cb.value);
   });
   renderOrdenFormato();
   renderOrdenItems();
@@ -2239,7 +2284,7 @@ async function guardarOrden() {
   const clienteId = document.getElementById('orden-cliente-id').value;
   if (!clienteId) { toast('Selecciona un cliente'); return; }
   const cliente = clientes.find(x=>x.id===clienteId);
-  const tipoServicio = [...document.querySelectorAll('#orden-tipo-servicio input:checked')].map(c=>c.value);
+  const tipoServicio = CHK_IDS.map(id => document.getElementById(id)).filter(cb => cb && cb.checked).map(cb => cb.value);
   const fmt = document.getElementById('orden-formato').value;
   // Leer campos dinámicos
   const extra = {};
@@ -2394,12 +2439,13 @@ const F1_FIELDS = {"lugar": [502.1, 741.4, 575.7, 754.0], "fecha": [503.5, 720.8
 const F1_PAGE_W = 612, F1_PAGE_H = 792, F1_SCALE = 215.9/612;
 const F1_PAGE_W_CSS = 612, F1_PAGE_H_CSS = 792;
 let papelPantallaActiva = false;
+const CHK_IDS = ['chk_revision','chk_instalacion','chk_mantenimiento','chk_optimizacion','chk_recarga','chk_desinstalacion','chk_otros'];
 const PAPEL_MAP = [
   ['orden-lugar','lugar'], ['orden-fecha','fecha'], ['orden-num','orden'],
   ['orden-tecnico','tecnico'], ['orden-tecnico-dir','tecnico_domicilio'], ['orden-tecnico-tel','tecnico_telefono'],
   ['chk_revision','chk_revision'], ['chk_instalacion','chk_instalacion'], ['chk_mantenimiento','chk_mantenimiento'],
   ['chk_optimizacion','chk_optimizacion'], ['chk_recarga','chk_recarga'], ['chk_desinstalacion','chk_desinstalacion'], ['chk_otros','chk_otros'],
-  ['ord-marca','marca'], ['ord-cap','capacidad'], ['ord-ref','refrigerante'], ['ord-volt','voltaje'], ['ord-serie','serie'], ['ord-ubic','ubicacion'],
+  ['ord-marca-wrap','marca'], ['ord-cap-wrap','capacidad'], ['ord-ref-wrap','refrigerante'], ['ord-volt-wrap','voltaje'], ['ord-serie','serie'], ['ord-ubic','ubicacion'],
   ['ord-desc-serv','desc_servicio'], ['orden-obs','observaciones'],
   ['ord-val-antes','valor_antes'], ['ord-val-despues','valor_despues'],
   ['orden-excepcion','excepcion'],
