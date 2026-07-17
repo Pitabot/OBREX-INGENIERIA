@@ -532,7 +532,7 @@
   </div>
   <img class="intro-wordmark" src="./logo-wordmark.png" alt="OBREX Ingeniería"/>
   <div class="intro-skip">Toca para continuar</div>
-  <p class="footer-tag">obrex4.0.1</p>
+  <p class="footer-tag">obrexv4.0.3-pantalla-completa</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -555,7 +555,7 @@
     <button class="btn btn-primary" onclick="doLogin()">Ingresar</button>
     <p id="login-error" style="color:var(--red);font-size:13px;margin-top:12px;text-align:center;display:none"></p>
   </div>
-  <p class="footer-tag">obrex4.0.1</p>
+  <p class="footer-tag">obrexv4.0.3-pantalla-completa</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -936,9 +936,11 @@
     <button class="btn btn-primary" style="width:auto;padding:8px 16px;margin-top:0" onclick="guardarOrden()">Guardar</button>
     <button class="btn btn-secondary" style="width:100%;order:99;font-size:12px;padding:6px" onclick="usarFormularioClasico()">¿Es formato eléctrico o de parámetros (3/4)? Cambiar a formulario clásico</button>
   </div>
-  <div style="max-width:900px;margin:14px auto;padding:0 10px">
-    <div style="position:relative;width:100%;aspect-ratio:612/792;background:#fff;box-shadow:0 4px 24px rgba(0,0,0,.4)" id="papel-f1-overlay">
-      <img src="./formato1-bg.png" style="position:absolute;inset:0;width:100%;height:100%;display:block" alt="Formato 1">
+  <div style="max-width:900px;margin:14px auto;padding:0 10px;width:100%;box-sizing:border-box">
+    <div style="position:relative;width:100%;padding-top:129.4118%;background:#fff;box-shadow:0 4px 24px rgba(0,0,0,.4)">
+      <div id="papel-f1-overlay" style="position:absolute;top:0;left:0;right:0;bottom:0;">
+        <img src="./formato1-bg.png" style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:block" alt="Formato 1">
+      </div>
     </div>
     <div id="papel-f1-extra" style="margin-top:16px"></div>
   </div>
@@ -1051,13 +1053,12 @@
 // FIREBASE CONFIG — reemplaza con los datos de tu proyecto
 // ───────────────────────────────────────
 const firebaseConfig = {
-  apiKey: "AIzaSyBhQtYymTnYOcqSKiQprl7z91O0d26-s8s",
-  authDomain: "obrex-ingenieria.firebaseapp.com",
-  projectId: "obrex-ingenieria",
-  storageBucket: "obrex-ingenieria.firebasestorage.app",
-  messagingSenderId: "658326612862",
-  appId: "1:658326612862:web:fe4807a9076bf0d449612f",
-  measurementId: "G-NVQGR4J5EH",
+  apiKey:            "TU_API_KEY",
+  authDomain:        "TU_PROJECT.firebaseapp.com",
+  projectId:         "TU_PROJECT_ID",
+  storageBucket:     "TU_PROJECT.appspot.com",
+  messagingSenderId: "TU_SENDER_ID",
+  appId:             "TU_APP_ID"
 };
 
 firebase.initializeApp(firebaseConfig);
