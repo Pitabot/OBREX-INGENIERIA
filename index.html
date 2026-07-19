@@ -552,7 +552,7 @@
   </div>
   <img class="intro-wordmark" src="./logo-wordmark.png" alt="OBREX Ingeniería"/>
   <div class="intro-skip">Toca para continuar</div>
-  <p class="footer-tag">obrexv4.0.12checkBox</p>
+  <p class="footer-tag">obrexv4.0.12</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -575,7 +575,7 @@
     <button class="btn btn-primary" onclick="doLogin()">Ingresar</button>
     <p id="login-error" style="color:var(--red);font-size:13px;margin-top:12px;text-align:center;display:none"></p>
   </div>
-  <p class="footer-tag">obrexv4.0.12checkBox</p>
+  <p class="footer-tag">obrexv4.0.12</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -1084,6 +1084,7 @@ const firebaseConfig = {
   appId: "1:658326612862:web:fe4807a9076bf0d449612f",
   measurementId: "G-NVQGR4J5EH",
 };
+
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.firestore();
@@ -2786,8 +2787,12 @@ function engDrawCheckboxFijo(doc, FIELDS, key, sizeMm){
   sizeMm = sizeMm || 3.2;
   const topY = F1_PAGE_H*F1_SCALE - b.y1;
   const cx = b.x0 + b.w/2, cy = topY + b.h/2;
-  doc.setFillColor(10,22,40);
-  doc.rect(cx - sizeMm/2, cy - sizeMm/2, sizeMm, sizeMm, 'F');
+  // Palomita dibujada con líneas (no doc.text) — el carácter ✓ no está garantizado
+  // en las fuentes base de PDF y puede salir en blanco en algunos lectores.
+  doc.setDrawColor(10,22,40);
+  doc.setLineWidth(sizeMm * 0.16);
+  doc.line(cx - sizeMm*0.32, cy + sizeMm*0.02, cx - sizeMm*0.08, cy + sizeMm*0.28);
+  doc.line(cx - sizeMm*0.08, cy + sizeMm*0.28, cx + sizeMm*0.34, cy - sizeMm*0.28);
 }
 // Selector de una sola opción entre 3 (Sí / No / N-A) — marca solo la casilla elegida
 function engDrawTripleCheck(doc, FIELDS, keyPrefix, valor){
