@@ -552,7 +552,7 @@
   </div>
   <img class="intro-wordmark" src="./logo-wordmark.png" alt="OBREX Ingeniería"/>
   <div class="intro-skip">Toca para continuar</div>
-  <p class="footer-tag">obrexv4.0.9-formatos-coordenadas</p>
+  <p class="footer-tag">obrexv4.0.10-pantalla-dinamica</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -575,7 +575,7 @@
     <button class="btn btn-primary" onclick="doLogin()">Ingresar</button>
     <p id="login-error" style="color:var(--red);font-size:13px;margin-top:12px;text-align:center;display:none"></p>
   </div>
-  <p class="footer-tag">obrexv4.0.9-formatos-coordenadas</p>
+  <p class="footer-tag">obrexv4.0.10-pantalla-dinamica</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -630,10 +630,11 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
           Nueva Cotización
         </button>
-        <button class="btn btn-secondary" onclick="navTo('ordenes');openNuevaOrden()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-          Nueva Orden
-        </button>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+          <button class="btn btn-secondary" style="font-size:11px;padding:8px 4px" onclick="navTo('ordenes');openNuevaOrden('1')">Orden F1</button>
+          <button class="btn btn-secondary" style="font-size:11px;padding:8px 4px" onclick="navTo('ordenes');openNuevaOrden('3')">Orden F3</button>
+          <button class="btn btn-secondary" style="font-size:11px;padding:8px 4px" onclick="navTo('ordenes');openNuevaOrden('4')">Orden F4</button>
+        </div>
       </div>
     </div>
 
@@ -958,7 +959,7 @@
   <div style="max-width:900px;margin:14px auto;padding:0 10px;width:100%;box-sizing:border-box">
     <div style="position:relative;width:100%;padding-top:129.4118%;background:#fff;box-shadow:0 4px 24px rgba(0,0,0,.4)">
       <div id="papel-f1-overlay" style="position:absolute;top:0;left:0;right:0;bottom:0;">
-        <img src="./formato1-bg.png" style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:block" alt="Formato 1">
+        <img id="papel-f1-bg-visible" src="./formato1-bg.png" style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:block" alt="Formato">
         <div id="papel-mat-slots"></div>
       </div>
     </div>
@@ -1082,7 +1083,7 @@ const firebaseConfig = {
   messagingSenderId: "658326612862",
   appId: "1:658326612862:web:fe4807a9076bf0d449612f",
   measurementId: "G-NVQGR4J5EH",
-}
+};
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
@@ -2047,7 +2048,7 @@ function renderOrdenFormato() {
   }
 }
 
-function openNuevaOrden() {
+function openNuevaOrden(formatoInicial) {
   ordenItems = [];
   ordenFotos = [];
   const maxNum = ordenes.reduce((m,o)=>Math.max(m,Number(o.num)||0),0);
@@ -2056,7 +2057,7 @@ function openNuevaOrden() {
   document.getElementById('orden-num').value           = maxNum+1;
   document.getElementById('orden-fecha').value         = new Date().toISOString().split('T')[0];
   document.getElementById('orden-lugar').value         = '';
-  document.getElementById('orden-formato').value       = '1';
+  document.getElementById('orden-formato').value       = String(formatoInicial || '1');
   document.getElementById('orden-cliente-input').value = '';
   document.getElementById('orden-cliente-id').value    = '';
   document.getElementById('orden-cliente-info').style.display = 'none';
@@ -2457,8 +2458,9 @@ const PAPEL_MAP = [
 ];
 const papelOriginales = {};
 
-function f1BoxStyle(key){
-  const r = F1_FIELDS[key];
+function f1BoxStyle(key, FIELDS){
+  FIELDS = FIELDS || F1_FIELDS;
+  const r = FIELDS[key];
   const left = r[0]/F1_PAGE_W_CSS*100;
   const top = (F1_PAGE_H_CSS-r[3])/F1_PAGE_H_CSS*100;
   const width = (r[2]-r[0])/F1_PAGE_W_CSS*100;
@@ -2466,64 +2468,96 @@ function f1BoxStyle(key){
   return `position:absolute;left:${left}%;top:${top}%;width:${width}%;height:${height}%;`;
 }
 
-function moverAPapel(id, key, overlay, fontSize){
+function moverAPapel(id, key, overlay, fontSize, FIELDS){
+  FIELDS = FIELDS || F1_FIELDS;
   const el = document.getElementById(id);
-  if (!el || !F1_FIELDS[key]) return;
+  if (!el || !FIELDS[key]) return;
   papelOriginales[id] = { parent: el.parentNode, next: el.nextSibling };
   overlay.appendChild(el);
-  el.style.cssText += f1BoxStyle(key) + `font-size:${fontSize||1.3}vw;margin:0;border:1px dashed rgba(10,22,40,.3);background:rgba(255,255,255,.03);`;
+  el.style.cssText += f1BoxStyle(key, FIELDS) + `font-size:${fontSize||1.3}vw;margin:0;border:1px dashed rgba(10,22,40,.3);background:rgba(255,255,255,.03);`;
 }
+
+// Mapas de campos por formato — solo incluyen los que YA existen como <input> real en el DOM.
+// Trabajo/afinación de posiciones exactas (checkboxes propios de F3, condiciones/parámetros de F4)
+// queda pendiente como la "tarea grande" ya acordada; esto es la base visual inmediata.
+const PAPEL_MAP_F3 = [
+  ['orden-lugar','lugar'], ['orden-fecha','fecha'], ['orden-num','orden'],
+  ['orden-tecnico','tecnico'], ['orden-tecnico-dir','tecnico_domicilio'], ['orden-tecnico-tel','tecnico_telefono'],
+  ['ord-trabajo','trabajo_realizar'],
+  ['orden-obs','observaciones'], ['orden-excepcion','excepcion'],
+];
+const PAPEL_MAP_F4 = [
+  ['orden-lugar','lugar'], ['orden-fecha','fecha'], ['orden-num','orden'],
+  ['orden-tecnico','tecnico'], ['orden-tecnico-dir','tecnico_domicilio'], ['orden-tecnico-tel','tecnico_telefono'],
+  ['chk_revision','chk_revision'], ['chk_instalacion','chk_instalacion'], ['chk_mantenimiento','chk_mantenimiento'],
+  ['chk_optimizacion','chk_optimizacion'], ['chk_recarga','chk_recarga'], ['chk_desinstalacion','chk_desinstalacion'], ['chk_otros','chk_otros'],
+  ['ord-marca','marca'], ['ord-cap','capacidad'], ['ord-ref','refrigerante'], ['ord-volt','voltaje'], ['ord-serie','serie'], ['ord-ubic','ubicacion'],
+  ['ord-desc-serv','desc_servicio'], ['orden-obs','observaciones'], ['orden-excepcion','excepcion'],
+];
 
 function abrirPantallaPapel(modoNuevo){
   const overlay = document.getElementById('papel-f1-overlay');
   papelPantallaActiva = true;
+  const fmt = document.getElementById('orden-formato').value;
 
-  PAPEL_MAP.forEach(([id, key]) => moverAPapel(id, key, overlay));
+  let FIELDS, MAP, bgSrc, tituloFmt;
+  if (fmt === '3') { FIELDS = F3_FIELDS; MAP = PAPEL_MAP_F3; bgSrc = './formato3-bg.png'; tituloFmt = 'Formato 3 — Orden Eléctrica'; }
+  else if (fmt === '4') { FIELDS = F4_FIELDS; MAP = PAPEL_MAP_F4; bgSrc = './formato4-bg.png'; tituloFmt = 'Formato 4 — HVAC con Parámetros'; }
+  else { FIELDS = F1_FIELDS; MAP = PAPEL_MAP; bgSrc = './formato1-bg.png'; tituloFmt = 'Formato 1'; }
+
+  document.getElementById('papel-f1-bg-visible').src = bgSrc;
+
+  MAP.forEach(([id, key]) => moverAPapel(id, key, overlay, null, FIELDS));
 
   const wrap = document.querySelector('.autocomplete-wrap[data-ctx="cliente"]');
   if (wrap) {
     papelOriginales['__clienteWrap'] = { parent: wrap.parentNode, next: wrap.nextSibling };
     overlay.appendChild(wrap);
-    wrap.style.cssText += f1BoxStyle('nombre') + 'margin:0;';
+    wrap.style.cssText += f1BoxStyle('nombre', FIELDS) + 'margin:0;';
   }
   const dir = document.getElementById('orden-cliente-dir');
   const tel = document.getElementById('orden-cliente-tel');
-  if (dir) { papelOriginales['orden-cliente-dir'] = {parent:dir.parentNode, next:dir.nextSibling}; overlay.appendChild(dir); dir.style.cssText += f1BoxStyle('domicilio') + 'font-size:1.1vw;color:#0a1628;'; }
-  if (tel) { papelOriginales['orden-cliente-tel'] = {parent:tel.parentNode, next:tel.nextSibling}; overlay.appendChild(tel); tel.style.cssText += f1BoxStyle('telefono') + 'font-size:1.1vw;color:#0a1628;'; }
+  if (dir) { papelOriginales['orden-cliente-dir'] = {parent:dir.parentNode, next:dir.nextSibling}; overlay.appendChild(dir); dir.style.cssText += f1BoxStyle('domicilio', FIELDS) + 'font-size:1.1vw;color:#0a1628;'; }
+  if (tel) { papelOriginales['orden-cliente-tel'] = {parent:tel.parentNode, next:tel.nextSibling}; overlay.appendChild(tel); tel.style.cssText += f1BoxStyle('telefono', FIELDS) + 'font-size:1.1vw;color:#0a1628;'; }
 
   const gd = document.getElementById('orden-gar-desde'), gh = document.getElementById('orden-gar-hasta');
-  if (gd) {
+  if (gd && FIELDS['gar_desde_d']) {
     papelOriginales['orden-gar-desde'] = {parent:gd.parentNode, next:gd.nextSibling};
     overlay.appendChild(gd);
-    const r1=F1_FIELDS['gar_desde_d'], r2=F1_FIELDS['gar_desde_a'];
+    const r1=FIELDS['gar_desde_d'], r2=FIELDS['gar_desde_a'];
     const left=r1[0]/F1_PAGE_W_CSS*100, top=(F1_PAGE_H_CSS-r1[3])/F1_PAGE_H_CSS*100, width=(r2[2]-r1[0])/F1_PAGE_W_CSS*100, height=(r1[3]-r1[1])/F1_PAGE_H_CSS*100;
     gd.style.cssText += `position:absolute;left:${left}%;top:${top}%;width:${width}%;height:${height}%;margin:0;font-size:1.2vw;`;
   }
-  if (gh) {
+  if (gh && FIELDS['gar_hasta_d']) {
     papelOriginales['orden-gar-hasta'] = {parent:gh.parentNode, next:gh.nextSibling};
     overlay.appendChild(gh);
-    const r1=F1_FIELDS['gar_hasta_d'], r2=F1_FIELDS['gar_hasta_a'];
+    const r1=FIELDS['gar_hasta_d'], r2=FIELDS['gar_hasta_a'];
     const left=r1[0]/F1_PAGE_W_CSS*100, top=(F1_PAGE_H_CSS-r1[3])/F1_PAGE_H_CSS*100, width=(r2[2]-r1[0])/F1_PAGE_W_CSS*100, height=(r1[3]-r1[1])/F1_PAGE_H_CSS*100;
     gh.style.cssText += `position:absolute;left:${left}%;top:${top}%;width:${width}%;height:${height}%;margin:0;font-size:1.2vw;`;
   }
 
   const materialesBlock = document.getElementById('bloque-materiales-orden');
   const fotosBlock = document.getElementById('bloque-fotos-orden');
-  const artWrap = document.querySelector('.autocomplete-wrap[data-ctx="articulo"]');
-  if (artWrap) {
-    papelOriginales['__artWrap'] = { parent: artWrap.parentNode, next: artWrap.nextSibling };
-    overlay.appendChild(artWrap);
-    // barra angosta justo arriba de la cuadrícula de materiales (fila 0)
-    const r = F1_FIELDS['mat_desc_0_0'];
-    const left = r[0]/F1_PAGE_W_CSS*100, width = (299.6-r[0])/F1_PAGE_W_CSS*100;
-    const top = (F1_PAGE_H_CSS-(r[3]+17))/F1_PAGE_H_CSS*100, height = 15/F1_PAGE_H_CSS*100;
-    artWrap.style.cssText += `position:absolute;left:${left}%;top:${top}%;width:${width}%;height:${height}%;margin:0;z-index:6;`;
+
+  if (fmt === '1') {
+    const artWrap = document.querySelector('.autocomplete-wrap[data-ctx="articulo"]');
+    if (artWrap) {
+      papelOriginales['__artWrap'] = { parent: artWrap.parentNode, next: artWrap.nextSibling };
+      overlay.appendChild(artWrap);
+      const r = F1_FIELDS['mat_desc_0_0'];
+      const left = r[0]/F1_PAGE_W_CSS*100, width = (299.6-r[0])/F1_PAGE_W_CSS*100;
+      const top = (F1_PAGE_H_CSS-(r[3]+17))/F1_PAGE_H_CSS*100, height = 15/F1_PAGE_H_CSS*100;
+      artWrap.style.cssText += `position:absolute;left:${left}%;top:${top}%;width:${width}%;height:${height}%;margin:0;z-index:6;`;
+    }
+    if (materialesBlock) { papelOriginales['bloque-materiales-orden'] = {parent:materialesBlock.parentNode, next:materialesBlock.nextSibling}; document.getElementById('papel-f1-extra').appendChild(materialesBlock); materialesBlock.style.display = 'none'; }
+    renderMaterialesPapel();
+  } else {
+    // F3 y F4: sus formatos de papel no tienen cuadrícula de materiales — se deja oculta por ahora.
+    if (materialesBlock) { papelOriginales['bloque-materiales-orden'] = {parent:materialesBlock.parentNode, next:materialesBlock.nextSibling}; document.getElementById('papel-f1-extra').appendChild(materialesBlock); materialesBlock.style.display = 'none'; }
   }
-  if (materialesBlock) { papelOriginales['bloque-materiales-orden'] = {parent:materialesBlock.parentNode, next:materialesBlock.nextSibling}; document.getElementById('papel-f1-extra').appendChild(materialesBlock); materialesBlock.style.display = 'none'; }
   if (fotosBlock) { papelOriginales['bloque-fotos-orden'] = {parent:fotosBlock.parentNode, next:fotosBlock.nextSibling}; document.getElementById('papel-f1-extra').appendChild(fotosBlock); }
 
-  renderMaterialesPapel();
-  document.getElementById('papel-f1-titulo').textContent = modoNuevo ? 'Nueva Orden — Formato 1' : 'Editar Orden — Formato 1';
+  document.getElementById('papel-f1-titulo').textContent = (modoNuevo ? 'Nueva Orden — ' : 'Editar Orden — ') + tituloFmt;
   showScreen('screen-orden-f1');
 }
 
