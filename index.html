@@ -552,7 +552,7 @@
   </div>
   <img class="intro-wordmark" src="./logo-wordmark.png" alt="OBREX Ingeniería"/>
   <div class="intro-skip">Toca para continuar</div>
-  <p class="footer-tag">obrev4.0.11</p>
+  <p class="footer-tag">obrexv4.0.12checkBox</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -575,7 +575,7 @@
     <button class="btn btn-primary" onclick="doLogin()">Ingresar</button>
     <p id="login-error" style="color:var(--red);font-size:13px;margin-top:12px;text-align:center;display:none"></p>
   </div>
-  <p class="footer-tag">obrev4.0.11</p>
+  <p class="footer-tag">obrexv4.0.12checkBox</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -1084,7 +1084,6 @@ const firebaseConfig = {
   appId: "1:658326612862:web:fe4807a9076bf0d449612f",
   measurementId: "G-NVQGR4J5EH",
 };
-
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.firestore();
@@ -2780,12 +2779,22 @@ function engDrawCheckbox(doc, FIELDS, key){
   doc.setFillColor(10,22,40);
   doc.rect(b.x0+pad, topY+pad, b.w-pad*2, b.h-pad*2, 'F');
 }
+// Variante de tamaño FIJO, centrada dentro del área medida — usar cuando las áreas
+// capturadas en PDFescape varían de tamaño entre sí y se quiere una marca visual uniforme.
+function engDrawCheckboxFijo(doc, FIELDS, key, sizeMm){
+  const b = engRect(FIELDS, key); if(!b) return;
+  sizeMm = sizeMm || 3.2;
+  const topY = F1_PAGE_H*F1_SCALE - b.y1;
+  const cx = b.x0 + b.w/2, cy = topY + b.h/2;
+  doc.setFillColor(10,22,40);
+  doc.rect(cx - sizeMm/2, cy - sizeMm/2, sizeMm, sizeMm, 'F');
+}
 // Selector de una sola opción entre 3 (Sí / No / N-A) — marca solo la casilla elegida
 function engDrawTripleCheck(doc, FIELDS, keyPrefix, valor){
   // valor: 'si' | 'no' | 'na' | null
   if (!valor) return;
   const key = keyPrefix + '_' + valor;
-  engDrawCheckbox(doc, FIELDS, key);
+  engDrawCheckboxFijo(doc, FIELDS, key);
 }
 
 
@@ -2813,7 +2822,7 @@ function generarPDFFormato3(doc, o){
 
   (o.tipoServicio||[]).forEach(function(t){
     const key = 'chk_' + t.toLowerCase();
-    if (F3_FIELDS[key]) engDrawCheckbox(doc, F3_FIELDS, key);
+    if (F3_FIELDS[key]) engDrawCheckboxFijo(doc, F3_FIELDS, key);
   });
 
   engDrawMultiline(doc, F3_FIELDS, 'trabajo_realizar', o.trabajoRealizar, {size:9, lineSpacing:1.6});
@@ -2863,7 +2872,7 @@ function generarPDFFormato4(doc, o){
 
   (o.tipoServicio||[]).forEach(function(t){
     const key = 'chk_' + t.toLowerCase();
-    if (F4_FIELDS[key]) engDrawCheckbox(doc, F4_FIELDS, key);
+    if (F4_FIELDS[key]) engDrawCheckboxFijo(doc, F4_FIELDS, key);
   });
 
   engDrawInBox(doc, F4_FIELDS, 'marca', ex['ord-marca']);
