@@ -552,7 +552,7 @@
   </div>
   <img class="intro-wordmark" src="./logo-wordmark.png" alt="OBREX Ingeniería"/>
   <div class="intro-skip">Toca para continuar</div>
-  <p class="footer-tag">obrexv4.0.13</p>
+  <p class="footer-tag">obrexv4.0.15.selectorFormato</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -575,7 +575,7 @@
     <button class="btn btn-primary" onclick="doLogin()">Ingresar</button>
     <p id="login-error" style="color:var(--red);font-size:13px;margin-top:12px;text-align:center;display:none"></p>
   </div>
-  <p class="footer-tag">obrexv4.0.13</p>
+  <p class="footer-tag">obrexv4.0.15.selectorFormato</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -621,19 +621,6 @@
         <div class="dash-card">
           <div class="dash-card-num" id="dash-articulos">—</div>
           <div class="dash-card-label">Artículos</div>
-        </div>
-      </div>
-
-      <div class="section-title">Acciones rápidas</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <button class="btn btn-secondary" onclick="navTo('cotizaciones');openNuevaCotizacion()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-          Nueva Cotización
-        </button>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
-          <button class="btn btn-secondary" style="font-size:11px;padding:8px 4px" onclick="navTo('ordenes');openNuevaOrden('1')">Orden F1</button>
-          <button class="btn btn-secondary" style="font-size:11px;padding:8px 4px" onclick="navTo('ordenes');openNuevaOrden('3')">Orden F3</button>
-          <button class="btn btn-secondary" style="font-size:11px;padding:8px 4px" onclick="navTo('ordenes');openNuevaOrden('4')">Orden F4</button>
         </div>
       </div>
     </div>
@@ -722,6 +709,10 @@
 </div><!-- /screen-app -->
 
 <!-- FAB dinámico -->
+<div id="fab-menu-ordenes" style="display:none;position:fixed;right:24px;bottom:92px;z-index:99;flex-direction:column;gap:8px">
+  <button class="btn btn-secondary" style="width:auto;padding:10px 18px;white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,.3)" onclick="fabSeleccionarFormato('4')">Orden F4</button>
+  <button class="btn btn-secondary" style="width:auto;padding:10px 18px;white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,.3)" onclick="fabSeleccionarFormato('3')">Orden F3</button>
+</div>
 <button class="fab" id="fab-btn" onclick="fabAction()" style="display:none">+</button>
 
 <!-- Toast -->
@@ -1076,13 +1067,12 @@
 // FIREBASE CONFIG — reemplaza con los datos de tu proyecto
 // ───────────────────────────────────────
 const firebaseConfig = {
-  apiKey: "AIzaSyBhQtYymTnYOcqSKiQprl7z91O0d26-s8s",
-  authDomain: "obrex-ingenieria.firebaseapp.com",
-  projectId: "obrex-ingenieria",
-  storageBucket: "obrex-ingenieria.firebasestorage.app",
-  messagingSenderId: "658326612862",
-  appId: "1:658326612862:web:fe4807a9076bf0d449612f",
-  measurementId: "G-NVQGR4J5EH",
+  apiKey:            "TU_API_KEY",
+  authDomain:        "TU_PROJECT.firebaseapp.com",
+  projectId:         "TU_PROJECT_ID",
+  storageBucket:     "TU_PROJECT.appspot.com",
+  messagingSenderId: "TU_SENDER_ID",
+  appId:             "TU_APP_ID"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -1233,14 +1223,26 @@ function navTo(view) {
   currentView = view;
   const fab = document.getElementById('fab-btn');
   fab.style.display = NAV_FABS[view] ? 'flex' : 'none';
+  document.getElementById('fab-menu-ordenes').style.display = 'none';
 }
 
 function fabAction() {
   if (currentView==='clientes')     openNuevoCliente();
   else if (currentView==='articulos')    openNuevoArticulo();
   else if (currentView==='cotizaciones') openNuevaCotizacion();
-  else if (currentView==='ordenes')      openNuevaOrden();
+  else if (currentView==='ordenes')      toggleFabMenuOrdenes();
   else if (currentView==='facturas')     openNuevaFactura();
+}
+
+function toggleFabMenuOrdenes() {
+  const menu = document.getElementById('fab-menu-ordenes');
+  const abierto = menu.style.display === 'flex';
+  menu.style.display = abierto ? 'none' : 'flex';
+}
+
+function fabSeleccionarFormato(formato) {
+  document.getElementById('fab-menu-ordenes').style.display = 'none';
+  openNuevaOrden(formato);
 }
 
 // ───────────────────────────────────────
