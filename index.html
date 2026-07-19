@@ -552,7 +552,7 @@
   </div>
   <img class="intro-wordmark" src="./logo-wordmark.png" alt="OBREX Ingeniería"/>
   <div class="intro-skip">Toca para continuar</div>
-  <p class="footer-tag">obrexv4.0.12</p>
+  <p class="footer-tag">obrexv4.0.13</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -575,7 +575,7 @@
     <button class="btn btn-primary" onclick="doLogin()">Ingresar</button>
     <p id="login-error" style="color:var(--red);font-size:13px;margin-top:12px;text-align:center;display:none"></p>
   </div>
-  <p class="footer-tag">obrexv4.0.12</p>
+  <p class="footer-tag">obrexv4.0.13</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -2073,6 +2073,8 @@ function openNuevaOrden(formatoInicial) {
   document.getElementById('orden-cliente-input').value = '';
   document.getElementById('orden-cliente-id').value    = '';
   document.getElementById('orden-cliente-info').style.display = 'none';
+  document.getElementById('orden-cliente-dir').textContent    = '';
+  document.getElementById('orden-cliente-tel').textContent    = '';
   document.getElementById('orden-tecnico').value       = '';
   document.getElementById('orden-tecnico-dir').value    = '';
   document.getElementById('orden-tecnico-tel').value    = '';
