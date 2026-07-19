@@ -552,7 +552,7 @@
   </div>
   <img class="intro-wordmark" src="./logo-wordmark.png" alt="OBREX Ingeniería"/>
   <div class="intro-skip">Toca para continuar</div>
-  <p class="footer-tag">obrexv4.0.10-pantalla-dinamica</p>
+  <p class="footer-tag">obrev4.0.11</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -575,7 +575,7 @@
     <button class="btn btn-primary" onclick="doLogin()">Ingresar</button>
     <p id="login-error" style="color:var(--red);font-size:13px;margin-top:12px;text-align:center;display:none"></p>
   </div>
-  <p class="footer-tag">obrexv4.0.10-pantalla-dinamica</p>
+  <p class="footer-tag">obrev4.0.11</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -1998,6 +1998,18 @@ function renderOrdenFormato() {
       </div>`;
   } else if (fmt==='3') {
     el.innerHTML = `
+      <div class="field">
+        <label>Tipo de servicio (Eléctrico)</label>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px" id="orden-tipo-servicio-f3">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input id="chk3_revision" type="checkbox" value="REVISION" style="accent-color:var(--gold)"> Revisión</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input id="chk3_conexiones" type="checkbox" value="CONEXIONES" style="accent-color:var(--gold)"> Conexiones</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input id="chk3_instalacion" type="checkbox" value="INSTALACION" style="accent-color:var(--gold)"> Instalación</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input id="chk3_mantenimiento" type="checkbox" value="MANTENIMIENTO" style="accent-color:var(--gold)"> Mantenimiento</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input id="chk3_alta_tension" type="checkbox" value="ALTA_TENSION" style="accent-color:var(--gold)"> Alta Tensión</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input id="chk3_desconexion" type="checkbox" value="DESCONEXION" style="accent-color:var(--gold)"> Desconexión</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--white);cursor:pointer"><input id="chk3_otros" type="checkbox" value="OTROS" style="accent-color:var(--gold)"> Otros</label>
+        </div>
+      </div>
       <div class="field"><label>Trabajo a realizar</label><textarea id="ord-trabajo" placeholder="Descripción del trabajo eléctrico…"></textarea></div>
       <div class="field"><label>Descripción del servicio</label><textarea id="ord-desc-serv" placeholder="Descripción detallada…"></textarea></div>`;
   } else if (fmt==='4') {
@@ -2012,14 +2024,14 @@ function renderOrdenFormato() {
         <div class="field"><label>Ubicación</label><input id="ord-ubic" type="text"/></div>
       </div>
       <div class="section-title">Condiciones Generales</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:13px">
-        ${['Conexiones eléctricas','Aislamiento térmico','Vibraciones/Ruidos','Fijación de soportes','Tubería de desagüe'].map(c=>`
-          <div style="grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--navy3);border-radius:8px">
-            <span style="color:var(--white)">${c}</span>
-            <select style="background:var(--input-bg);border:1px solid rgba(200,168,75,0.2);border-radius:6px;color:var(--white);padding:4px 8px;font-size:12px">
-              <option value="">—</option><option>SÍ</option><option>NO</option><option>N/A</option>
-            </select>
-          </div>`).join('')}
+      <div style="display:grid;grid-template-columns:2fr 0.6fr 0.6fr 0.6fr;gap:6px;font-size:12px;align-items:center">
+        <div></div><div style="text-align:center;color:var(--gray)">SÍ</div><div style="text-align:center;color:var(--gray)">NO</div><div style="text-align:center;color:var(--gray)">N/A</div>
+        ${['CONEXIONES ELÉCTRICAS (APRIETE)','AISLAMIENTO TÉRMICO (ESTADO DE LAS TUBERÍAS)','VIBRACIONES / RUIDOS ANORMALES','FIJACIÓN DE SOPORTES Y ESTRUCTURAS','TUBERÍA DE DESAGÜE','ADICIONAL'].map((c,i)=>`
+          <div style="color:var(--white);padding:6px 4px;background:var(--navy3);border-radius:6px 0 0 6px">${c}</div>
+          <div style="text-align:center;background:var(--navy3);padding:6px 0"><input type="checkbox" id="cond_${i+1}_si" onclick="condExclusivo(${i+1},'si')" style="accent-color:var(--gold);width:16px;height:16px"></div>
+          <div style="text-align:center;background:var(--navy3);padding:6px 0"><input type="checkbox" id="cond_${i+1}_no" onclick="condExclusivo(${i+1},'no')" style="accent-color:var(--gold);width:16px;height:16px"></div>
+          <div style="text-align:center;background:var(--navy3);padding:6px 0;border-radius:0 6px 6px 0"><input type="checkbox" id="cond_${i+1}_na" onclick="condExclusivo(${i+1},'na')" style="accent-color:var(--gold);width:16px;height:16px"></div>
+        `).join('')}
       </div>
       <div class="section-title">Parámetros de Operación</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
@@ -2082,8 +2094,8 @@ function usarFormularioClasico() {
     else if (id==='__artWrap') el = document.querySelector('#papel-f1-overlay .autocomplete-wrap[data-ctx="articulo"]');
     else el = document.getElementById(id);
     if (!el) return;
-    const { parent, next } = papelOriginales[id];
-    if (next) parent.insertBefore(el, next); else parent.appendChild(el);
+    const { marcador } = papelOriginales[id];
+    if (marcador && marcador.parentNode) marcador.parentNode.replaceChild(el, marcador);
     el.style.position=''; el.style.left=''; el.style.top=''; el.style.width=''; el.style.height='';
     el.style.fontSize=''; el.style.margin=''; el.style.border=''; el.style.background=''; el.style.zIndex='';
   });
@@ -2119,30 +2131,44 @@ function editarOrden(id) {
   document.getElementById('orden-gar-hasta').value     = o.garHasta||'';
   document.getElementById('orden-excepcion').value     = o.excepcion||'';
   if (o.clienteId) selectCliente(o.clienteId,'orden');
-  CHK_IDS.forEach(id => {
-    const cb = document.getElementById(id);
-    if (cb) cb.checked = (o.tipoServicio||[]).includes(cb.value);
-  });
   renderOrdenFormato();
   renderOrdenItems();
   cargarFotosLocal(id).then(fotos=>{ ordenFotos = fotos; renderOrdenFotos(); });
   const ex = o.extra||{};
-  if (String(o.formato||1) === '1') {
-    setTimeout(()=>{
-      document.getElementById('ord-marca').value = ex['ord-marca']||'';
-      document.getElementById('ord-cap').value = ex['ord-cap']||'';
-      document.getElementById('ord-ref').value = ex['ord-ref']||'';
-      document.getElementById('ord-volt').value = ex['ord-volt']||'';
-      document.getElementById('ord-serie').value = ex['ord-serie']||'';
-      document.getElementById('ord-ubic').value = ex['ord-ubic']||'';
-      document.getElementById('ord-desc-serv').value = ex['ord-desc-serv']||'';
-      document.getElementById('ord-val-antes').value = ex['ord-val-antes']||'';
-      document.getElementById('ord-val-despues').value = ex['ord-val-despues']||'';
-      abrirPantallaPapel(false);
-    }, 0);
-  } else {
-    openModal('modal-orden');
-  }
+  const fmtStr = String(o.formato||1);
+  setTimeout(()=>{
+    if (fmtStr === '1' || fmtStr === '4') {
+      CHK_IDS.forEach(cid => { const cb = document.getElementById(cid); if (cb) cb.checked = (o.tipoServicio||[]).includes(cb.value); });
+    }
+    if (fmtStr === '3') {
+      CHK_IDS_F3.forEach(cid => { const cb = document.getElementById(cid); if (cb) cb.checked = (o.tipoServicio||[]).includes(cb.value); });
+      if (document.getElementById('ord-trabajo')) document.getElementById('ord-trabajo').value = o.trabajoRealizar||'';
+      if (document.getElementById('ord-desc-serv')) document.getElementById('ord-desc-serv').value = o.descServicio||'';
+    }
+    if (fmtStr === '4') {
+      const marcaEl = document.getElementById('ord-marca');
+      if (marcaEl) {
+        marcaEl.value = ex['ord-marca']||''; document.getElementById('ord-cap').value = ex['ord-cap']||'';
+        document.getElementById('ord-ref').value = ex['ord-ref']||''; document.getElementById('ord-volt').value = ex['ord-volt']||'';
+        document.getElementById('ord-serie').value = ex['ord-serie']||''; document.getElementById('ord-ubic').value = ex['ord-ubic']||'';
+      }
+      if (document.getElementById('ord-desc-serv')) document.getElementById('ord-desc-serv').value = o.descServicio||'';
+      (o.condicionesGenerales||[]).forEach((valor, i) => { if (valor) condExclusivo(i+1, valor); const cb=document.getElementById('cond_'+(i+1)+'_'+valor); if(cb) cb.checked=true; });
+      const paramBases = ['ord-vel-evap','ord-temp-evap','ord-vel-cond','ord-temp-cond','ord-corr','ord-pres'];
+      (o.parametros||[]).forEach((p, i) => { if (!p || !paramBases[i]) return;
+        const a=document.getElementById(paramBases[i]+'-antes'), d=document.getElementById(paramBases[i]+'-desp');
+        if(a) a.value=p.antes||''; if(d) d.value=p.despues||'';
+      });
+      const compBases = ['ord-cap-comp','ord-cap-vent'];
+      (o.componentes||[]).forEach((p, i) => { if (!p || !compBases[i]) return;
+        const a=document.getElementById(compBases[i]+'-antes'), d=document.getElementById(compBases[i]+'-desp');
+        if(a) a.value=p.antes||''; if(d) d.value=p.despues||'';
+      });
+    }
+    if (document.getElementById('ord-val-antes')) document.getElementById('ord-val-antes').value = ex['ord-val-antes']||'';
+    if (document.getElementById('ord-val-despues')) document.getElementById('ord-val-despues').value = ex['ord-val-despues']||'';
+    abrirPantallaPapel(false);
+  }, 0);
 }
 
 function renderOrdenItems() {
@@ -2290,8 +2316,20 @@ async function guardarOrden() {
   const clienteId = document.getElementById('orden-cliente-id').value;
   if (!clienteId) { toast('Selecciona un cliente'); return; }
   const cliente = clientes.find(x=>x.id===clienteId);
-  const tipoServicio = CHK_IDS.map(id => document.getElementById(id)).filter(cb => cb && cb.checked).map(cb => cb.value);
   const fmt = document.getElementById('orden-formato').value;
+  const chkSet = (fmt === '3') ? CHK_IDS_F3 : CHK_IDS;
+  const tipoServicio = chkSet.map(id => document.getElementById(id)).filter(cb => cb && cb.checked).map(cb => cb.value);
+  const condicionesGenerales = (fmt === '4') ? [1,2,3,4,5,6].map(condValor) : undefined;
+  const parametros = (fmt === '4') ? [
+    ['ord-vel-evap','ord-temp-evap','ord-vel-cond','ord-temp-cond','ord-corr','ord-pres']
+  ][0].map(base => {
+    const a = document.getElementById(base+'-antes'), d = document.getElementById(base+'-desp');
+    return (a||d) ? { antes: a?a.value:'', despues: d?d.value:'' } : null;
+  }) : undefined;
+  const componentes = (fmt === '4') ? ['ord-cap-comp','ord-cap-vent'].map(base => {
+    const a = document.getElementById(base+'-antes'), d = document.getElementById(base+'-desp');
+    return (a||d) ? { antes: a?a.value:'', despues: d?d.value:'' } : null;
+  }) : undefined;
   // Leer campos dinámicos
   const extra = {};
   ['ord-marca','ord-cap','ord-ref','ord-volt','ord-serie','ord-ubic','ord-desc-serv','ord-trabajo'].forEach(id=>{
@@ -2309,6 +2347,11 @@ async function guardarOrden() {
     tecnicoDir:    document.getElementById('orden-tecnico-dir').value,
     tecnicoTel:    document.getElementById('orden-tecnico-tel').value,
     tipoServicio,
+    trabajoRealizar: document.getElementById('ord-trabajo') ? document.getElementById('ord-trabajo').value : '',
+    descServicio:    document.getElementById('ord-desc-serv') ? document.getElementById('ord-desc-serv').value : '',
+    condicionesGenerales,
+    parametros,
+    componentes,
     items:         ordenItems,
     observaciones: document.getElementById('orden-obs').value,
     garDesde:      document.getElementById('orden-gar-desde').value,
@@ -2446,6 +2489,20 @@ const F1_PAGE_W = 612, F1_PAGE_H = 792, F1_SCALE = 215.9/612;
 const F1_PAGE_W_CSS = 612, F1_PAGE_H_CSS = 792;
 let papelPantallaActiva = false;
 const CHK_IDS = ['chk_revision','chk_instalacion','chk_mantenimiento','chk_optimizacion','chk_recarga','chk_desinstalacion','chk_otros'];
+const CHK_IDS_F3 = ['chk3_revision','chk3_conexiones','chk3_instalacion','chk3_mantenimiento','chk3_alta_tension','chk3_desconexion','chk3_otros'];
+
+function condExclusivo(fila, elegido){
+  ['si','no','na'].forEach(op => {
+    const el = document.getElementById('cond_'+fila+'_'+op);
+    if (el) el.checked = (op === elegido) ? el.checked : false;
+  });
+}
+function condValor(fila){
+  if (document.getElementById('cond_'+fila+'_si') && document.getElementById('cond_'+fila+'_si').checked) return 'si';
+  if (document.getElementById('cond_'+fila+'_no') && document.getElementById('cond_'+fila+'_no').checked) return 'no';
+  if (document.getElementById('cond_'+fila+'_na') && document.getElementById('cond_'+fila+'_na').checked) return 'na';
+  return null;
+}
 const PAPEL_MAP = [
   ['orden-lugar','lugar'], ['orden-fecha','fecha'], ['orden-num','orden'],
   ['orden-tecnico','tecnico'], ['orden-tecnico-dir','tecnico_domicilio'], ['orden-tecnico-tel','tecnico_telefono'],
@@ -2472,7 +2529,9 @@ function moverAPapel(id, key, overlay, fontSize, FIELDS){
   FIELDS = FIELDS || F1_FIELDS;
   const el = document.getElementById(id);
   if (!el || !FIELDS[key]) return;
-  papelOriginales[id] = { parent: el.parentNode, next: el.nextSibling };
+  const marcador = document.createComment('papel-slot-'+id);
+  el.parentNode.insertBefore(marcador, el);
+  papelOriginales[id] = { marcador };
   overlay.appendChild(el);
   el.style.cssText += f1BoxStyle(key, FIELDS) + `font-size:${fontSize||1.3}vw;margin:0;border:1px dashed rgba(10,22,40,.3);background:rgba(255,255,255,.03);`;
 }
@@ -2483,6 +2542,8 @@ function moverAPapel(id, key, overlay, fontSize, FIELDS){
 const PAPEL_MAP_F3 = [
   ['orden-lugar','lugar'], ['orden-fecha','fecha'], ['orden-num','orden'],
   ['orden-tecnico','tecnico'], ['orden-tecnico-dir','tecnico_domicilio'], ['orden-tecnico-tel','tecnico_telefono'],
+  ['chk3_revision','chk_revision'], ['chk3_conexiones','chk_conexiones'], ['chk3_instalacion','chk_instalacion'],
+  ['chk3_mantenimiento','chk_mantenimiento'], ['chk3_alta_tension','chk_alta_tension'], ['chk3_desconexion','chk_desconexion'], ['chk3_otros','chk_otros'],
   ['ord-trabajo','trabajo_realizar'],
   ['orden-obs','observaciones'], ['orden-excepcion','excepcion'],
 ];
@@ -2492,8 +2553,33 @@ const PAPEL_MAP_F4 = [
   ['chk_revision','chk_revision'], ['chk_instalacion','chk_instalacion'], ['chk_mantenimiento','chk_mantenimiento'],
   ['chk_optimizacion','chk_optimizacion'], ['chk_recarga','chk_recarga'], ['chk_desinstalacion','chk_desinstalacion'], ['chk_otros','chk_otros'],
   ['ord-marca','marca'], ['ord-cap','capacidad'], ['ord-ref','refrigerante'], ['ord-volt','voltaje'], ['ord-serie','serie'], ['ord-ubic','ubicacion'],
+  ['cond_1_si','cond_1_si'], ['cond_1_no','cond_1_no'], ['cond_1_na','cond_1_na'],
+  ['cond_2_si','cond_2_si'], ['cond_2_no','cond_2_no'], ['cond_2_na','cond_2_na'],
+  ['cond_3_si','cond_3_si'], ['cond_3_no','cond_3_no'], ['cond_3_na','cond_3_na'],
+  ['cond_4_si','cond_4_si'], ['cond_4_no','cond_4_no'], ['cond_4_na','cond_4_na'],
+  ['cond_5_si','cond_5_si'], ['cond_5_no','cond_5_no'], ['cond_5_na','cond_5_na'],
+  ['cond_6_si','cond_6_si'], ['cond_6_no','cond_6_no'], ['cond_6_na','cond_6_na'],
+  ['ord-vel-evap-antes','param_1_antes'], ['ord-vel-evap-desp','param_1_despues'],
+  ['ord-temp-evap-antes','param_2_antes'], ['ord-temp-evap-desp','param_2_despues'],
+  ['ord-vel-cond-antes','param_3_antes'], ['ord-vel-cond-desp','param_3_despues'],
+  ['ord-temp-cond-antes','param_4_antes'], ['ord-temp-cond-desp','param_4_despues'],
+  ['ord-corr-antes','param_5_antes'], ['ord-corr-desp','param_5_despues'],
+  ['ord-pres-antes','param_6_antes'], ['ord-pres-desp','param_6_despues'],
+  ['ord-cap-comp-antes','comp_1_antes'], ['ord-cap-comp-desp','comp_1_despues'],
+  ['ord-cap-vent-antes','comp_2_antes'], ['ord-cap-vent-desp','comp_2_despues'],
   ['ord-desc-serv','desc_servicio'], ['orden-obs','observaciones'], ['orden-excepcion','excepcion'],
 ];
+
+function marcarYMover(elOrSelector, idClave, overlay, extraStyle){
+  const el = (typeof elOrSelector === 'string') ? document.getElementById(elOrSelector) : elOrSelector;
+  if (!el) return null;
+  const marcador = document.createComment('papel-slot-'+idClave);
+  el.parentNode.insertBefore(marcador, el);
+  papelOriginales[idClave] = { marcador };
+  overlay.appendChild(el);
+  if (extraStyle) el.style.cssText += extraStyle;
+  return el;
+}
 
 function abrirPantallaPapel(modoNuevo){
   const overlay = document.getElementById('papel-f1-overlay');
@@ -2510,30 +2596,23 @@ function abrirPantallaPapel(modoNuevo){
   MAP.forEach(([id, key]) => moverAPapel(id, key, overlay, null, FIELDS));
 
   const wrap = document.querySelector('.autocomplete-wrap[data-ctx="cliente"]');
-  if (wrap) {
-    papelOriginales['__clienteWrap'] = { parent: wrap.parentNode, next: wrap.nextSibling };
-    overlay.appendChild(wrap);
-    wrap.style.cssText += f1BoxStyle('nombre', FIELDS) + 'margin:0;';
-  }
+  if (wrap) marcarYMover(wrap, '__clienteWrap', overlay, f1BoxStyle('nombre', FIELDS) + 'margin:0;');
+
   const dir = document.getElementById('orden-cliente-dir');
   const tel = document.getElementById('orden-cliente-tel');
-  if (dir) { papelOriginales['orden-cliente-dir'] = {parent:dir.parentNode, next:dir.nextSibling}; overlay.appendChild(dir); dir.style.cssText += f1BoxStyle('domicilio', FIELDS) + 'font-size:1.1vw;color:#0a1628;'; }
-  if (tel) { papelOriginales['orden-cliente-tel'] = {parent:tel.parentNode, next:tel.nextSibling}; overlay.appendChild(tel); tel.style.cssText += f1BoxStyle('telefono', FIELDS) + 'font-size:1.1vw;color:#0a1628;'; }
+  if (dir) marcarYMover(dir, 'orden-cliente-dir', overlay, f1BoxStyle('domicilio', FIELDS) + 'font-size:1.1vw;color:#0a1628;');
+  if (tel) marcarYMover(tel, 'orden-cliente-tel', overlay, f1BoxStyle('telefono', FIELDS) + 'font-size:1.1vw;color:#0a1628;');
 
   const gd = document.getElementById('orden-gar-desde'), gh = document.getElementById('orden-gar-hasta');
   if (gd && FIELDS['gar_desde_d']) {
-    papelOriginales['orden-gar-desde'] = {parent:gd.parentNode, next:gd.nextSibling};
-    overlay.appendChild(gd);
     const r1=FIELDS['gar_desde_d'], r2=FIELDS['gar_desde_a'];
     const left=r1[0]/F1_PAGE_W_CSS*100, top=(F1_PAGE_H_CSS-r1[3])/F1_PAGE_H_CSS*100, width=(r2[2]-r1[0])/F1_PAGE_W_CSS*100, height=(r1[3]-r1[1])/F1_PAGE_H_CSS*100;
-    gd.style.cssText += `position:absolute;left:${left}%;top:${top}%;width:${width}%;height:${height}%;margin:0;font-size:1.2vw;`;
+    marcarYMover(gd, 'orden-gar-desde', overlay, `position:absolute;left:${left}%;top:${top}%;width:${width}%;height:${height}%;margin:0;font-size:1.2vw;`);
   }
   if (gh && FIELDS['gar_hasta_d']) {
-    papelOriginales['orden-gar-hasta'] = {parent:gh.parentNode, next:gh.nextSibling};
-    overlay.appendChild(gh);
     const r1=FIELDS['gar_hasta_d'], r2=FIELDS['gar_hasta_a'];
     const left=r1[0]/F1_PAGE_W_CSS*100, top=(F1_PAGE_H_CSS-r1[3])/F1_PAGE_H_CSS*100, width=(r2[2]-r1[0])/F1_PAGE_W_CSS*100, height=(r1[3]-r1[1])/F1_PAGE_H_CSS*100;
-    gh.style.cssText += `position:absolute;left:${left}%;top:${top}%;width:${width}%;height:${height}%;margin:0;font-size:1.2vw;`;
+    marcarYMover(gh, 'orden-gar-hasta', overlay, `position:absolute;left:${left}%;top:${top}%;width:${width}%;height:${height}%;margin:0;font-size:1.2vw;`);
   }
 
   const materialesBlock = document.getElementById('bloque-materiales-orden');
@@ -2542,20 +2621,18 @@ function abrirPantallaPapel(modoNuevo){
   if (fmt === '1') {
     const artWrap = document.querySelector('.autocomplete-wrap[data-ctx="articulo"]');
     if (artWrap) {
-      papelOriginales['__artWrap'] = { parent: artWrap.parentNode, next: artWrap.nextSibling };
-      overlay.appendChild(artWrap);
       const r = F1_FIELDS['mat_desc_0_0'];
       const left = r[0]/F1_PAGE_W_CSS*100, width = (299.6-r[0])/F1_PAGE_W_CSS*100;
       const top = (F1_PAGE_H_CSS-(r[3]+17))/F1_PAGE_H_CSS*100, height = 15/F1_PAGE_H_CSS*100;
-      artWrap.style.cssText += `position:absolute;left:${left}%;top:${top}%;width:${width}%;height:${height}%;margin:0;z-index:6;`;
+      marcarYMover(artWrap, '__artWrap', overlay, `position:absolute;left:${left}%;top:${top}%;width:${width}%;height:${height}%;margin:0;z-index:6;`);
     }
-    if (materialesBlock) { papelOriginales['bloque-materiales-orden'] = {parent:materialesBlock.parentNode, next:materialesBlock.nextSibling}; document.getElementById('papel-f1-extra').appendChild(materialesBlock); materialesBlock.style.display = 'none'; }
+    if (materialesBlock) { marcarYMover(materialesBlock, 'bloque-materiales-orden', document.getElementById('papel-f1-extra')); materialesBlock.style.display = 'none'; }
     renderMaterialesPapel();
   } else {
     // F3 y F4: sus formatos de papel no tienen cuadrícula de materiales — se deja oculta por ahora.
-    if (materialesBlock) { papelOriginales['bloque-materiales-orden'] = {parent:materialesBlock.parentNode, next:materialesBlock.nextSibling}; document.getElementById('papel-f1-extra').appendChild(materialesBlock); materialesBlock.style.display = 'none'; }
+    if (materialesBlock) { marcarYMover(materialesBlock, 'bloque-materiales-orden', document.getElementById('papel-f1-extra')); materialesBlock.style.display = 'none'; }
   }
-  if (fotosBlock) { papelOriginales['bloque-fotos-orden'] = {parent:fotosBlock.parentNode, next:fotosBlock.nextSibling}; document.getElementById('papel-f1-extra').appendChild(fotosBlock); }
+  if (fotosBlock) marcarYMover(fotosBlock, 'bloque-fotos-orden', document.getElementById('papel-f1-extra'));
 
   document.getElementById('papel-f1-titulo').textContent = (modoNuevo ? 'Nueva Orden — ' : 'Editar Orden — ') + tituloFmt;
   showScreen('screen-orden-f1');
@@ -2568,8 +2645,8 @@ function cerrarPantallaPapel(){
     else if (id==='__artWrap') el = document.querySelector('#papel-f1-overlay .autocomplete-wrap[data-ctx="articulo"]');
     else el = document.getElementById(id);
     if (!el) return;
-    const { parent, next } = papelOriginales[id];
-    if (next) parent.insertBefore(el, next); else parent.appendChild(el);
+    const { marcador } = papelOriginales[id];
+    if (marcador && marcador.parentNode) marcador.parentNode.replaceChild(el, marcador);
     el.style.position=''; el.style.left=''; el.style.top=''; el.style.width=''; el.style.height='';
     el.style.fontSize=''; el.style.margin=''; el.style.border=''; el.style.background=''; el.style.zIndex='';
   });
