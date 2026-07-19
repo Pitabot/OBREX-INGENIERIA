@@ -552,7 +552,7 @@
   </div>
   <img class="intro-wordmark" src="./logo-wordmark.png" alt="OBREX Ingeniería"/>
   <div class="intro-skip">Toca para continuar</div>
-  <p class="footer-tag">obrexv4.0.15.selectorFormato</p>
+  <p class="footer-tag">obrexv4.0.16-limpieza</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -575,7 +575,7 @@
     <button class="btn btn-primary" onclick="doLogin()">Ingresar</button>
     <p id="login-error" style="color:var(--red);font-size:13px;margin-top:12px;text-align:center;display:none"></p>
   </div>
-  <p class="footer-tag">obrexv4.0.15.selectorFormato</p>
+  <p class="footer-tag">obrexv4.0.16-limpieza</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -2086,6 +2086,8 @@ function openNuevaOrden(formatoInicial) {
   document.getElementById('orden-gar-hasta').value     = '';
   document.getElementById('orden-excepcion').value     = '';
   CHK_IDS.forEach(id => { const cb = document.getElementById(id); if (cb) cb.checked = false; });
+  CHK_IDS_F3.forEach(id => { const cb = document.getElementById(id); if (cb) cb.checked = false; });
+  for (let i=1; i<=6; i++) { ['si','no','na'].forEach(op => { const cb = document.getElementById('cond_'+i+'_'+op); if (cb) cb.checked = false; }); }
   renderOrdenFormato();
   renderOrdenItems();
   renderOrdenFotos();
