@@ -552,7 +552,7 @@
   </div>
   <img class="intro-wordmark" src="./logo-wordmark.png" alt="OBREX Ingeniería"/>
   <div class="intro-skip">Toca para continuar</div>
-  <p class="footer-tag">obrexv5.0-nuevoCliente</p>
+  <p class="footer-tag">obrexv6.0</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -573,9 +573,19 @@
       <input id="inp-pass" type="password" placeholder="••••••••" autocomplete="current-password"/>
     </div>
     <button class="btn btn-primary" onclick="doLogin()">Ingresar</button>
+    <button type="button" class="btn-link" onclick="toggleRecuperarPass()" style="background:none;border:none;color:var(--gold);font-size:13px;text-decoration:underline;padding:8px 0;font-weight:500;width:100%;cursor:pointer">¿Olvidaste tu contraseña?</button>
     <p id="login-error" style="color:var(--red);font-size:13px;margin-top:12px;text-align:center;display:none"></p>
+
+    <div id="recuperar-pass-box" style="display:none;margin-top:18px;padding-top:16px;border-top:1px solid rgba(200,168,75,.15)">
+      <div class="field">
+        <label>Correo electrónico</label>
+        <input id="inp-recuperar-email" type="email" placeholder="correo@ejemplo.com" autocomplete="email"/>
+      </div>
+      <button class="btn btn-primary" onclick="enviarRecuperarPass()">Enviar link de recuperación</button>
+      <p id="recuperar-msg" style="font-size:12px;margin-top:10px;text-align:center;display:none"></p>
+    </div>
   </div>
-  <p class="footer-tag">obrexv5.0-nuevoCliente</p>
+  <p class="footer-tag">obrexv6.0</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -669,6 +679,14 @@
         <div class="field"><label>Banco</label><input id="cfg-banco" type="text" value="BBVA"/></div>
         <div class="field"><label>Cuenta / CLABE</label><input id="cfg-cuenta" type="text" value="4152 3145 9299 9596"/></div>
         <button class="btn btn-primary" onclick="guardarConfig()">Guardar configuración</button>
+      </div>
+      <div class="config-section" style="margin-top:24px">
+        <div class="section-title">Cambiar contraseña</div>
+        <div class="field"><label>Contraseña actual</label><input id="pass-actual" type="password" placeholder="••••••••" autocomplete="current-password"/></div>
+        <div class="field"><label>Contraseña nueva</label><input id="pass-nueva" type="password" placeholder="••••••••" autocomplete="new-password"/></div>
+        <div class="field"><label>Confirmar contraseña nueva</label><input id="pass-confirmar" type="password" placeholder="••••••••" autocomplete="new-password"/></div>
+        <button class="btn btn-primary" onclick="cambiarPassword()">Actualizar contraseña</button>
+        <p id="pass-msg" style="font-size:12px;margin-top:10px;text-align:center;display:none"></p>
       </div>
       <div class="config-section" style="margin-top:24px">
         <div class="section-title">Sesión</div>
@@ -1084,7 +1102,6 @@
 // ───────────────────────────────────────
 // FIREBASE CONFIG — reemplaza con los datos de tu proyecto
 // ───────────────────────────────────────
-
 const firebaseConfig = {
   apiKey: "AIzaSyBhQtYymTnYOcqSKiQprl7z91O0d26-s8s",
   authDomain: "obrex-ingenieria.firebaseapp.com",
@@ -1094,6 +1111,7 @@ const firebaseConfig = {
   appId: "1:658326612862:web:fe4807a9076bf0d449612f",
   measurementId: "G-NVQGR4J5EH",
 };
+
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.firestore();
@@ -1182,6 +1200,55 @@ function skipIntro() {
   else showScreen('screen-login');
 }
 setTimeout(skipIntro, 3200);
+
+async function cambiarPassword() {
+  const actual = document.getElementById('pass-actual').value;
+  const nueva = document.getElementById('pass-nueva').value;
+  const confirmar = document.getElementById('pass-confirmar').value;
+  const msg = document.getElementById('pass-msg');
+  msg.style.display = 'block';
+  if (!actual || !nueva || !confirmar) { msg.style.color = 'var(--red)'; msg.textContent = 'Completa los 3 campos'; return; }
+  if (nueva.length < 6) { msg.style.color = 'var(--red)'; msg.textContent = 'La contraseña nueva debe tener al menos 6 caracteres'; return; }
+  if (nueva !== confirmar) { msg.style.color = 'var(--red)'; msg.textContent = 'La confirmación no coincide con la contraseña nueva'; return; }
+  try {
+    const user = auth.currentUser;
+    const cred = firebase.auth.EmailAuthProvider.credential(user.email, actual);
+    await user.reauthenticateWithCredential(cred);
+    await user.updatePassword(nueva);
+    msg.style.color = '#7fe0ab';
+    msg.textContent = '✓ Contraseña actualizada correctamente';
+    document.getElementById('pass-actual').value = '';
+    document.getElementById('pass-nueva').value = '';
+    document.getElementById('pass-confirmar').value = '';
+  } catch(e) {
+    msg.style.color = 'var(--red)';
+    msg.textContent = (e.code === 'auth/wrong-password') ? 'La contraseña actual no es correcta' : 'Error al actualizar: ' + e.message;
+  }
+}
+
+function toggleRecuperarPass() {
+  const box = document.getElementById('recuperar-pass-box');
+  const abierto = box.style.display === 'block';
+  box.style.display = abierto ? 'none' : 'block';
+  document.getElementById('recuperar-msg').style.display = 'none';
+  if (!abierto) document.getElementById('inp-recuperar-email').value = document.getElementById('inp-email').value || '';
+}
+
+async function enviarRecuperarPass() {
+  const email = document.getElementById('inp-recuperar-email').value.trim();
+  const msg = document.getElementById('recuperar-msg');
+  if (!email) { msg.style.color = 'var(--red)'; msg.textContent = 'Ingresa tu correo'; msg.style.display = 'block'; return; }
+  try {
+    await auth.sendPasswordResetEmail(email);
+    msg.style.color = '#7fe0ab';
+    msg.textContent = '✓ Revisa tu correo, te enviamos un link para poner una nueva contraseña';
+    msg.style.display = 'block';
+  } catch(e) {
+    msg.style.color = 'var(--red)';
+    msg.textContent = e.code === 'auth/user-not-found' ? 'No hay una cuenta con ese correo' : 'Error al enviar el correo';
+    msg.style.display = 'block';
+  }
+}
 
 async function doLogin() {
   const email = document.getElementById('inp-email').value.trim();
