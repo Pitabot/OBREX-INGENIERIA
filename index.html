@@ -552,7 +552,7 @@
   </div>
   <img class="intro-wordmark" src="./logo-wordmark.png" alt="OBREX Ingeniería"/>
   <div class="intro-skip">Toca para continuar</div>
-  <p class="footer-tag">obrexv4.0.16-limpieza</p>
+  <p class="footer-tag">obrexv5.0-nuevoCliente</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -575,7 +575,7 @@
     <button class="btn btn-primary" onclick="doLogin()">Ingresar</button>
     <p id="login-error" style="color:var(--red);font-size:13px;margin-top:12px;text-align:center;display:none"></p>
   </div>
-  <p class="footer-tag">obrexv4.0.16-limpieza</p>
+  <p class="footer-tag">obrexv5.0-nuevoCliente</p>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -709,7 +709,7 @@
 </div><!-- /screen-app -->
 
 <!-- FAB dinámico -->
-<div id="fab-menu-ordenes" style="display:none;position:fixed;right:24px;bottom:92px;z-index:99;flex-direction:column;gap:8px">
+<div id="fab-menu-ordenes" style="display:none;position:fixed;right:24px;bottom:150px;z-index:99;flex-direction:column;gap:8px">
   <button class="btn btn-secondary" style="width:auto;padding:10px 18px;white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,.3)" onclick="fabSeleccionarFormato('4')">Orden F4</button>
   <button class="btn btn-secondary" style="width:auto;padding:10px 18px;white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,.3)" onclick="fabSeleccionarFormato('3')">Orden F3</button>
 </div>
@@ -730,6 +730,23 @@
 ═══════════════════════════════════════ -->
 
 <!-- Modal Cliente -->
+<div class="modal-overlay" id="modal-cliente-rapido">
+  <div class="modal-sheet" style="max-width:380px">
+    <div class="modal-header">
+      <h3>Cliente nuevo</h3>
+      <button class="modal-close" onclick="closeModal('modal-cliente-rapido')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field"><label>Nombre</label><input id="clir-nombre" type="text" placeholder="Nombre del cliente"/></div>
+      <div class="field"><label>Domicilio</label><input id="clir-dir" type="text" placeholder="Calle y número"/></div>
+      <div class="field"><label>Colonia</label><input id="clir-colonia" type="text" placeholder="Colonia"/></div>
+      <div class="field"><label>Ciudad</label><input id="clir-ciudad" type="text" placeholder="Ciudad" value="Coatzacoalcos"/></div>
+      <div class="field"><label>Teléfono</label><input id="clir-tel" type="text" placeholder="Teléfono"/></div>
+      <button class="btn btn-primary" onclick="guardarClienteRapido()">Guardar y seleccionar</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-cliente">
   <div class="modal-sheet">
     <div class="modal-header">
@@ -990,7 +1007,8 @@
       <div class="field">
         <label>Cliente</label>
         <div class="autocomplete-wrap" data-ctx="cliente">
-          <input id="orden-cliente-input" type="text" placeholder="Buscar cliente…" oninput="autocompleteCliente(this.value,'orden')" onfocus="autocompleteCliente(this.value,'orden')" autocomplete="off"/>
+          <input id="orden-cliente-input" type="text" placeholder="Buscar cliente…" oninput="autocompleteCliente(this.value,'orden')" onfocus="autocompleteCliente(this.value,'orden')" autocomplete="off" style="padding-right:34px"/>
+          <button type="button" id="btn-cliente-rapido" onclick="abrirClienteRapido()" title="Agregar cliente nuevo" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;background:var(--gold);color:var(--navy);border:none;font-size:16px;line-height:1;font-weight:800;cursor:pointer;z-index:4">+</button>
           <div class="autocomplete-list" id="orden-cliente-list"></div>
         </div>
         <input type="hidden" id="orden-cliente-id"/>
@@ -1066,6 +1084,7 @@
 // ───────────────────────────────────────
 // FIREBASE CONFIG — reemplaza con los datos de tu proyecto
 // ───────────────────────────────────────
+
 const firebaseConfig = {
   apiKey: "AIzaSyBhQtYymTnYOcqSKiQprl7z91O0d26-s8s",
   authDomain: "obrex-ingenieria.firebaseapp.com",
@@ -1075,7 +1094,6 @@ const firebaseConfig = {
   appId: "1:658326612862:web:fe4807a9076bf0d449612f",
   measurementId: "G-NVQGR4J5EH",
 };
-
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.firestore();
@@ -1353,6 +1371,35 @@ async function guardarCliente() {
     actualizarDashboard();
     toast(id ? 'Cliente actualizado' : 'Cliente guardado');
   } catch(e) { toast('Error al guardar'); }
+}
+
+function abrirClienteRapido() {
+  document.getElementById('clir-nombre').value = '';
+  document.getElementById('clir-dir').value = '';
+  document.getElementById('clir-colonia').value = '';
+  document.getElementById('clir-ciudad').value = 'Coatzacoalcos';
+  document.getElementById('clir-tel').value = '';
+  openModal('modal-cliente-rapido');
+}
+
+async function guardarClienteRapido() {
+  const data = {
+    nombre:  document.getElementById('clir-nombre').value.trim().toUpperCase(),
+    dir:     document.getElementById('clir-dir').value.trim().toUpperCase(),
+    colonia: document.getElementById('clir-colonia').value.trim().toUpperCase(),
+    ciudad:  document.getElementById('clir-ciudad').value.trim().toUpperCase(),
+    tel:     document.getElementById('clir-tel').value.trim(),
+  };
+  if (!data.nombre) { toast('Ingresa el nombre'); return; }
+  try {
+    const ref = db.collection('clientes').doc();
+    await ref.set(data);
+    await cargarClientes();
+    actualizarDashboard();
+    closeModal('modal-cliente-rapido');
+    selectCliente(ref.id, 'orden');
+    toast('Cliente creado y seleccionado');
+  } catch(e) { toast('Error al guardar cliente'); }
 }
 
 async function eliminarCliente(id) {
@@ -2064,6 +2111,7 @@ function renderOrdenFormato() {
 }
 
 function openNuevaOrden(formatoInicial) {
+  if (papelPantallaActiva) cerrarPantallaPapel(); // evita que queden campos de una orden anterior sin restaurar
   ordenItems = [];
   ordenFotos = [];
   const maxNum = ordenes.reduce((m,o)=>Math.max(m,Number(o.num)||0),0);
@@ -2119,6 +2167,7 @@ function usarFormularioClasico() {
 }
 
 function editarOrden(id) {
+  if (papelPantallaActiva) cerrarPantallaPapel(); // evita que queden campos de una orden anterior sin restaurar
   const o = ordenes.find(x=>x.id===id); if(!o) return;
   ordenItems = o.items ? JSON.parse(JSON.stringify(o.items)) : [];
   ordenFotos = [];
